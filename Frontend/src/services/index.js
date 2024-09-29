@@ -9,7 +9,6 @@ import ROUTER from "src/router"
  * Parse error response
  */
 function parseError(messages) {
-  // error
   if (messages) {
     if (messages instanceof Array) {
       return Promise.reject({ messages })
@@ -32,10 +31,6 @@ export function parseBody(response) {
   }
   if (+response?.status < 500 && +response?.status !== 200) {
     return
-    // notice({
-    //   msg: `Hệ thống xảy ra lỗi. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ (SC${response?.status})`,
-    //   isSuccess: false,
-    // });
   }
 
   if (response?.status === 200) {
@@ -43,8 +38,8 @@ export function parseBody(response) {
       deleteStorage(STORAGE.TOKEN)
       return window.location.replace(ROUTER.HOME)
     }
-    if (resData.Status === -2) return resData // ma sp, ten sp ton tai
-    if (resData.Status === 0) return resData // API tra ve success
+    if (resData.Status === -2) return resData
+    if (resData.Status === 0) return resData
 
     if (resData.Status !== -1 && resData.Status !== 69 && resData.Object) {
       notice({
@@ -69,6 +64,7 @@ export function parseBody(response) {
 const instance = axios.create({
   // baseURL: '',
   timeout: 60000,
+  withCredentials: true, // Thêm thuộc tính withCredentials để gửi kèm cookies với request
 })
 
 // Request header
@@ -94,12 +90,12 @@ instance.interceptors.response.use(
     // can not connect API
     if (error.code === "ECONNABORTED") {
       notice({
-        msg: "Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ ",
+        msg: "Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ",
         isSuccess: false,
       })
     } else if (+error?.response?.status >= 500) {
       notice({
-        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ `,
+        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
         isSuccess: false,
       })
     } else if (
@@ -119,13 +115,13 @@ instance.interceptors.response.use(
       notice({ msg: error.response, isSuccess: false })
     } else if (error.response) {
       notice({
-        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ `,
+        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
         isSuccess: false,
       })
       return parseError(error.response.data)
     } else {
       notice({
-        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ `,
+        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
         isSuccess: false,
       })
     }
@@ -135,9 +131,13 @@ instance.interceptors.response.use(
 
 export default instance
 
+/**
+ * Hàm GET file với axios
+ */
 export const httpGetFile = (path = "", optionalHeader = {}) =>
   instance({
     method: "GET",
     url: path,
     headers: { ...optionalHeader },
   })
+
