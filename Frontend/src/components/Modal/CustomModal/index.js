@@ -32,3 +32,4 @@ CustomModal.defaultProps = {
   hiddenScroll: false,
   className: "",
 }
+

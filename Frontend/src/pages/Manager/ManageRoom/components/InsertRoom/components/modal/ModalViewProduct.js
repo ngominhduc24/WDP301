@@ -28,18 +28,15 @@ const ModalViewProduct = ({ visible, onCancel, product }) => {
           <Col span={12} className="mt-40">
             <Row gutter={[16, 16]}>
               <Col span={24}>
-                <strong>Tên sản phẩm:</strong> {product?.productId?.name}
+                <strong>Tên sản phẩm:</strong> {product?.name}
               </Col>
               <Col span={24}>
                 <strong>Mô tả:</strong>{" "}
-                <Tooltip title={product?.productId?.description}>
+                <Tooltip title={product?.description}>
                   <span>
-                    {product?.productId?.description?.length > 100
-                      ? `${product?.productId?.description.substring(
-                          0,
-                          100,
-                        )}...`
-                      : product?.productId?.description}
+                    {product?.description?.length > 100
+                      ? `${product?.description.substring(0, 100)}...`
+                      : product?.description}
                   </span>
                 </Tooltip>
               </Col>
@@ -60,10 +57,10 @@ const ModalViewProduct = ({ visible, onCancel, product }) => {
               </Col>
             </Row>
           </Col>
-          {/* Product Image */}
+
           <Col span={12} style={{ textAlign: "center" }}>
             <img
-              src={product?.productId?.image}
+              src={product?.image}
               alt="product"
               style={{ width: "80%", height: "auto", maxHeight: "400px" }}
             />
@@ -75,4 +72,3 @@ const ModalViewProduct = ({ visible, onCancel, product }) => {
 }
 
 export default ModalViewProduct
-

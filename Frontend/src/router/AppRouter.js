@@ -33,7 +33,12 @@ const ManagerRoutes = React.lazy(() =>
 const ManagerDashBoard = React.lazy(() =>
   import("src/pages/Manager/ManagerManageDashboard"),
 )
-
+const ManagerManageHouses = React.lazy(() =>
+  import("src/pages/Manager/ManageHouse"),
+)
+const ManagerManageRoom = React.lazy(() =>
+  import("src/pages/Manager/ManageRoom"),
+)
 // STAFF
 const StaffRoutes = React.lazy(() => import("src/pages/Staff/StaffRoutes"))
 const ManageOrders = React.lazy(() => import("src/pages/Staff/ManageOrders"))
@@ -183,6 +188,22 @@ const routes = [
         ),
       },
       {
+        path: ROUTER.MANAGER_HOUSE,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerManageHouses />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.MANAGER_ROOM,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerManageRoom />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
         path: ROUTER.MANAGER_PROFILE,
         element: (
           <LazyLoadingComponent>
@@ -233,4 +254,3 @@ const AppRouter = () => {
   return renderRouter
 }
 export default AppRouter
-

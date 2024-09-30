@@ -1,101 +1,93 @@
 import { Col, Divider, Form, Row, Upload } from "antd"
 import React, { useEffect, useState } from "react"
-import RowInfor from "./components/RowInfor"
 import Button from "src/components/MyButton/Button"
-import UpdatePersonProfile from "./components/UpdatePersonProfile"
 import { normFile } from "src/lib/utils"
 import { useDispatch, useSelector } from "react-redux"
 import { UserOutlined } from "@ant-design/icons"
 import SvgIcon from "src/components/SvgIcon"
 import { StyleMyAccount } from "./styled"
 import STORAGE, { getStorage } from "src/lib/storage"
-import { setUserInfo } from "src/redux/appGlobal"
 import Notice from "src/components/Notice"
 import LayoutCommon from "src/components/Common/Layout"
 import useWindowSize from "src/lib/useWindowSize"
-import { getListComboByKey } from "src/lib/utils"
-import { SYSTEM_KEY } from "src/constants/constants"
 import UserService from "src/services/UserService"
-import moment from "moment"
-
+import moment from "moment/moment"
+import ModalInsertUpdateProfile from "./components/UpdatePersonProfile"
 const PersonProfile = () => {
   const dispatch = useDispatch()
-  const { listSystemKey } = useSelector(state => state.appGlobal)
   const [modalUpdatePersonProfile, setModalUpdatePersonProfile] =
     useState(false)
   const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState({})
+  // const [user, setUser] = useState({})
   const [avatarUpload, setAvatarUpload] = useState("")
-  const [showCancelButton, setShowCancelButton] = useState(false)
   const [avatarUpdated, setAvatarUpdated] = useState(false)
-  const userID = getStorage(STORAGE.USER_ID);
-console.log("userid: ", userID);
+  const userID = getStorage(STORAGE.USER_ID)
+  const user = getStorage(STORAGE.USER_INFO)
+  console.log(user)
+  // Upload ảnh đại diện
   const uploadImg = async file => {
     try {
       setLoading(true)
       const formData = new FormData()
       formData.append("image", file)
-      const res = await UserService.uploadFile(formData);
+      const res = await UserService.uploadFile(formData)
       setAvatarUpload(file)
-    }catch{
-      console.log("upload file error");
+    } catch {
+      console.log("Upload file error")
     } finally {
       setLoading(false)
     }
   }
 
-  //getInfor User
-  const getInfo = async () => {
-    try {
-      setLoading(true)
-      // const res = await UserService.getUserById("667a3003848f2fe6f3fa6664")
-      const res = await UserService.getUserById(userID)
-      console.log('API response:', res) 
-      if (res?.isError) return
-      setUser(res)
-      // console.log('user:', user.email);
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Lấy thông tin người dùng
+  // const getInfo = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const res = await UserService.getUserById(userID)
+  //     console.log("API response:", res)
+  //     if (res?.isError) return
+  //     setUser(res)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
-  useEffect(() => {
-    getInfo();
-  }, [avatarUpdated]);
+  // useEffect(() => {
+  //   getInfo()
+  // }, [avatarUpdated])
 
-  const changeAvatar = async () => {
-    try {
-      setLoading(true)
-      // setShowCancelButton(false)
-      const formData = new FormData();
-      formData.append("image", avatarUpload);
-      const res = await UserService.changeAvatar(userID, formData);
-      if (res?.status === 200) {
-        setUser(prevUser => ({
-          ...prevUser,
-          image: res?.image
-        }));
-        Notice({ msg: "Cập nhật thành công!" })
-        setAvatarUpload("")
-        setAvatarUpdated(!avatarUpdated);
-      }else {
-        throw new Error('Failed to update avatar');
-      }
+  // Đổi ảnh đại diện
+  // const changeAvatar = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const formData = new FormData()
+  //     formData.append("image", avatarUpload)
+  //     const res = await UserService.changeAvatar(userID, formData)
+  //     if (res?.status === 200) {
+  //       setUser(prevUser => ({
+  //         ...prevUser,
+  //         avatar: res?.image,
+  //       }))
+  //       Notice({ msg: "Cập nhật thành công!" })
+  //       setAvatarUpload("")
+  //       setAvatarUpdated(!avatarUpdated)
+  //     } else {
+  //       throw new Error("Failed to update avatar")
+  //     }
+  //   } catch {
+  //     console.log("Change avatar error")
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
-  }catch{
-      console.log("change ava error");
-    }
-     finally {
-      setLoading(false)
-    }
-  }
+  // Hủy thay đổi ảnh đại diện
   const cancelUpload = () => {
-    setShowCancelButton(false)
     setAvatarUpload("")
   }
 
-
   const isMobile = useWindowSize.isMobile() || false
+
   return (
     <StyleMyAccount>
       <LayoutCommon>
@@ -123,7 +115,7 @@ console.log("userid: ", userID);
                 <Form.Item
                   valuePropName="fileList"
                   getValueFromEvent={normFile}
-                  name="Avatar2"
+                  name="Avatar"
                   className="d-flex-center "
                   rules={[
                     () => ({
@@ -152,21 +144,17 @@ console.log("userid: ", userID);
                       <div className="d-flex justify-content-center">
                         <div className="wrap-avatar">
                           <div className="user-img-box">
-                            {!!avatarUpload || !!user?.image ? (
+                            {!!avatarUpload || !!user?.avatar ? (
                               <img
                                 className="user-avatar"
-                                src={avatarUpload ? URL.createObjectURL(avatarUpload) : user?.image}
+                                src={
+                                  avatarUpload
+                                    ? URL.createObjectURL(avatarUpload)
+                                    : user?.avatar
+                                }
                                 alt="avatar"
                               />
                             ) : (
-                              // <div
-                              //   className="user-avatar"
-                              //   style={{ backgroundColor: "#ddd" }}
-                              // >
-                              //   <UserOutlined
-                              //     style={{ fontSize: "150px", color: "#fff" }}
-                              //   />
-                              // </div>
                               <div
                                 className="user-avatar"
                                 style={{
@@ -206,14 +194,14 @@ console.log("userid: ", userID);
                                   style={{ width: 100 }}
                                   onClick={e => {
                                     e.stopPropagation()
-                                    changeAvatar()
-                                    console.log("luu anh");
+                                    // changeAvatar()
+                                    console.log("Lưu ảnh")
                                   }}
                                 >
                                   Lưu ảnh
                                 </Button>
                               </>
-                             )}
+                            )}
                           </div>
                         </div>
                       </div>
@@ -234,41 +222,38 @@ console.log("userid: ", userID);
             <Col xs={24} sm={12} md={12} lg={12} xl={8} xxl={8}>
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
-                  <div className="title-infor"> Họ và tên:</div>
-                  <div>{user?.fullname}</div>
+                  <div className="title-infor">Họ và tên:</div>
+                  <div>{user?.name}</div>
                 </div>
-                {/* <div className="infor-box">
+                <div className="infor-box">
                   <div className="title-infor">Tên tài khoản:</div>
-                  <div>{user?.UserName}</div>
-                </div> */}
-
-                {/* <div className="infor-box" style={{ flex: 1 }}>
-                  <div className="title-infor"> Giới tính:</div>
-                  <div>
-                    {user?.Sex === 1 ? "Nam" : user?.Sex === 2 ? "Nữ" : ""}
-                  </div>
-                </div> */}
-
-                <div className="infor-box" style={{ flex: 1 }}>
-                  <div className="title-infor">Ngày sinh:</div>
-                  <div>
-                    {/* {user?.dob
-                      ? moment(user?.dob).format("DD/MM/YYYY")
-                      : ""} */}
-                      {user?.dob}
-                  </div>
+                  <div>{user?.username}</div>
+                </div>
+                <div className="infor-box">
+                  <div className="title-infor">Email:</div>
+                  <div>{user?.email}</div>
+                </div>
+                <div className="infor-box">
+                  <div className="title-infor">Loại tài khoản:</div>
+                  <div>{user?.accountType}</div>
                 </div>
               </div>
             </Col>
             <Col xs={24} sm={12} md={12} lg={12} xl={8} xxl={8}>
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
-                  <div className="title-infor"> Số điện thoại:</div>
-                  <div>{user?.phone}</div>
+                  <div className="title-infor">Số điện thoại:</div>
+                  <div>{user?.phone || "Chưa cập nhật"}</div>
                 </div>
                 <div className="infor-box">
-                  <div className="title-infor"> Email:</div>
-                  <div>{user?.email}</div>
+                  <div className="title-infor">Trạng thái tài khoản:</div>
+                  <div>
+                    {user?.status ? "Đang hoạt động" : "Dừng hoạt động"}
+                  </div>
+                </div>
+                <div className="infor-box">
+                  <div className="title-infor">Ngày tạo:</div>
+                  <div>{moment(user?.createdAt).format("DD/MM/YYYY")}</div>
                 </div>
               </div>
             </Col>
@@ -277,10 +262,12 @@ console.log("userid: ", userID);
       </LayoutCommon>
 
       {!!modalUpdatePersonProfile && (
-        <UpdatePersonProfile
+        <ModalInsertUpdateProfile
           open={modalUpdatePersonProfile}
+          userProfile={user}
           onCancel={() => setModalUpdatePersonProfile(false)}
-          onOk={() => {getInfo();
+          onOk={() => {
+            // getInfo()
             setModalUpdatePersonProfile(false)
           }}
         />

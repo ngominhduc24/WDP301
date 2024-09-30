@@ -1,27 +1,25 @@
 import { Col, Row, Space, Tooltip, Modal } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
-import CB1 from "src/components/Modal/CB1"
 import Button from "src/components/MyButton/Button"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "./components/SearchAndFilter"
-import InsertUpdateProduct from "./components/InsertUpdateProduct"
-import ModalViewProduct from "./components/ModalViewProduct"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import ManagerService from "src/services/ManagerService"
-import UpdateProduct from "./components/UpdateProduct"
-const ManageProduct = () => {
-  const [shopProducts, setShopProducts] = useState([])
-  const [shopId, setShopId] = useState("")
+import ModalInsertHouse from "./components/InsertHouse"
+import ModalUpdateHouse from "./components/UpdateHouse"
+import ModalViewHouse from "./components/ModalViewHouse"
+
+const ManageHouse = () => {
+  const [houses, setHouses] = useState([])
   const [total, setTotal] = useState(0)
-  const [openInsertUpdateProducts, setOpenInsertUpdateProducts] =
-    useState(false)
-  const [openUpdateProducts, setOpenUpdateProducts] = useState(false)
-  const [openViewProducts, setOpenViewProducts] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [openInsertHouses, setOpenInsertHouses] = useState(false)
+  const [openUpdateHouses, setOpenUpdateHouses] = useState(false)
+  const [openViewHouses, setOpenViewHouses] = useState(false)
+  const [selectedHouse, setSelectedHouse] = useState(null)
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -34,27 +32,85 @@ const ManageProduct = () => {
     Status: 0,
   })
 
+  // Biến chứa dữ liệu mẫu (sample data)
+  const dataSample = [
+    {
+      _id: "1",
+      houseName: "Căn hộ Vinhome",
+      numberOfRooms: 3,
+      address: "72 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh",
+      electricityPrice: "3000",
+      waterPrice: "15000",
+      amenities: {
+        balcony: true,
+        wifi: true,
+        camera: false,
+        airConditioner: true,
+      },
+      status: "active",
+      image: "https://via.placeholder.com/150",
+    },
+    {
+      _id: "2",
+      houseName: "Chung cư Tân Bình",
+      numberOfRooms: 2,
+      address: "123 Lý Thường Kiệt, Quận Tân Bình, TP. Hồ Chí Minh",
+      electricityPrice: "2500",
+      waterPrice: "13000",
+      amenities: {
+        balcony: false,
+        wifi: true,
+        camera: true,
+        airConditioner: false,
+      },
+      status: "inactive",
+      image: "https://via.placeholder.com/150",
+    },
+    {
+      _id: "3",
+      houseName: "Biệt thự Thảo Điền",
+      numberOfRooms: 4,
+      address: "456 Thảo Điền, Quận 2, TP. Hồ Chí Minh",
+      electricityPrice: "3500",
+      waterPrice: "20000",
+      amenities: {
+        balcony: true,
+        wifi: false,
+        camera: true,
+        airConditioner: true,
+      },
+      status: "active",
+      image: "https://via.placeholder.com/150",
+    },
+  ]
+
   useEffect(() => {
-    getShop()
+    getHouses()
   }, [pagination])
 
-  const getShop = async () => {
+  const getHouses = async () => {
     try {
       setLoading(true)
-      const shopRes = await ManagerService.getShop("666da2c059207cb17349144a")
-      console.log("API Response:", shopRes)
-      if (shopRes?.isError) {
-        console.error("Error:", shopRes.message)
-        return
+      const response = await ManagerService.getAllHouses(
+        pagination.CurrentPage || 1,
+        pagination.PageSize || 10,
+      )
+
+      console.log("API Response:", response)
+
+      // Sử dụng dữ liệu từ API nếu có, nếu không thì dùng dataSample
+      if (response && response.houses) {
+        setHouses(response.houses)
+        setTotal(response.total)
+      } else {
+        setHouses(dataSample) // Dùng dữ liệu mẫu nếu không có dữ liệu từ API
+        setTotal(dataSample.length)
       }
-      const shopId = shopRes?._id
-      const productsRes = await ManagerService.getListProductsInShop(shopId)
-      console.log("Products:", productsRes)
-      setShopId(shopId)
-      setShopProducts(productsRes)
-      setTotal(productsRes.length)
     } catch (error) {
-      console.error("Error :", error)
+      console.error("Error fetching houses:", error)
+      // Nếu xảy ra lỗi khi gọi API, hiển thị dữ liệu mẫu
+      setHouses(dataSample)
+      setTotal(dataSample.length)
     } finally {
       setLoading(false)
     }
@@ -63,12 +119,11 @@ const ManageProduct = () => {
   const listBtn = record => [
     {
       isEnable: true,
-      name: "Xem sản phẩm ",
+      name: "Xem nhà",
       icon: "eye",
       onClick: () => {
-        setSelectedProduct(record)
-        setOpenViewProducts(true)
-        console.log("Products:", record)
+        setSelectedHouse(record)
+        setOpenViewHouses(true)
       },
     },
     {
@@ -76,35 +131,16 @@ const ManageProduct = () => {
       name: "Chỉnh sửa",
       icon: "edit-green",
       onClick: () => {
-        setSelectedProduct(record)
-        setOpenUpdateProducts(true)
-        console.log("Products:", record)
-        console.log("id gi day", shopId)
+        setSelectedHouse(record)
+        setOpenUpdateHouses(true)
       },
     },
-    // {
-    //   isEnable: true,
-    //   name: "Xóa",
-    //   icon: "delete-red-row",
-    //   onClick: () =>
-    //     CB1({
-    //       record,
-    //       title: `bạn chắc chắn muốn xóa?`,
-    //       icon: "warning-usb",
-    //       okText: "Có",
-    //       cancelText: "Không",
-    //       onOk: async close => {
-    //         // handleDeleteBooking(record)
-    //         close()
-    //       },
-    //     }),
-    // },
   ]
 
   const column = [
     {
       title: "STT",
-      key: ["productId", "_id"],
+      key: "_id",
       width: 60,
       render: (text, row, idx) => (
         <div className="text-center">
@@ -113,39 +149,62 @@ const ManageProduct = () => {
       ),
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: ["productId", "name"],
+      title: "Tên Nhà ",
+      dataIndex: "houseName",
       width: 200,
-      key: "productName",
+      key: "houseName",
     },
     {
-      title: "Mô tả",
-      dataIndex: ["productId", "description"],
-      width: 200,
-      key: "description",
-      render: text => (
-        <Tooltip title={text}>
-          <span>
-            {text.length > 100 ? `${text.substring(0, 100)}...` : text}
-          </span>
-        </Tooltip>
-      ),
+      title: "Số phòng",
+      dataIndex: "numberOfRooms",
+      width: 60,
+      key: "numberOfRooms",
     },
     {
-      title: "Số lượng",
-      dataIndex: "quantity",
+      title: "Địa chỉ",
+      dataIndex: "address",
+      width: 300,
+      key: "address",
+    },
+    {
+      title: "Tiền điện",
+      dataIndex: "electricityPrice",
       width: 120,
-      key: "quantity",
+      key: "electricityPrice",
+      render: text => `${text} VND/kwH`,
+    },
+    {
+      title: "Tiền nước",
+      dataIndex: "waterPrice",
+      width: 120,
+      key: "waterPrice",
+      render: text => `${text} VND/m³`,
+    },
+    {
+      title: "Tiện ích",
+      dataIndex: "amenities",
+      width: 300,
+      key: "amenities",
+      render: amenities =>
+        amenities
+          ? Object.keys(amenities)
+              .filter(key => amenities[key])
+              .map(key => (
+                <span key={key} style={{ marginRight: 8 }}>
+                  {key}
+                </span>
+              ))
+          : "Không có tiện ích",
     },
     {
       title: "Ảnh",
-      dataIndex: ["productId", "image"],
+      dataIndex: "image",
       width: 120,
       key: "image",
       render: text => (
         <img
           src={text}
-          alt="product"
+          alt="house"
           style={{ width: 50, height: 50, cursor: "pointer" }}
           onClick={() => {
             setSelectedImage(text)
@@ -156,20 +215,18 @@ const ManageProduct = () => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["productId", "status"],
+      dataIndex: "status",
       align: "center",
-      width: 100,
-      key: "Status",
+      width: 150,
+      key: "status",
       render: (_, record) => (
         <span
           className={[
             "no-color",
-            record?.productId?.status === "active" ? "blue-text" : "red-text",
+            record.status === "active" ? "blue-text" : "red-text",
           ].join(" ")}
         >
-          {record?.productId?.status === "active"
-            ? "Đang hoạt động"
-            : "Dừng Hoạt Động"}
+          {record.status === "active" ? "Đang hoạt động" : "Dừng Hoạt Động"}
         </span>
       ),
     },
@@ -177,7 +234,7 @@ const ManageProduct = () => {
       title: "Chức năng",
       align: "center",
       key: "Action",
-      width: 100,
+      width: 150,
       render: (_, record) => (
         <Space>
           {listBtn(record).map(
@@ -199,12 +256,9 @@ const ManageProduct = () => {
   return (
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
-        <div>Quản lý sản phẩm trong cửa hàng</div>
+        <div>Quản lý danh sách nhà</div>
         <div>
-          <Button
-            btntype="third"
-            onClick={() => setOpenInsertUpdateProducts(true)}
-          >
+          <Button btntype="third" onClick={() => setOpenInsertHouses(true)}>
             Thêm mới
           </Button>
         </div>
@@ -214,11 +268,11 @@ const ManageProduct = () => {
         <Col span={24} className="mt-30 mb-20">
           <TableCustom
             isPrimary
-            rowKey="ProductId"
+            rowKey="_id"
             columns={column}
-            textEmpty="Chưa có sản phẩm nào trong kho"
-            dataSource={shopProducts}
-            scroll={{ x: "800px" }}
+            textEmpty="Chưa có nhà nào trong hệ thống"
+            dataSource={houses}
+            scroll={{ x: "1200px" }}
             pagination={{
               hideOnSinglePage: total <= 10,
               current: pagination?.CurrentPage,
@@ -242,35 +296,33 @@ const ManageProduct = () => {
         footer={null}
         onCancel={() => setImageModalVisible(false)}
       >
-        <img alt="product" style={{ width: "100%" }} src={selectedImage} />
+        <img alt="house" style={{ width: "100%" }} src={selectedImage} />
       </Modal>
-      {!!openInsertUpdateProducts && (
-        <InsertUpdateProduct
-          id={shopId}
-          open={openInsertUpdateProducts}
-          onCancel={() => setOpenInsertUpdateProducts(false)}
-          onOk={() => getShop()}
+      {!!openInsertHouses && (
+        <ModalInsertHouse
+          open={openInsertHouses}
+          onCancel={() => setOpenInsertHouses(false)}
+          onOk={getHouses}
         />
       )}
-      {!!openViewProducts && selectedProduct && (
-        <ModalViewProduct
-          visible={openViewProducts}
-          onCancel={() => setOpenViewProducts(false)}
-          product={selectedProduct}
+
+      {!!openUpdateHouses && (
+        <ModalUpdateHouse
+          open={openUpdateHouses}
+          onCancel={() => setOpenUpdateHouses(false)}
+          onOk={getHouses}
         />
       )}
-      {!!openUpdateProducts && selectedProduct && (
-        <UpdateProduct
-          id={shopId}
-          product={selectedProduct}
-          open={openUpdateProducts}
-          onCancel={() => setOpenUpdateProducts(false)}
-          onOk={() => getShop()}
+      {!!openViewHouses && (
+        <ModalViewHouse
+          open={openViewHouses}
+          onCancel={() => setOpenViewHouses(false)}
+          house={selectedHouse}
         />
       )}
     </SpinCustom>
   )
 }
 
-export default ManageProduct
+export default ManageHouse
 

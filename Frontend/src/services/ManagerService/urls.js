@@ -1,2 +1,2 @@
 // houses
-export const apiGetAllHouses = `api/house?option=all`
+export const apiGetAllHouses = `house?option=all`

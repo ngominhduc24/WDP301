@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { Card, Col, Row, Statistic, Table } from "antd"
 import ReactECharts from "echarts-for-react"
+import Cookies from "js-cookie"
 
 // Dữ liệu mẫu
 const dataFake = {
@@ -40,7 +41,10 @@ const columnsIssue = [
 
 const ManagerDashBoard = () => {
   const [info, setInfo] = useState(dataFake)
-
+  useEffect(() => {
+    const accessToken = Cookies.get("accessToken")
+    console.log(accessToken)
+  })
   // Cấu hình biểu đồ cột (Bar Chart)
   const barChartOption = {
     title: { text: "Thống Kê Phòng Trọ Theo Tháng (Năm 2024)" },
