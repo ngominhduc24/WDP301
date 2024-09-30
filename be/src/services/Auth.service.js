@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import TokenService from "./Token.service.js";
 import { customAlphabet } from "nanoid";
 import sendEmail from "../utils/mailer.js";
- 
+
 class AuthService {
     async login(req, res) {
         try {
@@ -23,7 +23,7 @@ class AuthService {
             if (!comparePassword) {
                 return res.status(401).json({ error: "Wrong password" });
             }
-            const {  password, refreshToken, ...others } = findAccount._doc;
+            const { password, refreshToken, ...others } = findAccount._doc;
             if (findAccount && comparePassword) {
                 const genAccessToken = await TokenService.genAccessToken(
                     findAccount._doc
@@ -33,6 +33,13 @@ class AuthService {
                 );
 
                 res.cookie("accessToken", genAccessToken, {
+                    httpOnly: false,
+                    secure: false,
+                    path: "/",
+                    sameSite: "lax",
+                });
+
+                res.cookie("refreshToken", genRefreshToken, {
                     httpOnly: false,
                     secure: false,
                     path: "/",
@@ -57,13 +64,13 @@ class AuthService {
         }
     }
     async register(req, res) {
-        const { email,username, password, name } = req.body;
+        const { email, username, password, name } = req.body;
 
         try {
             const checkEmailExists = await Account.findOne({ email: email });
             if (checkEmailExists !== null)
                 return res.status(400).json({ message: "Email has exists" });
-            const checkUsername = await Account.findOne({username})
+            const checkUsername = await Account.findOne({ username })
             if (checkUsername !== null) {
                 return res.status(400).json({ message: "Username has exists" });
             }
@@ -164,6 +171,61 @@ class AuthService {
                 .json({ message: "Successfully updated password" });
         }
     }
+
+    async refreshTokenHandler(req, res) {
+        try {
+            const { refreshToken, id } = req.body;
+            const account = await Account.findById(id);
+
+            if (!account) {
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Could not reset user password, because account not found !!",
+                    });
+            } else {
+                if (account.refreshToken !== refreshToken) {
+                    return res.status(401).json({ message: "Invalid refresh token" });
+                }
+
+                const genAccessToken = await TokenService.genAccessToken(
+                    account._doc
+                );
+                const genRefreshToken = await TokenService.genRefreshToken(
+                    account._doc
+                );
+
+                res.cookie("accessToken", genAccessToken, {
+                    httpOnly: false,
+                    secure: false,
+                    path: "/",
+                    sameSite: "lax",
+                });
+
+                res.cookie("refreshToken", genRefreshToken, {
+                    httpOnly: false,
+                    secure: false,
+                    path: "/",
+                    sameSite: "lax",
+                });
+                await Account.findByIdAndUpdate(
+                    { _id: account.id },
+                    { refreshToken: genRefreshToken }
+                );
+                return res
+                    .status(200)
+                    .json({
+                        message: "Refresh token Successfully",
+                    });
+            }
+        } catch(error) {
+            return res.status(500).json({
+                message: error.message,
+            });
+        }
+    }
+
 }
 
 export default new AuthService();
