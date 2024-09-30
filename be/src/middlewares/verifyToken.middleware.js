@@ -13,6 +13,9 @@ export const verifyToken = asyncHandler(async (req, res, next) => {
             req.user = user;
             next();
         } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json("Token has expired");
+            }
             return res.status(403).json("Token is not valid");
         }
     } else {
@@ -33,11 +36,11 @@ export const verifyTokenRenter = asyncHandler(async(req,res,next) => {
 
 export const verifyTokenManager = asyncHandler(async(req,res,next) => {
     await verifyToken(req,res, () => {
-        if (req.user.accountType === "manager") {
+        if (req.user.accountType === "host" || req.user.accountType === "admin") {
             next();
             
         }else{
-            return res.status(403).json("You are not an manager");
+            return res.status(403).json("You are not an manager or admin");
         }
     })
 })

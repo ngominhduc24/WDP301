@@ -2,6 +2,7 @@ import express from "express";
 import AccountController from "../controllers/Account.controller.js";
 import validateData from "../validations/ValidateData.js";
 import accountValidate from "../validations/Account.validate.js";
+import {verifyTokenManager} from "../middlewares/verifyToken.middleware.js";
 const AccountRoute = express.Router();
 
 

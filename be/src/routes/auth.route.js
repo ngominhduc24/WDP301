@@ -11,6 +11,7 @@ AuthRoute.post("/forgot-password", AuthController.forgotPasswordHandler);
 AuthRoute.post("/login", AuthController.login);
 AuthRoute.post("/register", validateData(accountValidate.validateRegister), AuthController.register);
 AuthRoute.get("/logout", verifyToken, AuthController.logout)
+AuthRoute.post("/refresh-token", AuthController.refreshTokenHandler)
 
 
 export default AuthRoute;

@@ -21,7 +21,9 @@ const AuthController = {
     resetPasswordHandler: asyncHandler(async (req, res) => {
         await AuthService.resetPasswordHandler(req, res);
     }),
-
+    refreshTokenHandler: asyncHandler(async (req, res) => {
+        await AuthService.refreshTokenHandler(req, res);
+    }),
 
 
 }

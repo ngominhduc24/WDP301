@@ -9,7 +9,7 @@ class Token {
         return jwt.sign({
             id: account._id,
             accountType: account.accountType,
-        }, ACCESS_KEY, { expiresIn: "10h" });
+        }, ACCESS_KEY, { expiresIn: "1m" });
     }
     async genRefreshToken(account) {
         return jwt.sign({
