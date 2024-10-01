@@ -8,7 +8,7 @@ import { StoreContext } from "src/lib/store"
 import { hasPermission } from "src/lib/utils"
 import ROUTER from "src/router"
 
-function StaffRoutes() {
+function RenterRoutes() {
   const { routerStore } = useContext(StoreContext)
   const [, setRouterBeforeLogin] = routerStore
   const userInfo = useSelector(state => state.appGlobal.userInfo)
@@ -28,8 +28,8 @@ function StaffRoutes() {
   const userRole = userInfo?.role
 
   return !!isLogin ? (
-    role.role === "STAFF" ? (
-      <MainLayout isStaff={true}>
+    role.accountType === "renter" ? (
+      <MainLayout isRenter={true}>
         <Outlet />
       </MainLayout>
     ) : (
@@ -53,5 +53,5 @@ function StaffRoutes() {
   )
 }
 
-export default StaffRoutes
+export default RenterRoutes
 

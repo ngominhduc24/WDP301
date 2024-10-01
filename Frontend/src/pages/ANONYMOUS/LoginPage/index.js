@@ -68,11 +68,11 @@ const LoginPage = () => {
     if (routerBeforeLogin) navigate(routerBeforeLogin)
 
     if (data) {
-      if (data.accountType === "ADMIN") {
+      if (data.accountType === "admin") {
         dispatch(setIsAdmin(true))
         navigate(ROUTER.DASHBOARD)
-      } else if (data.accountType === "STAFF") {
-        navigate(ROUTER.STAFF_DASHBOARD)
+      } else if (data.accountType === "renter") {
+        navigate(ROUTER.RENTER_ROOM)
       } else if (data.accountType === "host") {
         navigate(ROUTER.MANAGER_DASHBOARD)
       } else if (data.roaccountTypele === "WAREHOUSE MANAGER") {

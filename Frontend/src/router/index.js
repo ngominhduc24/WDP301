@@ -17,9 +17,8 @@ const ROUTER = {
   // USER
 
   // STAFF
-  STAFF_MANAGE_ORDER: "/staff/order",
-  STAFF_DASHBOARD: "/staff/dashboard",
-  STAFF_PROFILE: `/staff/thong-tin-ca-nhan`,
+  RENTER_ROOM: "/renter/room",
+  RENTER_PROFILE: `/staff/thong-tin-ca-nhan`,
 
   // MANAGER
   MANAGER_DASHBOARD: "/manager/dashboard",

@@ -118,38 +118,25 @@ export const MenuItemManager = () => {
   ]
 }
 
-export const MenuItemStaff = () => {
+export const MenuItemRenter = () => {
   return [
     {
-      key: ROUTER.STAFF_DASHBOARD,
-      label: "Dashboard",
-      icon: <SvgIcon name="dashboard" />,
+      key: ROUTER.RENTER_ROOM,
+      label: "Thông tin phòng",
+      icon: <SvgIcon name="store" />,
       tabid: [1],
     },
     {
-      key: "subkey1",
-      label: "Products",
-      icon: <SvgIcon name="product" />,
-      tabid: [2],
-      children: [
-        {
-          key: ROUTER.STAFF_MANAGE_ORDER,
-          label: "Manage Orders",
-          tabid: [2],
-        },
-      ],
+      key: ROUTER.RENTER_ROOM,
+      label: "Bảng Tin",
+      icon: <SvgIcon name="notes" />,
+      tabid: [1],
     },
     {
-      key: ROUTER.STAFF_DASHBOARD,
-      label: "Report",
-      icon: <SvgIcon name="menu5" />,
-      tabid: [4],
-    },
-    {
-      key: ROUTER.STAFF_DASHBOARD,
-      label: "Download History",
-      icon: <SvgIcon name="dowload-export" />,
-      tabid: [5],
+      key: ROUTER.RENTER_ROOM,
+      label: "Báo cáo vấn đề",
+      icon: <SvgIcon name="filevankien" />,
+      tabid: [1],
     },
   ]
 }

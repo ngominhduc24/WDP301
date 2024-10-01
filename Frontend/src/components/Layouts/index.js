@@ -22,7 +22,7 @@ import BreadcrumbHome from "./BreadcrumbHome/BreadcrumbHome"
 import MenuItemBreadcrumb, {
   MenuItemAdmin,
   MenuItemManager,
-  MenuItemStaff,
+  MenuItemRenter,
   MenuItemUser,
 } from "./MenuItems"
 import ChangePasswordModal from "./component/ChangePassword/ChangePasswordModal"
@@ -41,7 +41,7 @@ import Anonymous from "./component/Anonymous/Anonymous"
 import { SubTableHeader } from "../TableCustom/styled"
 const { Header, Content } = Layout
 
-const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
+const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch()
@@ -210,8 +210,8 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
     } else if (!!isLogin && role?.accountType === "host") {
       setMenuAdmin(MenuItemManager())
       setMenuUser(MenuItemUser())
-    } else if (!!isLogin && role?.role === "STAFF") {
-      setMenuAdmin(MenuItemStaff())
+    } else if (!!isLogin && role?.accountType === "renter") {
+      setMenuAdmin(MenuItemRenter())
       setMenuUser(MenuItemUser())
     }
   }, [listTabs])
@@ -393,7 +393,7 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
       <Layout>
         <Content className="site-layout-background ">
           <LayoutBackgroundCommon>
-            {isAdmin || isStaff || isManager ? (
+            {isAdmin || isRenter || isManager ? (
               <>
                 <LayoutAdmin
                   collapseMenu={collapseMenu}
