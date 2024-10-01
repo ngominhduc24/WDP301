@@ -64,7 +64,7 @@ export function parseBody(response) {
 const instance = axios.create({
   // baseURL: '',
   timeout: 60000,
-  withCredentials: true, // Thêm thuộc tính withCredentials để gửi kèm cookies với request
+  withCredentials: true,
 })
 
 // Request header
@@ -140,4 +140,3 @@ export const httpGetFile = (path = "", optionalHeader = {}) =>
     url: path,
     headers: { ...optionalHeader },
   })
-
