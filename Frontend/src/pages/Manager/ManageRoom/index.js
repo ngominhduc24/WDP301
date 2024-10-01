@@ -244,7 +244,6 @@ const ManageRoom = () => {
           >
             <Option value="house1">Nhà 1</Option>
             <Option value="house2">Nhà 2</Option>
-            <Option value="house3">Nhà 3</Option>
           </Select>
           <Button
             btntype="third"
