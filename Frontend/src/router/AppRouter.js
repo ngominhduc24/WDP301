@@ -40,8 +40,6 @@ const ManagerManageRoom = React.lazy(() =>
   import("src/pages/Manager/ManageRoom"),
 )
 // STAFF
-const StaffRoutes = React.lazy(() => import("src/pages/Staff/StaffRoutes"))
-const ManageOrders = React.lazy(() => import("src/pages/Staff/ManageOrders"))
 
 function LazyLoadingComponent({ children }) {
   return (
@@ -137,40 +135,6 @@ const routes = [
     ],
   },
 
-  // STAFF
-  {
-    element: (
-      <LazyLoadingComponent>
-        <StaffRoutes />
-      </LazyLoadingComponent>
-    ),
-    children: [
-      {
-        path: ROUTER.STAFF_DASHBOARD,
-        element: (
-          <LazyLoadingComponent>
-            <Dashboard />
-          </LazyLoadingComponent>
-        ),
-      },
-      {
-        path: ROUTER.STAFF_MANAGE_ORDER,
-        element: (
-          <LazyLoadingComponent>
-            <ManageOrders />
-          </LazyLoadingComponent>
-        ),
-      },
-      {
-        path: ROUTER.STAFF_PROFILE,
-        element: (
-          <LazyLoadingComponent>
-            <PersonProfile />
-          </LazyLoadingComponent>
-        ),
-      },
-    ],
-  },
   // MANAGER
   {
     element: (
