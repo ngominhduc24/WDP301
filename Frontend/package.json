@@ -31,6 +31,7 @@
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.9.3",
     "image-downloader": "^4.3.0",
+    "js-cookie": "^3.0.5",
     "jspdf": "^2.5.1",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",

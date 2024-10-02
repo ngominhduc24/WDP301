@@ -39,6 +39,12 @@ const ManagerManageHouses = React.lazy(() =>
 const ManagerManageRoom = React.lazy(() =>
   import("src/pages/Manager/ManageRoom"),
 )
+const ManagerManageNews = React.lazy(() =>
+  import("src/pages/Manager/ManageNews"),
+)
+const ManagerManageReport = React.lazy(() =>
+  import("src/pages/Manager/ManageReport"),
+)
 // RENTER
 const RenterRoutes = React.lazy(() => import("src/pages/Renter/RenterRoutes"))
 const RenterRoom = React.lazy(() => import("src/pages/Renter/ManageRoom"))
@@ -170,6 +176,22 @@ const routes = [
         ),
       },
       {
+        path: ROUTER.MANAGER_NEWS,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerManageNews />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.MANAGER_REPORT,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerManageReport />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
         path: ROUTER.MANAGER_PROFILE,
         element: (
           <LazyLoadingComponent>
@@ -240,3 +262,4 @@ const AppRouter = () => {
   return renderRouter
 }
 export default AppRouter
+
