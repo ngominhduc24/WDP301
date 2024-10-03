@@ -16,9 +16,9 @@ const ROUTER = {
 
   // USER
 
-  // STAFF
+  // RENTER
   RENTER_ROOM: "/renter/room",
-  RENTER_PROFILE: `/staff/thong-tin-ca-nhan`,
+  RENTER_PROFILE: `/renter/profile`,
 
   // MANAGER
   MANAGER_DASHBOARD: "/manager/dashboard",
