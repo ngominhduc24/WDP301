@@ -1,7 +1,7 @@
 import { Spin } from "antd"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { HubConnectionBuilder } from "@microsoft/signalr"
+// import { HubConnectionBuilder } from "@microsoft/signalr"
 import STORAGE, { getStorage } from "src/lib/storage"
 import "split-pane-react/esm/themes/default.css"
 import "./App.scss"
