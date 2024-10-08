@@ -22,8 +22,10 @@ const StyledContainer = styled.div`
 const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [utilities, setUtilities] = useState([]) // Chứa danh sách tiện ích từ cả hai API
-  const [amenities, setAmenities] = useState([])
+  const [utilities, setUtilities] = useState([]) // Chứa danh sách tiện ích chính
+  const [otherUtilities, setOtherUtilities] = useState([]) // Chứa danh sách tiện ích khác
+  const [amenities, setAmenities] = useState([]) // Chứa danh sách tiện ích chính đã chọn
+  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([]) // Chứa danh sách tiện ích khác đã chọn
   const [newAmenity, setNewAmenity] = useState("")
   const [isAddAmenityModalVisible, setIsAddAmenityModalVisible] =
     useState(false)
@@ -46,13 +48,9 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
         ManagerService.getOtherUtilities(),
       ])
 
-      // Lấy dữ liệu từ cả hai API và kết hợp
-      const combinedUtilities = [
-        ...(utilitiesResponse?.data || []),
-        ...(otherUtilitiesResponse?.data || []),
-      ]
-
-      setUtilities(combinedUtilities)
+      // Lấy dữ liệu từ cả hai API và set vào state riêng
+      setUtilities(utilitiesResponse?.data || [])
+      setOtherUtilities(otherUtilitiesResponse?.data || [])
     } catch (error) {
       console.error("Error fetching utilities:", error)
     } finally {
@@ -60,7 +58,7 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     }
   }
 
-  // Xử lý khi chọn/bỏ chọn tiện ích
+  // Xử lý khi người dùng chọn/bỏ chọn tiện ích chính
   const handleAmenityChange = id => {
     setAmenities(prev =>
       prev.includes(id)
@@ -69,27 +67,17 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     )
   }
 
-  // Hiển thị modal thêm tiện ích
-  const handleAddNewAmenity = () => {
-    setIsAddAmenityModalVisible(true)
+  // Xử lý khi người dùng chọn/bỏ chọn tiện ích khác
+  const handleOtherAmenityChange = id => {
+    setSelectedOtherUtilities(prev =>
+      prev.includes(id)
+        ? prev.filter(amenity => amenity !== id)
+        : [...prev, id],
+    )
   }
 
-  // Lưu tiện ích mới vào danh sách hiện tại
-  const handleSaveNewAmenity = () => {
-    if (newAmenity.trim() === "") {
-      Notice({ msg: "Tên tiện ích không được để trống!", type: "error" })
-      return
-    }
-    // Thêm tiện ích mới vào danh sách utilities và amenities
-    const newUtility = {
-      _id: newAmenity.trim().toLowerCase().replace(/\s+/g, "-"), // Tạo ID đơn giản cho tiện ích
-      name: newAmenity.trim(),
-    }
-    setUtilities([...utilities, newUtility]) // Cập nhật danh sách utilities
-    setAmenities([...amenities, newUtility._id]) // Cập nhật danh sách tiện ích đã chọn
-    setNewAmenity("") // Reset trường nhập liệu
-    setIsAddAmenityModalVisible(false) // Đóng modal
-    Notice({ msg: `Thêm tiện ích "${newAmenity}" thành công!` })
+  const handleAddNewAmenity = () => {
+    setIsAddAmenityModalVisible(true)
   }
 
   // Thêm tiện ích mới vào API otherUtilities
@@ -110,6 +98,7 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
       Notice({ msg: "Có lỗi xảy ra khi thêm tiện ích mới!", type: "error" })
     } finally {
       setLoading(false)
+      setIsAddAmenityModalVisible(false)
     }
   }
 
@@ -130,8 +119,8 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
         },
         electricPrice: Number(values.electricPrice), // Chuyển thành số
         waterPrice: Number(values.waterPrice), // Chuyển thành số
-        utilities: amenities,
-        otherUtilities: [], // Nếu có thêm tiện ích khác
+        utilities: amenities, // Truyền tiện ích chính đã chọn
+        otherUtilities: selectedOtherUtilities, // Truyền tiện ích khác đã chọn
       }
 
       const res = await ManagerService.createHouse(houseData)
@@ -289,8 +278,9 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                 </Form.Item>
               </Col>
 
+              {/* Hiển thị danh sách tiện ích */}
               <Col span={24}>
-                <Form.Item label="Tiện Ích">
+                <Form.Item label="Tiện Ích Chính">
                   <Row gutter={[16, 16]}>
                     {utilities.map(utility => (
                       <Col span={6} key={utility._id}>
@@ -298,6 +288,25 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                           name={utility.name}
                           checked={amenities.includes(utility._id)}
                           onChange={() => handleAmenityChange(utility._id)}
+                        >
+                          {utility.name}
+                        </Checkbox>
+                      </Col>
+                    ))}
+                  </Row>
+                </Form.Item>
+              </Col>
+
+              {/* Hiển thị danh sách tiện ích khác */}
+              <Col span={24}>
+                <Form.Item label="Tiện Ích Khác">
+                  <Row gutter={[16, 16]}>
+                    {otherUtilities.map(utility => (
+                      <Col span={6} key={utility._id}>
+                        <Checkbox
+                          name={utility.name}
+                          checked={selectedOtherUtilities.includes(utility._id)}
+                          onChange={() => handleOtherAmenityChange(utility._id)}
                         >
                           {utility.name}
                         </Checkbox>

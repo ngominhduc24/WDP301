@@ -1,4 +1,4 @@
-import { Col, Row, Space, Tooltip, Modal } from "antd"
+import { Col, Row, Space, Modal } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import Button from "src/components/MyButton/Button"
@@ -6,7 +6,6 @@ import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "./components/SearchAndFilter"
-import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import ModalInsertHouse from "./components/InsertHouse"
 import ModalUpdateHouse from "./components/UpdateHouse"
@@ -25,6 +24,8 @@ const ManageHouse = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const { userInfo } = useSelector(state => state.appGlobal)
   const [utilityMap, setUtilityMap] = useState({})
+  const [utilities, setUtilities] = useState([]) // State lưu các tiện ích chính
+  const [otherUtilities, setOtherUtilities] = useState([]) // State lưu các tiện ích khác
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -40,16 +41,28 @@ const ManageHouse = () => {
   const getHouses = async () => {
     try {
       setLoading(true)
-      // Gọi API lấy danh sách utilities trước
-      const utilityResponse = await ManagerService.getUtilities()
-      const utilitiesMap = (utilityResponse?.data || []).reduce(
+      // Gọi API lấy danh sách utilities và otherUtilities
+      const [utilityResponse, otherUtilityResponse] = await Promise.all([
+        ManagerService.getUtilities(),
+        ManagerService.getOtherUtilities(),
+      ])
+
+      // Lưu vào state để sử dụng khi cần
+      const utilitiesData = utilityResponse?.data || []
+      const otherUtilitiesData = otherUtilityResponse?.data || []
+
+      // Tạo map cho utilities và otherUtilities để hiển thị dễ dàng hơn
+      const combinedMap = [...utilitiesData, ...otherUtilitiesData].reduce(
         (map, utility) => {
           map[utility._id] = utility.name // Lưu id và name vào map
           return map
         },
         {},
       )
-      setUtilityMap(utilitiesMap) // Lưu utilityMap vào state
+
+      setUtilities(utilitiesData)
+      setOtherUtilities(otherUtilitiesData)
+      setUtilityMap(combinedMap) // Lưu utilityMap vào state để dùng cho render
 
       // Gọi API lấy danh sách houses
       const houseResponse = await ManagerService.getAllHouses(
@@ -58,7 +71,7 @@ const ManageHouse = () => {
       )
 
       if (houseResponse?.data?.houses) {
-        setHouses(transformHouseData(houseResponse.data.houses, utilitiesMap)) // Truyền utilityMap vào
+        setHouses(transformHouseData(houseResponse.data.houses)) // Truyền dữ liệu nhà vào state
         setTotal(houseResponse.data.houses.length)
       } else {
         console.error("No data found in response", houseResponse)
@@ -70,12 +83,16 @@ const ManageHouse = () => {
     }
   }
 
-  // Hàm này đảm bảo rằng dữ liệu houseData được lưu trữ với `utilities` là id thay vì name
+  // Hàm này đảm bảo rằng dữ liệu houseData được lưu trữ với `utilities` và `otherUtilities` là id thay vì name
   const transformHouseData = (houses, utilitiesMap) => {
     return houses.map(house => {
       const houseUtilities = Array.isArray(house.utilities)
         ? house.utilities
         : []
+      const otherUtilities = Array.isArray(house.otherUtilities)
+        ? house.otherUtilities
+        : []
+
       return {
         _id: house._id,
         houseName: house.name || "Chưa có tên",
@@ -89,7 +106,8 @@ const ManageHouse = () => {
         waterPrice: house.waterPrice
           ? `${house.waterPrice} VND/m³`
           : "Không có",
-        utilities: houseUtilities.map(utility => utility._id), // Sử dụng id để truyền đi
+        utilities: houseUtilities.map(u => u._id || u), // Chỉ giữ lại _id
+        otherUtilities: otherUtilities.map(u => u._id || u), // Chỉ giữ lại _id
         status: house.status ? "active" : "inactive",
         image: house.image || "https://via.placeholder.com/150",
       }
@@ -163,15 +181,26 @@ const ManageHouse = () => {
       dataIndex: "utilities",
       width: 300,
       key: "utilities",
-      render: utilities => {
-        const utilityNames = utilities.map(
+      render: (_, record) => {
+        // Nếu record.utilities hoặc record.otherUtilities chứa các đối tượng thì cần lấy _id hoặc name từ đó.
+        const allUtilities = [
+          ...record.utilities.map(u => (typeof u === "object" ? u._id : u)),
+          ...record.otherUtilities.map(u =>
+            typeof u === "object" ? u._id : u,
+          ),
+        ]
+
+        // Sau đó lấy tên tiện ích dựa trên utilityMap.
+        const utilityNames = allUtilities.map(
           utilityId => utilityMap[utilityId] || utilityId,
         )
+
         return Array.isArray(utilityNames) && utilityNames.length > 0
-          ? utilityNames.join(", ")
+          ? utilityNames.join(", ") // Nối các tên tiện ích thành chuỗi
           : "Không có tiện ích"
       },
     },
+
     {
       title: "Ảnh",
       dataIndex: "image",
@@ -286,7 +315,11 @@ const ManageHouse = () => {
           open={openUpdateHouses}
           onCancel={() => setOpenUpdateHouses(false)}
           onOk={getHouses}
-          houseData={selectedHouse}
+          houseData={{
+            ...selectedHouse,
+            utilities: selectedHouse.utilities || [],
+            otherUtilities: selectedHouse.otherUtilities || [],
+          }}
         />
       )}
       {!!openViewHouses && (

@@ -16,36 +16,42 @@ const StyledContainer = styled.div`
 const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [utilities, setUtilities] = useState([]) // State lưu danh sách utilities từ API
-  const [selectedUtilities, setSelectedUtilities] = useState([]) // State để lưu tiện ích đã chọn
+  const [utilities, setUtilities] = useState([]) // State lưu tiện ích chính
+  const [otherUtilities, setOtherUtilities] = useState([]) // State lưu tiện ích khác
+  const [selectedUtilities, setSelectedUtilities] = useState([]) // Tiện ích đã chọn
+  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([]) // Tiện ích khác đã chọn
+  const [electricPrice, setElectricPrice] = useState("") // State lưu tiền điện dạng string
+  const [waterPrice, setWaterPrice] = useState("") // State lưu tiền nước dạng string
+  const [newAmenity, setNewAmenity] = useState("") // Tiện ích mới
+  const [isAddAmenityModalVisible, setIsAddAmenityModalVisible] =
+    useState(false)
 
-  // State để lưu trữ giá trị tỉnh/thành phố, quận/huyện và phường/xã đã chọn
+  // State địa chỉ nhà
   const [selectedProvince, setSelectedProvince] = useState("")
   const [selectedDistrict, setSelectedDistrict] = useState("")
   const [selectedWard, setSelectedWard] = useState("")
 
   useEffect(() => {
-    fetchUtilities()
-  }, [])
-
-  // Cập nhật form và selectedUtilities với dữ liệu nhà khi houseData hoặc open thay đổi
-  useEffect(() => {
-    if (houseData && open) {
-      updateFormWithHouseData()
-      setSelectedUtilities(houseData.utilities || [])
+    console.log(houseData)
+    if (open) {
+      fetchAllUtilities()
+      if (houseData) {
+        updateFormWithHouseData()
+      }
     }
   }, [houseData, open])
 
-  // Hàm lấy danh sách utilities từ API
-  const fetchUtilities = async () => {
+  // Hàm lấy tất cả tiện ích từ API
+  const fetchAllUtilities = async () => {
+    setLoading(true)
     try {
-      setLoading(true)
-      const response = await ManagerService.getUtilities()
-      if (response && response.data) {
-        setUtilities(response.data)
-      } else {
-        console.error("No data found in response:", response)
-      }
+      // Gọi API lấy dữ liệu cho cả utilities và otherUtilities
+      const [utilitiesResponse, otherUtilitiesResponse] = await Promise.all([
+        ManagerService.getUtilities(),
+        ManagerService.getOtherUtilities(),
+      ])
+      setUtilities(utilitiesResponse?.data || []) // Cập nhật state utilities
+      setOtherUtilities(otherUtilitiesResponse?.data || []) // Cập nhật state otherUtilities
     } catch (error) {
       console.error("Error fetching utilities:", error)
     } finally {
@@ -53,31 +59,33 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }
 
-  // Hàm cập nhật form với dữ liệu chi tiết của nhà hiện tại
   const updateFormWithHouseData = () => {
-    // Lấy thông tin vị trí từ dữ liệu
     const { address, city, district, ward } = parseLocation(
       houseData.address || "",
     )
+    const parsedElectricPrice = parseFloat(houseData?.electricPrice)
+    const parsedWaterPrice = parseFloat(houseData?.waterPrice)
 
-    // Cập nhật form với dữ liệu chi tiết của nhà
     form.setFieldsValue({
       houseName: houseData?.houseName,
       city: city || "",
       district: district || "",
       ward: ward || "",
       address: address || "",
-      electricPrice: houseData?.electricPrice || 0,
-      waterPrice: houseData?.waterPrice || 0,
+      electricPrice: parsedElectricPrice || 0,
+      waterPrice: parsedWaterPrice || 0,
     })
 
-    // Cập nhật state với các giá trị đã chọn
     setSelectedProvince(city || "")
     setSelectedDistrict(district || "")
     setSelectedWard(ward || "")
+    setSelectedUtilities(houseData.utilities || [])
+    setSelectedOtherUtilities(houseData.otherUtilities || [])
+    setElectricPrice(parsedElectricPrice || 0)
+    setWaterPrice(parsedWaterPrice || 0)
   }
 
-  // Hàm phân tích chuỗi địa chỉ thành các thành phần riêng lẻ
+  // Phân tích chuỗi địa chỉ thành từng phần riêng lẻ
   const parseLocation = address => {
     const parts = address.split(",").map(part => part.trim())
     return {
@@ -88,10 +96,23 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }
 
-  // Hàm xử lý cập nhật nhà
+  // Hàm xử lý khi thay đổi tiền điện
+  const handleElectricPriceChange = e => {
+    const value = e.target.value.replace(/[^0-9]/g, "") // Loại bỏ tất cả ký tự không phải số
+    setElectricPrice(value)
+    form.setFieldsValue({ electricPrice: value })
+  }
+
+  // Hàm xử lý khi thay đổi tiền nước
+  const handleWaterPriceChange = e => {
+    const value = e.target.value.replace(/[^0-9]/g, "") // Loại bỏ tất cả ký tự không phải số
+    setWaterPrice(value)
+    form.setFieldsValue({ waterPrice: value })
+  }
+
   const onUpdate = async () => {
+    setLoading(true)
     try {
-      setLoading(true)
       const values = await form.validateFields()
       const updatedHouseData = {
         name: values.houseName,
@@ -102,19 +123,16 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
           ward: selectedWard || values.ward,
           detailLocation: values.address,
         },
-        electricPrice: Number(values.electricPrice),
-        waterPrice: Number(values.waterPrice),
-        utilities: selectedUtilities, // Cập nhật với tiện ích đã chọn (dạng id)
-        otherUtilities: [], // Các tiện ích khác
+        electricPrice: parseFloat(electricPrice) || 0, // Chuyển sang số trước khi truyền đi
+        waterPrice: parseFloat(waterPrice) || 0, // Chuyển sang số trước khi truyền đi
+        utilities: selectedUtilities, // Truyền utilities đã chọn
+        otherUtilities: selectedOtherUtilities, // Truyền otherUtilities đã chọn
       }
-
-      // Gọi API updateHouse với id của nhà và dữ liệu đã cập nhật
       const res = await ManagerService.updateHouse(
         houseData._id,
         updatedHouseData,
       )
       if (res?.isError) return
-
       Notice({ msg: "Cập nhật nhà thành công!" })
       onOk && onOk()
       onCancel()
@@ -125,13 +143,46 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }
 
-  // Xử lý khi chọn/bỏ chọn tiện ích bằng id thay vì name
-  const handleAmenityChange = utilityId => {
-    setSelectedUtilities(prevUtilities =>
-      prevUtilities.includes(utilityId)
-        ? prevUtilities.filter(id => id !== utilityId)
-        : [...prevUtilities, utilityId],
-    )
+  // Xử lý khi chọn/bỏ chọn tiện ích
+  const handleAmenityChange = (utilityId, isOtherUtility = false) => {
+    if (isOtherUtility) {
+      setSelectedOtherUtilities(prevUtilities =>
+        prevUtilities.includes(utilityId)
+          ? prevUtilities.filter(id => id !== utilityId)
+          : [...prevUtilities, utilityId],
+      )
+    } else {
+      setSelectedUtilities(prevUtilities =>
+        prevUtilities.includes(utilityId)
+          ? prevUtilities.filter(id => id !== utilityId)
+          : [...prevUtilities, utilityId],
+      )
+    }
+  }
+
+  const handleAddNewAmenity = () => {
+    setIsAddAmenityModalVisible(true)
+  }
+
+  const handleSaveOtherUtility = async () => {
+    setLoading(true)
+    try {
+      const payload = { name: newAmenity }
+      const response = await ManagerService.otherUtilities(payload)
+      if (response && !response.isError) {
+        Notice({ msg: `Thêm tiện ích "${newAmenity}" thành công!` })
+        setNewAmenity("")
+        fetchAllUtilities()
+      } else {
+        Notice({ msg: "Có lỗi xảy ra khi thêm tiện ích mới!", type: "error" })
+      }
+    } catch (error) {
+      console.error("Error adding new utility:", error)
+      Notice({ msg: "Có lỗi xảy ra khi thêm tiện ích mới!", type: "error" })
+    } finally {
+      setLoading(false)
+      setIsAddAmenityModalVisible(false)
+    }
   }
 
   const renderFooter = () => (
@@ -168,7 +219,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                   <Input placeholder="Nhập tên nhà" />
                 </Form.Item>
               </Col>
-
               <Col md={8} xs={24}>
                 <Form.Item
                   label="Tỉnh/Thành Phố"
@@ -190,7 +240,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                   </Select>
                 </Form.Item>
               </Col>
-
               <Col md={8} xs={24}>
                 <Form.Item
                   label="Quận/Huyện"
@@ -212,7 +261,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                   </Select>
                 </Form.Item>
               </Col>
-
               <Col md={8} xs={24}>
                 <Form.Item
                   label="Phường/Xã"
@@ -234,7 +282,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                   </Select>
                 </Form.Item>
               </Col>
-
               <Col span={24}>
                 <Form.Item
                   label="Địa Chỉ"
@@ -249,7 +296,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                   <Input placeholder="Nhập địa chỉ nhà" />
                 </Form.Item>
               </Col>
-
               <Col md={12} xs={24}>
                 <Form.Item
                   label="Tiền Điện Trên 1kwH"
@@ -261,10 +307,13 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                     },
                   ]}
                 >
-                  <Input placeholder="VNĐ/kwH" />
+                  <Input
+                    value={`${electricPrice} VND/kWh`}
+                    onChange={handleElectricPriceChange}
+                    placeholder="VNĐ/kwH"
+                  />
                 </Form.Item>
               </Col>
-
               <Col md={12} xs={24}>
                 <Form.Item
                   label="Tiền Nước Trên 1 Khối"
@@ -276,34 +325,73 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                     },
                   ]}
                 >
-                  <Input placeholder="VNĐ/m³" />
+                  <Input
+                    value={`${waterPrice} VND/m³`}
+                    onChange={handleWaterPriceChange}
+                    placeholder="VNĐ/m³"
+                  />
                 </Form.Item>
               </Col>
-
-              {/* Hiển thị danh sách tiện ích */}
+              {/* Danh sách tiện ích */}
               <Col span={24}>
                 <Form.Item label="Tiện Ích">
-                  <Row gutter={[16, 16]}>
-                    {utilities.length > 0 ? (
-                      utilities.map(utility => (
-                        <Col span={6} key={utility._id}>
-                          <Checkbox
-                            checked={selectedUtilities.includes(utility._id)} // So sánh bằng id thay vì name
-                            onChange={() => handleAmenityChange(utility._id)} // Sử dụng id thay vì name
-                          >
-                            {utility.name}
-                          </Checkbox>
-                        </Col>
-                      ))
-                    ) : (
-                      <div>Không có tiện ích</div>
-                    )}
+                  <Row gutter={[16]}>
+                    {/* Hiển thị tiện ích chính */}
+                    {utilities.map(utility => (
+                      <Col span={6} key={utility._id}>
+                        <Checkbox
+                          checked={selectedUtilities.includes(utility._id)}
+                          onChange={() => handleAmenityChange(utility._id)}
+                        >
+                          {utility.name}
+                        </Checkbox>
+                      </Col>
+                    ))}
+                    {/* Hiển thị tiện ích khác */}
+                    {otherUtilities.map(utility => (
+                      <Col span={6} key={utility._id}>
+                        <Checkbox
+                          checked={selectedOtherUtilities.includes(utility._id)}
+                          onChange={() =>
+                            handleAmenityChange(utility._id, true)
+                          }
+                        >
+                          {utility.name}
+                        </Checkbox>
+                      </Col>
+                    ))}
                   </Row>
+                  <Button
+                    btntype="primary"
+                    className="mt-8"
+                    onClick={handleAddNewAmenity}
+                  >
+                    Thêm tiện ích
+                  </Button>
                 </Form.Item>
               </Col>
             </Row>
           </Form>
         </StyledContainer>
+        {/* Modal thêm tiện ích */}
+        <CustomModal
+          title="Thêm tiện ích"
+          visible={isAddAmenityModalVisible}
+          onOk={handleSaveOtherUtility}
+          onCancel={() => setIsAddAmenityModalVisible(false)}
+          okText="Thêm"
+          cancelText="Hủy"
+        >
+          <Form layout="vertical">
+            <Form.Item label="Tên Tiện Ích *">
+              <Input
+                value={newAmenity}
+                onChange={e => setNewAmenity(e.target.value)}
+                placeholder="Nhập tên tiện ích"
+              />
+            </Form.Item>
+          </Form>
+        </CustomModal>
       </SpinCustom>
     </CustomModal>
   )

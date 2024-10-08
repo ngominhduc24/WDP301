@@ -1,11 +1,59 @@
 import { Col, Row, Modal, Tooltip } from "antd"
 import Button from "src/components/MyButton/Button"
 import { useEffect, useState } from "react"
+import ManagerService from "src/services/ManagerService"
 
 const ModalViewHouse = ({ open, onCancel, house }) => {
+  const [utilityNames, setUtilityNames] = useState([]) // Chứa tên của tiện ích chính
+  const [otherUtilityNames, setOtherUtilityNames] = useState([]) // Chứa tên của tiện ích khác
+
   useEffect(() => {
-    console.log(house)
+    if (house) {
+      fetchUtilities() // Gọi API khi `house` có dữ liệu
+    }
   }, [house])
+
+  // Hàm gọi API để lấy thông tin utilities và otherUtilities
+  const fetchUtilities = async () => {
+    try {
+      const [utilitiesResponse, otherUtilitiesResponse] = await Promise.all([
+        ManagerService.getUtilities(), // Gọi API lấy danh sách tiện ích chính
+        ManagerService.getOtherUtilities(), // Gọi API lấy danh sách tiện ích khác
+      ])
+
+      // Tạo một map để nhanh chóng tra cứu tên từ id
+      const utilitiesMap = (utilitiesResponse?.data || []).reduce(
+        (map, utility) => {
+          map[utility._id] = utility.name
+          return map
+        },
+        {},
+      )
+
+      const otherUtilitiesMap = (otherUtilitiesResponse?.data || []).reduce(
+        (map, utility) => {
+          map[utility._id] = utility.name
+          return map
+        },
+        {},
+      )
+
+      // Lấy tên của utilities và otherUtilities từ id truyền vào house
+      const utilitiesNames = (house.utilities || []).map(
+        id => utilitiesMap[id] || "Unknown Utility",
+      )
+
+      const otherUtilitiesNames = (house.otherUtilities || []).map(
+        id => otherUtilitiesMap[id] || "Unknown Other Utility",
+      )
+
+      // Cập nhật state
+      setUtilityNames(utilitiesNames)
+      setOtherUtilityNames(otherUtilitiesNames)
+    } catch (error) {
+      console.error("Error fetching utilities:", error)
+    }
+  }
 
   return (
     <Modal
@@ -44,7 +92,7 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
               </Col>
               <Col span={24}>
                 <strong>Tiền điện:</strong>{" "}
-                {house?.electricityPrice || "Không có thông tin"}
+                {house?.electricPrice || "Không có thông tin"}
               </Col>
               <Col span={24}>
                 <strong>Tiền nước:</strong>{" "}
@@ -62,12 +110,13 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
                     : "Dừng hoạt động"}
                 </span>
               </Col>
+              {/* Hiển thị tiện ích chính */}
               <Col span={24}>
                 <strong>Tiện ích:</strong>
                 <div>
-                  {house?.utilities && house?.utilities.length > 0 ? (
-                    house.utilities.map(utility => (
-                      <Tooltip title={utility} key={utility}>
+                  {utilityNames.length > 0 ? (
+                    utilityNames.map((utility, index) => (
+                      <Tooltip title={utility} key={index}>
                         <span
                           style={{ display: "inline-block", margin: "0 8px" }}
                         >
@@ -77,6 +126,25 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
                     ))
                   ) : (
                     <span>Không có tiện ích</span>
+                  )}
+                </div>
+              </Col>
+              {/* Hiển thị tiện ích khác */}
+              <Col span={24}>
+                <strong>Tiện ích khác:</strong>
+                <div>
+                  {otherUtilityNames.length > 0 ? (
+                    otherUtilityNames.map((otherUtility, index) => (
+                      <Tooltip title={otherUtility} key={index}>
+                        <span
+                          style={{ display: "inline-block", margin: "0 8px" }}
+                        >
+                          {otherUtility} ✔️
+                        </span>
+                      </Tooltip>
+                    ))
+                  ) : (
+                    <span>Không có tiện ích khác</span>
                   )}
                 </div>
               </Col>
