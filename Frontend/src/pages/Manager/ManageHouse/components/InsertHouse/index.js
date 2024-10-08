@@ -22,10 +22,10 @@ const StyledContainer = styled.div`
 const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [utilities, setUtilities] = useState([]) // Chứa danh sách tiện ích chính
-  const [otherUtilities, setOtherUtilities] = useState([]) // Chứa danh sách tiện ích khác
-  const [amenities, setAmenities] = useState([]) // Chứa danh sách tiện ích chính đã chọn
-  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([]) // Chứa danh sách tiện ích khác đã chọn
+  const [utilities, setUtilities] = useState([])
+  const [otherUtilities, setOtherUtilities] = useState([])
+  const [amenities, setAmenities] = useState([])
+  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([])
   const [newAmenity, setNewAmenity] = useState("")
   const [isAddAmenityModalVisible, setIsAddAmenityModalVisible] =
     useState(false)
@@ -35,20 +35,17 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
   const [wards, setWards] = useState([])
 
   useEffect(() => {
-    fetchAllUtilities() // Gọi hàm kết hợp dữ liệu khi component mount
+    fetchAllUtilities()
   }, [])
 
-  // Gọi cả hai API và kết hợp kết quả
   const fetchAllUtilities = async () => {
     try {
       setLoading(true)
-      // Gọi API getUtilities và getOtherUtilities song song
       const [utilitiesResponse, otherUtilitiesResponse] = await Promise.all([
         ManagerService.getUtilities(),
         ManagerService.getOtherUtilities(),
       ])
 
-      // Lấy dữ liệu từ cả hai API và set vào state riêng
       setUtilities(utilitiesResponse?.data || [])
       setOtherUtilities(otherUtilitiesResponse?.data || [])
     } catch (error) {
@@ -58,7 +55,6 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     }
   }
 
-  // Xử lý khi người dùng chọn/bỏ chọn tiện ích chính
   const handleAmenityChange = id => {
     setAmenities(prev =>
       prev.includes(id)
@@ -67,7 +63,6 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     )
   }
 
-  // Xử lý khi người dùng chọn/bỏ chọn tiện ích khác
   const handleOtherAmenityChange = id => {
     setSelectedOtherUtilities(prev =>
       prev.includes(id)
@@ -80,16 +75,15 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     setIsAddAmenityModalVisible(true)
   }
 
-  // Thêm tiện ích mới vào API otherUtilities
   const handleSaveOtherUtility = async () => {
     try {
       setLoading(true)
-      const payload = { name: newAmenity } // Tạo payload chứa tên tiện ích mới
-      const response = await ManagerService.otherUtilities(payload) // Gọi API otherUtilities
+      const payload = { name: newAmenity }
+      const response = await ManagerService.otherUtilities(payload)
       if (response && !response.isError) {
         Notice({ msg: `Thêm tiện ích "${newAmenity}" thành công!` })
-        setNewAmenity("") // Reset trường nhập liệu
-        fetchAllUtilities() // Lấy lại danh sách utilities sau khi thêm thành công
+        setNewAmenity("")
+        fetchAllUtilities()
       } else {
         Notice({ msg: "Có lỗi xảy ra khi thêm tiện ích mới!", type: "error" })
       }
@@ -107,7 +101,6 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
       setLoading(true)
       const values = await form.validateFields()
 
-      // Tạo cấu trúc houseData theo định dạng mong muốn
       const houseData = {
         name: values.houseName,
         status: true,
@@ -117,10 +110,10 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
           ward: values.ward,
           detailLocation: values.address,
         },
-        electricPrice: Number(values.electricPrice), // Chuyển thành số
-        waterPrice: Number(values.waterPrice), // Chuyển thành số
-        utilities: amenities, // Truyền tiện ích chính đã chọn
-        otherUtilities: selectedOtherUtilities, // Truyền tiện ích khác đã chọn
+        electricPrice: Number(values.electricPrice),
+        waterPrice: Number(values.waterPrice),
+        utilities: amenities,
+        otherUtilities: selectedOtherUtilities,
       }
 
       const res = await ManagerService.createHouse(houseData)

@@ -41,17 +41,15 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }, [houseData, open])
 
-  // Hàm lấy tất cả tiện ích từ API
   const fetchAllUtilities = async () => {
     setLoading(true)
     try {
-      // Gọi API lấy dữ liệu cho cả utilities và otherUtilities
       const [utilitiesResponse, otherUtilitiesResponse] = await Promise.all([
         ManagerService.getUtilities(),
         ManagerService.getOtherUtilities(),
       ])
-      setUtilities(utilitiesResponse?.data || []) // Cập nhật state utilities
-      setOtherUtilities(otherUtilitiesResponse?.data || []) // Cập nhật state otherUtilities
+      setUtilities(utilitiesResponse?.data || [])
+      setOtherUtilities(otherUtilitiesResponse?.data || [])
     } catch (error) {
       console.error("Error fetching utilities:", error)
     } finally {
@@ -85,7 +83,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     setWaterPrice(parsedWaterPrice || 0)
   }
 
-  // Phân tích chuỗi địa chỉ thành từng phần riêng lẻ
   const parseLocation = address => {
     const parts = address.split(",").map(part => part.trim())
     return {
@@ -96,16 +93,14 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }
 
-  // Hàm xử lý khi thay đổi tiền điện
   const handleElectricPriceChange = e => {
-    const value = e.target.value.replace(/[^0-9]/g, "") // Loại bỏ tất cả ký tự không phải số
+    const value = e.target.value.replace(/[^0-9]/g, "")
     setElectricPrice(value)
     form.setFieldsValue({ electricPrice: value })
   }
 
-  // Hàm xử lý khi thay đổi tiền nước
   const handleWaterPriceChange = e => {
-    const value = e.target.value.replace(/[^0-9]/g, "") // Loại bỏ tất cả ký tự không phải số
+    const value = e.target.value.replace(/[^0-9]/g, "")
     setWaterPrice(value)
     form.setFieldsValue({ waterPrice: value })
   }
@@ -123,10 +118,10 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
           ward: selectedWard || values.ward,
           detailLocation: values.address,
         },
-        electricPrice: parseFloat(electricPrice) || 0, // Chuyển sang số trước khi truyền đi
-        waterPrice: parseFloat(waterPrice) || 0, // Chuyển sang số trước khi truyền đi
-        utilities: selectedUtilities, // Truyền utilities đã chọn
-        otherUtilities: selectedOtherUtilities, // Truyền otherUtilities đã chọn
+        electricPrice: parseFloat(electricPrice) || 0,
+        waterPrice: parseFloat(waterPrice) || 0,
+        utilities: selectedUtilities,
+        otherUtilities: selectedOtherUtilities,
       }
       const res = await ManagerService.updateHouse(
         houseData._id,
@@ -143,7 +138,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }
 
-  // Xử lý khi chọn/bỏ chọn tiện ích
   const handleAmenityChange = (utilityId, isOtherUtility = false) => {
     if (isOtherUtility) {
       setSelectedOtherUtilities(prevUtilities =>
@@ -332,11 +326,9 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                   />
                 </Form.Item>
               </Col>
-              {/* Danh sách tiện ích */}
               <Col span={24}>
                 <Form.Item label="Tiện Ích">
                   <Row gutter={[16]}>
-                    {/* Hiển thị tiện ích chính */}
                     {utilities.map(utility => (
                       <Col span={6} key={utility._id}>
                         <Checkbox
@@ -347,7 +339,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                         </Checkbox>
                       </Col>
                     ))}
-                    {/* Hiển thị tiện ích khác */}
                     {otherUtilities.map(utility => (
                       <Col span={6} key={utility._id}>
                         <Checkbox
@@ -373,7 +364,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
             </Row>
           </Form>
         </StyledContainer>
-        {/* Modal thêm tiện ích */}
         <CustomModal
           title="Thêm tiện ích"
           visible={isAddAmenityModalVisible}
