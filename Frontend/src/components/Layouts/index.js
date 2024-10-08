@@ -117,7 +117,7 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
                 </div>
               </Menu.Item>
             )}
-            {role?.role === "ADMIN" && (
+            {role?.accountType === "admin" && (
               <Menu.Item
                 key="3"
                 onClick={() => {
@@ -267,7 +267,7 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
                       >
                         <span
                           onClick={() => {
-                            navigate(ROUTER.HOME)
+                            navigate(ROUTER.DEFAULT)
                           }}
                           className={`fw-600 d-flex-center pointer h-100pe ${
                             !!isMobile ? "fs-14" : "fs-20"

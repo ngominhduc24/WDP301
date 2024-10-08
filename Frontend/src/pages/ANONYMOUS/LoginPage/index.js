@@ -68,7 +68,7 @@ const LoginPage = () => {
     if (routerBeforeLogin) navigate(routerBeforeLogin)
 
     if (data) {
-      if (data.accountType === "ADMIN") {
+      if (data.accountType === "admin") {
         dispatch(setIsAdmin(true))
         navigate(ROUTER.DASHBOARD)
       } else if (data.accountType === "STAFF") {
@@ -136,7 +136,12 @@ const LoginPage = () => {
           <div style={{ maxWidth: isMobile ? "330px" : "1000px" }}>
             <Row className="d-flex-center">
               <Col className="content-wrap" span={24}>
-                <Row gutter={[16, 16]} justify="center" align="middle">
+                <Row
+                  gutter={[16, 16]}
+                  justify="center"
+                  align="middle"
+                  className="border-none"
+                >
                   <Col lg={10} md={12} sm={20} xs={20}>
                     <div className="d-flex flex-column justify-content-center h-100">
                       <div className="text-center mb-30">
@@ -232,4 +237,3 @@ const LoginPage = () => {
 }
 
 export default LoginPage
-
