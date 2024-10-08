@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { useSelector } from "react-redux"
 import { Row, Col, Select } from "antd"
 import FlInput from "src/components/FloatingLabel/Input"
 import Button from "src/components/MyButton/Button"
@@ -8,7 +7,7 @@ import FlSelect from "src/components/FloatingLabel/Select"
 
 const { Option } = Select
 
-const SearchAndFilter = ({ pagination, setPagination }) => {
+const SearchAndFilter = ({ pagination, setPagination, onSearch }) => {
   const [isFilterAdvance, setIsFilterAdvance] = useState(false)
 
   const handleStatusChange = value => {
@@ -18,12 +17,16 @@ const SearchAndFilter = ({ pagination, setPagination }) => {
     })
   }
 
+  const handleSearch = value => {
+    onSearch(value) // Gọi hàm `onSearch` khi người dùng nhập tìm kiếm
+  }
+
   return (
     <div>
       <Row gutter={[16, 8]} className="mb-15">
         <Col xl={19} lg={24} md={24} sm={24} xs={24}>
           <FlInput
-            onSearch={e => setPagination({ ...pagination, TextSearch: e })}
+            onSearch={handleSearch} // Thay đổi thành hàm `handleSearch`
             search
             allowClear
             label="Tìm kiếm"
