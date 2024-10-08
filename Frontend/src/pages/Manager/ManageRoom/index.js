@@ -1,4 +1,4 @@
-import { Col, Row, Space, Tooltip, Modal } from "antd"
+import { Col, Row, Space, Tooltip, Modal, Select } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import Button from "src/components/MyButton/Button"
@@ -16,13 +16,17 @@ import TableCell from "@mui/material/TableCell"
 import TableContainer from "@mui/material/TableContainer"
 import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
-// import ChartRooms from "./components/ChartRooms"
-import { Select } from "antd" // Nhớ import Select từ antd
+import ReactECharts from "echarts-for-react"
 import ModalInsertRoom from "./components/InsertRoom"
 import ModalViewRoom from "./components/ModalViewRoom"
 import ModalUpdateRoom from "./components/UpdateRoom"
 import ModalPriceConfiguration from "./components/ModalPriceConfiguration"
+
 const ManageRoom = () => {
+  const [houses, setHouses] = useState([])
+  const [floors, setFloors] = useState([])
+  const [houseDetail, setHouseDetail] = useState(null)
+  const [selectedHouse, setSelectedHouse] = useState(null)
   const [rooms, setRooms] = useState([])
   const [total, setTotal] = useState(0)
   const [openInsertRoom, setOpenInsertRoom] = useState(false)
@@ -33,7 +37,6 @@ const ManageRoom = () => {
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
-  const [selectedHouse, setSelectedHouse] = useState(null)
   const { userInfo } = useSelector(state => state.appGlobal)
   const [pagination, setPagination] = useState({
     PageSize: 10,
@@ -44,73 +47,92 @@ const ManageRoom = () => {
   })
 
   const { Option } = Select
-  // Biến chứa dữ liệu mẫu (sample data)
-  const dataSample = [
-    {
-      _id: "1",
-      roomName: "Phòng A1",
-      floor: 1,
-      area: "25m²",
-      price: "5,000,000",
-      status: "available",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      _id: "2",
-      roomName: "Phòng B2",
-      floor: 2,
-      area: "30m²",
-      price: "6,500,000",
-      status: "rented",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      _id: "3",
-      roomName: "Phòng C3",
-      floor: 3,
-      area: "20m²",
-      price: "4,000,000",
-      status: "available",
-      image: "https://via.placeholder.com/150",
-    },
-  ]
-
-  const houseDataSample = {
-    ownerName: "Mac Hung",
-    email: "macquochung@gmail.com",
-    phone: "0123456789",
-    status: "active",
-    totalRooms: 3,
-  }
-
-  const houseData = houseDataSample
-  const roomsData = dataSample
 
   useEffect(() => {
-    getRooms()
-  }, [pagination])
+    getAllHouses()
+  }, [])
 
-  const getRooms = async () => {
+  useEffect(() => {
+    if (selectedHouse) {
+      getHouseByHouseId(selectedHouse)
+      getFloorByHouseId(selectedHouse)
+      getRoomsByHouse(selectedHouse)
+    }
+  }, [selectedHouse, pagination])
+
+  const getAllHouses = async () => {
     try {
       setLoading(true)
-      const response = await ManagerService.getAllRooms(
-        pagination.CurrentPage || 1,
-        pagination.PageSize || 10,
-      )
-
-      console.log("API Response:", response)
-
-      if (response && response.rooms) {
-        setRooms(response.rooms)
-        setTotal(response.total)
+      const response = await ManagerService.getAllHouses()
+      const housesData = response?.data?.houses || []
+      if (housesData.length > 0) {
+        setHouses(housesData)
+        setSelectedHouse(housesData[0]?._id)
       } else {
-        setRooms(dataSample)
-        setTotal(dataSample.length)
+        setHouses([])
       }
     } catch (error) {
-      console.error("Error fetching rooms:", error)
-      setRooms(dataSample)
-      setTotal(dataSample.length)
+      setHouses([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getHouseByHouseId = async houseId => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getHouseDetail(houseId)
+      if (response?.data) {
+        setHouseDetail(response.data)
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getFloorByHouseId = async houseId => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getHouseFloors(houseId)
+      if (response?.data) {
+        setFloors(response.data)
+      } else {
+        setFloors([])
+      }
+    } catch (error) {
+      setFloors([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getRoomByFloor = async (houseId, floorId) => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getRoomFloor(houseId, floorId)
+      if (response?.data) {
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getRoomsByHouse = async houseId => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getAllRoomInHouse(houseId)
+      if (response?.data) {
+        setRooms(response.data)
+        setTotal(response.total)
+      } else {
+        setRooms([])
+        setTotal(0)
+      }
+    } catch (error) {
+      setRooms([])
+      setTotal(0)
     } finally {
       setLoading(false)
     }
@@ -230,6 +252,71 @@ const ManageRoom = () => {
     },
   ]
 
+  // Hàm này để tính toán số lượng phòng trống và phòng đã thuê
+  const calculateRoomRatio = () => {
+    const rentedRooms = rooms.filter(room => room.status !== "Empty").length
+    const availableRooms = rooms.filter(room => room.status === "Empty").length
+    return { rentedRooms, availableRooms }
+  }
+
+  // Hàm để render biểu đồ tỷ lệ phòng
+  const renderRoomRatioChart = () => {
+    // Tính toán số lượng phòng trống và phòng đã thuê
+    const { rentedRooms, availableRooms } = calculateRoomRatio()
+    const totalRooms = rentedRooms + availableRooms
+
+    // Cấu hình biểu đồ
+    const option = {
+      tooltip: {
+        trigger: "item",
+        formatter: "{b}: {c} phòng ({d}%)",
+      },
+      legend: {
+        orient: "vertical",
+        left: "left",
+        data: ["Phòng Trống", "Phòng Đã Được Thuê"],
+      },
+      series: [
+        {
+          name: "Tỷ Lệ Phòng",
+          type: "pie",
+          radius: ["50%", "70%"], // Tăng bán kính của biểu đồ để làm to biểu đồ
+          avoidLabelOverlap: false,
+          label: {
+            show: true,
+            position: "outside",
+            formatter: "{b}: {d}%", // Định dạng nhãn hiển thị
+          },
+          labelLine: {
+            show: true,
+          },
+          data: [
+            { value: availableRooms, name: "Phòng Trống" },
+            { value: rentedRooms, name: "Phòng Đã Được Thuê" },
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
+          },
+        },
+      ],
+    }
+
+    return (
+      <div style={{ width: "400px", height: "400px" }}>
+        {" "}
+        {/* Điều chỉnh kích thước của biểu đồ */}
+        <ReactECharts
+          option={option}
+          style={{ height: "100%", width: "100%" }}
+        />
+      </div>
+    )
+  }
+
   return (
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
@@ -238,12 +325,15 @@ const ManageRoom = () => {
         </span>
         <div className="d-flex align-items-center">
           <Select
-            defaultValue="Nhà 1"
+            value={selectedHouse}
             style={{ width: 150 }}
-            onChange={value => console.log("Selected House:", value)}
+            onChange={value => setSelectedHouse(value)}
           >
-            <Option value="house1">Nhà 1</Option>
-            <Option value="house2">Nhà 2</Option>
+            {houses.map(house => (
+              <Option key={house._id} value={house._id}>
+                {house.name}
+              </Option>
+            ))}
           </Select>
           <Button
             btntype="third"
@@ -264,12 +354,10 @@ const ManageRoom = () => {
 
       <SearchAndFilter pagination={pagination} setPagination={setPagination} />
 
-      {/* Thông tin chung về nhà trọ */}
       <Box
         sx={{
           position: "relative",
           backgroundColor: "#FFFFFF",
-          boxShadow: "0px 0px 10px 2px #888888",
           marginBottom: "20px",
         }}
       >
@@ -279,11 +367,7 @@ const ManageRoom = () => {
         >
           <p
             className="fs-24"
-            style={{
-              color: "#fff",
-              margin: "4px",
-              fontWeight: "bold",
-            }}
+            style={{ color: "#fff", margin: "4px", fontWeight: "bold" }}
           >
             Thông Tin Chung
           </p>
@@ -297,50 +381,59 @@ const ManageRoom = () => {
                     <TableCell>
                       <b>Tên Chủ Nhà:</b>
                     </TableCell>
-                    <TableCell>{houseData.ownerName}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <b>Email:</b>
-                    </TableCell>
-                    <TableCell>{houseData.email}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <b>Số Điện Thoại:</b>
-                    </TableCell>
-                    <TableCell>{houseData.phone}</TableCell>
+                    <TableCell>{houseDetail?.hostId?.name || "N/A"}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>
                       <b>Trạng Thái:</b>
                     </TableCell>
                     <TableCell>
-                      {houseData.status === "active"
+                      {houseDetail?.status
                         ? "Đang Hoạt Động"
                         : "Dừng Hoạt Động"}
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>
+                      <b>Email:</b>
+                    </TableCell>
+                    <TableCell>{houseDetail?.hostId?.email || "N/A"}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <b>Số Điện Thoại:</b>
+                    </TableCell>
+                    <TableCell>{houseDetail?.hostId?.phone || "N/A"}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
                       <b>Số Lượng Phòng:</b>
                     </TableCell>
-                    <TableCell>{houseData.totalRooms}</TableCell>
+                    <TableCell>{houseDetail?.numberOfRoom || "N/A"}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
           </Box>
-          <Box>
-            <p className="fs-18 fw-bold d-flex justify-content-center ml-10">
-              Tỷ Lệ Đầy Phòng
-            </p>
-            {/* <ChartRooms houseData={houseData} roomsData={roomsData} /> */}
+          <Box
+            sx={{
+              width: "50%",
+              alignItems: "center",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <div>
+              <p className="fs-18 fw-bold d-flex justify-content-center">
+                Tỷ Lệ Đầy Phòng
+              </p>
+              {renderRoomRatioChart()}
+            </div>
           </Box>
         </Box>
       </Box>
 
-      {/* Danh sách phòng */}
+      {/* Thông tin chi tiết của phòng */}
       <Box
         sx={{ position: "relative", backgroundColor: "#FFFFFF" }}
         className="mt-3"
@@ -351,11 +444,7 @@ const ManageRoom = () => {
         >
           <p
             className="fs-24"
-            style={{
-              color: "#fff",
-              margin: "4px",
-              fontWeight: "bold",
-            }}
+            style={{ color: "#fff", margin: "4px", fontWeight: "bold" }}
           >
             Thông Tin Phòng
           </p>
@@ -390,7 +479,6 @@ const ManageRoom = () => {
         </Row>
       </Box>
 
-      {/* Modal hiển thị ảnh */}
       <Modal
         visible={imageModalVisible}
         footer={null}
@@ -398,11 +486,11 @@ const ManageRoom = () => {
       >
         <img alt="room" style={{ width: "100%" }} src={selectedImage} />
       </Modal>
+
       {!!openInsertRoom && (
         <ModalInsertRoom
           open={openInsertRoom}
           onCancel={() => setOpenInsertRoom(false)}
-          // onOk={getHouses}
         />
       )}
       {!!openViewRoom && (
@@ -416,14 +504,12 @@ const ManageRoom = () => {
         <ModalUpdateRoom
           open={openUpdateRoom}
           onCancel={() => setOpenUpdateRoom(false)}
-          // onOk={getHouses}
         />
       )}
       {!!openPriceConfig && (
         <ModalPriceConfiguration
           open={openPriceConfig}
           onCancel={() => setOpenPriceConfig(false)}
-          // onOk={getHouses}
         />
       )}
     </SpinCustom>
