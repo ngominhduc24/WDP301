@@ -94,9 +94,8 @@ const LoginPage = () => {
       const res = await AuthService.login({ ...values })
       // const decodedToken = jwtDecode(res?.token)
       console.log(res)
-      // console.log(decodedToken.payload)
       if (res) {
-        setStorage(STORAGE.TOKEN, res?.token)
+        setStorage(STORAGE.TOKEN, res?.accessToken)
         // setStorage(STORAGE.USER_ID, decodedToken.payload.id)
         setStorage(STORAGE.USER_INFO, res?.data)
         // const userInfo = await getInfo(decodedToken.payload.id)

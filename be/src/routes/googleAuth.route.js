@@ -50,7 +50,7 @@ GoogleAuthRoute.get("/success", async (req, res) => {
       httpOnly: false,
       secure: false,
       path: "/",
-      sameSite: "strict",
+      sameSite: "lax",
     });
     const { refreshToken, passwordResetCode, imageStores, ...other } =
       Account._doc;

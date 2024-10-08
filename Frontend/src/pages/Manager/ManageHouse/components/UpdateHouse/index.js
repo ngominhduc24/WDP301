@@ -5,68 +5,86 @@ import Button from "src/components/MyButton/Button"
 import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
 import styled from "styled-components"
-import ManagerService from "src/services/ManagerService" // Service để gọi API lấy dữ liệu nhà
+import ManagerService from "src/services/ManagerService"
 
 const { Option } = Select
 
-// Styled component để thêm padding và căn chỉnh layout
 const StyledContainer = styled.div`
   padding: 20px;
 `
 
-const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
+const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [amenities, setAmenities] = useState({
-    balcony: false,
-    attic: false,
-    elevator: false,
-    waterHeater: false,
-    washingMachine: false,
-    bed: false,
-    television: false,
-    wifi: false,
-    camera: false,
-    privateKitchen: false,
-    refrigerator: false,
-    WC: false,
-    airConditioner: false,
-    parking: false,
-    internet: false,
-    wardrobe: false,
-  })
+  const [utilities, setUtilities] = useState([]) // State lưu danh sách utilities từ API
+  const [selectedUtilities, setSelectedUtilities] = useState([]) // State để lưu tiện ích đã chọn
 
-  // Lấy dữ liệu nhà từ API và đổ vào form khi houseId thay đổi
+  // State để lưu trữ giá trị tỉnh/thành phố, quận/huyện và phường/xã đã chọn
+  const [selectedProvince, setSelectedProvince] = useState("")
+  const [selectedDistrict, setSelectedDistrict] = useState("")
+  const [selectedWard, setSelectedWard] = useState("")
+
   useEffect(() => {
-    if (houseId && open) {
-      getHouseDetail()
-    }
-  }, [houseId, open])
+    fetchUtilities()
+  }, [])
 
-  const getHouseDetail = async () => {
+  // Cập nhật form và selectedUtilities với dữ liệu nhà khi houseData hoặc open thay đổi
+  useEffect(() => {
+    if (houseData && open) {
+      updateFormWithHouseData()
+      setSelectedUtilities(houseData.utilities || [])
+    }
+  }, [houseData, open])
+
+  // Hàm lấy danh sách utilities từ API
+  const fetchUtilities = async () => {
     try {
       setLoading(true)
-      const response = await ManagerService.getHouseDetail(houseId)
-      if (response?.isError) {
-        console.error("Error fetching house details:", response.message)
-        return
+      const response = await ManagerService.getUtilities()
+      if (response && response.data) {
+        setUtilities(response.data)
+      } else {
+        console.error("No data found in response:", response)
       }
-      const houseData = response?.house
-      // Set giá trị cho form và tiện ích
-      form.setFieldsValue({
-        houseName: houseData?.houseName,
-        city: houseData?.city,
-        district: houseData?.district,
-        ward: houseData?.ward,
-        address: houseData?.address,
-        electricityPrice: houseData?.electricityPrice,
-        waterPrice: houseData?.waterPrice,
-      })
-      setAmenities(houseData?.amenities || {})
     } catch (error) {
-      console.error("Error fetching house details:", error)
+      console.error("Error fetching utilities:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Hàm cập nhật form với dữ liệu chi tiết của nhà hiện tại
+  const updateFormWithHouseData = () => {
+    // Lấy thông tin vị trí từ dữ liệu
+    const { address, city, district, ward } = parseLocation(
+      houseData.address || "",
+    )
+
+    // Cập nhật form với dữ liệu chi tiết của nhà
+    form.setFieldsValue({
+      houseName: houseData?.houseName,
+      city: city || "",
+      district: district || "",
+      ward: ward || "",
+      address: address || "",
+      electricPrice: houseData?.electricPrice || 0,
+      waterPrice: houseData?.waterPrice || 0,
+    })
+
+    // Cập nhật state với các giá trị đã chọn
+    setSelectedProvince(city || "")
+    setSelectedDistrict(district || "")
+    setSelectedWard(ward || "")
+  }
+
+  // Hàm phân tích chuỗi địa chỉ thành các thành phần riêng lẻ
+  const parseLocation = address => {
+    const parts = address.split(",").map(part => part.trim())
+    return {
+      address: parts[0] || "",
+      ward: parts[1] || "",
+      district: parts[2] || "",
+      city: parts[3] || "",
     }
   }
 
@@ -75,12 +93,28 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
     try {
       setLoading(true)
       const values = await form.validateFields()
-      const houseData = { ...values, amenities }
-      const response = await ManagerService.updateHouse(houseId, houseData)
-      if (response?.isError) {
-        console.error("Error updating house:", response.message)
-        return
+      const updatedHouseData = {
+        name: values.houseName,
+        status: true,
+        location: {
+          province: selectedProvince || values.city,
+          district: selectedDistrict || values.district,
+          ward: selectedWard || values.ward,
+          detailLocation: values.address,
+        },
+        electricPrice: Number(values.electricPrice),
+        waterPrice: Number(values.waterPrice),
+        utilities: selectedUtilities, // Cập nhật với tiện ích đã chọn (dạng id)
+        otherUtilities: [], // Các tiện ích khác
       }
+
+      // Gọi API updateHouse với id của nhà và dữ liệu đã cập nhật
+      const res = await ManagerService.updateHouse(
+        houseData._id,
+        updatedHouseData,
+      )
+      if (res?.isError) return
+
       Notice({ msg: "Cập nhật nhà thành công!" })
       onOk && onOk()
       onCancel()
@@ -91,8 +125,13 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
     }
   }
 
-  const handleAmenityChange = e => {
-    setAmenities(prev => ({ ...prev, [e.target.name]: e.target.checked }))
+  // Xử lý khi chọn/bỏ chọn tiện ích bằng id thay vì name
+  const handleAmenityChange = utilityId => {
+    setSelectedUtilities(prevUtilities =>
+      prevUtilities.includes(utilityId)
+        ? prevUtilities.filter(id => id !== utilityId)
+        : [...prevUtilities, utilityId],
+    )
   }
 
   const renderFooter = () => (
@@ -141,7 +180,11 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn Tỉnh/Thành Phố">
+                  <Select
+                    placeholder="Chọn Tỉnh/Thành Phố"
+                    onChange={setSelectedProvince}
+                    value={selectedProvince}
+                  >
                     <Option value="Hà Nội">Hà Nội</Option>
                     <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
                   </Select>
@@ -159,7 +202,11 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn Quận/Huyện">
+                  <Select
+                    placeholder="Chọn Quận/Huyện"
+                    onChange={setSelectedDistrict}
+                    value={selectedDistrict}
+                  >
                     <Option value="Quận 1">Quận 1</Option>
                     <Option value="Quận 2">Quận 2</Option>
                   </Select>
@@ -177,7 +224,11 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn Phường/Xã">
+                  <Select
+                    placeholder="Chọn Phường/Xã"
+                    onChange={setSelectedWard}
+                    value={selectedWard}
+                  >
                     <Option value="Phường 1">Phường 1</Option>
                     <Option value="Phường 2">Phường 2</Option>
                   </Select>
@@ -202,7 +253,7 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
               <Col md={12} xs={24}>
                 <Form.Item
                   label="Tiền Điện Trên 1kwH"
-                  name="electricityPrice"
+                  name="electricPrice"
                   rules={[
                     {
                       required: true,
@@ -229,20 +280,24 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseId }) => {
                 </Form.Item>
               </Col>
 
+              {/* Hiển thị danh sách tiện ích */}
               <Col span={24}>
                 <Form.Item label="Tiện Ích">
                   <Row gutter={[16, 16]}>
-                    {Object.keys(amenities).map(amenity => (
-                      <Col span={6} key={amenity}>
-                        <Checkbox
-                          name={amenity}
-                          checked={amenities[amenity]}
-                          onChange={handleAmenityChange}
-                        >
-                          {amenity}
-                        </Checkbox>
-                      </Col>
-                    ))}
+                    {utilities.length > 0 ? (
+                      utilities.map(utility => (
+                        <Col span={6} key={utility._id}>
+                          <Checkbox
+                            checked={selectedUtilities.includes(utility._id)} // So sánh bằng id thay vì name
+                            onChange={() => handleAmenityChange(utility._id)} // Sử dụng id thay vì name
+                          >
+                            {utility.name}
+                          </Checkbox>
+                        </Col>
+                      ))
+                    ) : (
+                      <div>Không có tiện ích</div>
+                    )}
                   </Row>
                 </Form.Item>
               </Col>

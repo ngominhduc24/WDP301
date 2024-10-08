@@ -34,10 +34,12 @@ class AuthService {
 
                 res.cookie("accessToken", genAccessToken, {
                     httpOnly: false,
-                    secure: false,
+                    secure: false, // Consider changing this to true if you're using HTTPS
                     path: "/",
-                    sameSite: "strict",
+                    sameSite: "lax" // Allows cross-site requests
                 });
+
+
                 await Account.findByIdAndUpdate(
                     { _id: findAccount.id },
                     { refreshToken: genRefreshToken }
@@ -45,7 +47,8 @@ class AuthService {
                 return res
                     .status(200)
                     .json({
-                        message: "Login Successfully",
+                        message: "Successfully",
+                        accessToken: genAccessToken,
                         data: { ...others },
                     });
             }

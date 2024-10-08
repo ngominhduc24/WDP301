@@ -1,10 +1,15 @@
 import { Col, Row, Modal, Tooltip } from "antd"
 import Button from "src/components/MyButton/Button"
+import { useEffect, useState } from "react"
 
 const ModalViewHouse = ({ open, onCancel, house }) => {
+  useEffect(() => {
+    console.log(house)
+  }, [house])
+
   return (
     <Modal
-      open={open} // Thay đổi từ `visible` thành `open` để khớp với Ant Design
+      open={open}
       onCancel={onCancel}
       title="Chi tiết nhà"
       width="70vw"
@@ -28,19 +33,22 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
           <Col span={12} className="mt-40">
             <Row gutter={[16, 16]}>
               <Col span={24}>
-                <strong>Tên nhà:</strong> {house?.houseName}
+                <strong>Tên nhà:</strong>{" "}
+                {house?.houseName || "Không có thông tin"}
               </Col>
               <Col span={24}>
-                <strong>Địa chỉ:</strong> {house?.address}
+                <strong>Địa chỉ:</strong> {house?.address || "Không có địa chỉ"}
               </Col>
               <Col span={24}>
-                <strong>Số phòng:</strong> {house?.numberOfRooms}
+                <strong>Số phòng:</strong> {house?.numberOfRooms || 0}
               </Col>
               <Col span={24}>
-                <strong>Tiền điện:</strong> {house?.electricityPrice} VND/kWh
+                <strong>Tiền điện:</strong>{" "}
+                {house?.electricityPrice || "Không có thông tin"}
               </Col>
               <Col span={24}>
-                <strong>Tiền nước:</strong> {house?.waterPrice} VND/m³
+                <strong>Tiền nước:</strong>{" "}
+                {house?.waterPrice || "Không có thông tin"}
               </Col>
               <Col span={24}>
                 <strong>Trạng thái:</strong>{" "}
@@ -57,18 +65,19 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
               <Col span={24}>
                 <strong>Tiện ích:</strong>
                 <div>
-                  {house?.amenities &&
-                    Object.keys(house?.amenities).map(amenity => (
-                      <Tooltip title={amenity} key={amenity}>
+                  {house?.utilities && house?.utilities.length > 0 ? (
+                    house.utilities.map(utility => (
+                      <Tooltip title={utility} key={utility}>
                         <span
                           style={{ display: "inline-block", margin: "0 8px" }}
                         >
-                          {house?.amenities[amenity]
-                            ? `${amenity} ✔️`
-                            : `${amenity} ❌`}
+                          {utility} ✔️
                         </span>
                       </Tooltip>
-                    ))}
+                    ))
+                  ) : (
+                    <span>Không có tiện ích</span>
+                  )}
                 </div>
               </Col>
             </Row>
@@ -76,7 +85,7 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
           {/* Hình ảnh nhà */}
           <Col span={12} style={{ textAlign: "center" }}>
             <img
-              src={house?.image}
+              src={house?.image || "https://via.placeholder.com/150"}
               alt="house"
               style={{ width: "80%", height: "auto", maxHeight: "400px" }}
             />

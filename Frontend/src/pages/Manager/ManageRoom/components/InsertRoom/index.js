@@ -235,7 +235,6 @@ const ModalInsertRoom = ({ onOk, detailInfo, ...props }) => {
               </Form>
             </TabPane>
 
-            {/* Tab 2: Thêm Danh Sách Phòng */}
             <TabPane tab="Thêm Danh Sách Phòng" key="2">
               <Row gutter={[16, 16]}>
                 <Col span={24}>

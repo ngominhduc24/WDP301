@@ -4,6 +4,7 @@ import STORAGE, { deleteStorage, getStorage } from "src/lib/storage"
 import { getMsgClient } from "src/lib/stringsUtils"
 import { trimData } from "src/lib/utils"
 import ROUTER from "src/router"
+import Cookies from "js-cookie"
 
 /**
  * Parse error response
@@ -23,16 +24,22 @@ function parseError(messages) {
  */
 export function parseBody(response) {
   const resData = response.data
+
+  // Trường hợp lỗi >= 500
   if (+response?.status >= 500) {
-    return notice({
+    notice({
       msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
       isSuccess: false,
     })
-  }
-  if (+response?.status < 500 && +response?.status !== 200) {
-    return
+    return resData // Thêm return resData để tránh undefined
   }
 
+  // Trường hợp không phải lỗi >= 500 nhưng không phải là thành công 200
+  if (+response?.status < 500 && +response?.status !== 200) {
+    return resData // Trả về resData để đảm bảo không bị undefined
+  }
+
+  // Trường hợp thành công 200
   if (response?.status === 200) {
     if (resData.StatusCode === 401) {
       deleteStorage(STORAGE.TOKEN)
@@ -55,6 +62,8 @@ export function parseBody(response) {
     }
     return resData
   }
+
+  // Trường hợp không có điều kiện nào khớp, trả về lỗi
   return parseError(resData?.messages)
 }
 
@@ -67,13 +76,17 @@ const instance = axios.create({
   withCredentials: true,
 })
 
-// Request header
+// Request header interceptor
 instance.interceptors.request.use(
   config => {
+    // Gán baseURL cho config
     config.baseURL = process.env.REACT_APP_ROOT_API
+    console.log("Base URL:", config.baseURL) // Kiểm tra baseURL
 
     // Lấy token từ storage
     const token = getStorage(STORAGE.TOKEN)
+    console.log("Token:", token) // Thêm log để kiểm tra token
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -83,11 +96,14 @@ instance.interceptors.request.use(
   error => Promise.reject(error.message),
 )
 
-// Response parse
+// Response interceptor
 instance.interceptors.response.use(
-  response => parseBody(response),
+  response => {
+    console.log("Response data:", response)
+    return parseBody(response)
+  },
   error => {
-    // can not connect API
+    // Lỗi kết nối hoặc không kết nối được tới API
     if (error.code === "ECONNABORTED") {
       notice({
         msg: "Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ",
@@ -112,7 +128,7 @@ instance.interceptors.response.use(
         isSuccess: false,
       })
     } else if (typeof error.response === "undefined") {
-      notice({ msg: error.response, isSuccess: false })
+      notice({ msg: error.message, isSuccess: false })
     } else if (error.response) {
       notice({
         msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
@@ -125,7 +141,7 @@ instance.interceptors.response.use(
         isSuccess: false,
       })
     }
-    return Promise.reject(error)
+    return Promise.reject(error) // Thêm return Promise.reject để đảm bảo lỗi không bị mất
   },
 )
 
@@ -140,3 +156,4 @@ export const httpGetFile = (path = "", optionalHeader = {}) =>
     url: path,
     headers: { ...optionalHeader },
   })
+

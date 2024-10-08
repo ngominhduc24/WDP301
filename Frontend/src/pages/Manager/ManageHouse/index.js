@@ -8,10 +8,10 @@ import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "./components/SearchAndFilter"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
-import ManagerService from "src/services/ManagerService"
 import ModalInsertHouse from "./components/InsertHouse"
 import ModalUpdateHouse from "./components/UpdateHouse"
 import ModalViewHouse from "./components/ModalViewHouse"
+import ManagerService from "src/services/ManagerService"
 
 const ManageHouse = () => {
   const [houses, setHouses] = useState([])
@@ -19,11 +19,12 @@ const ManageHouse = () => {
   const [openInsertHouses, setOpenInsertHouses] = useState(false)
   const [openUpdateHouses, setOpenUpdateHouses] = useState(false)
   const [openViewHouses, setOpenViewHouses] = useState(false)
-  const [selectedHouse, setSelectedHouse] = useState(null)
+  const [selectedHouse, setSelectedHouse] = useState(null) // State chứa thông tin nhà được chọn
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const { userInfo } = useSelector(state => state.appGlobal)
+  const [utilityMap, setUtilityMap] = useState({})
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -32,58 +33,6 @@ const ManageHouse = () => {
     Status: 0,
   })
 
-  // Biến chứa dữ liệu mẫu (sample data)
-  const dataSample = [
-    {
-      _id: "1",
-      houseName: "Căn hộ Vinhome",
-      numberOfRooms: 3,
-      address: "72 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh",
-      electricityPrice: "3000",
-      waterPrice: "15000",
-      amenities: {
-        balcony: true,
-        wifi: true,
-        camera: false,
-        airConditioner: true,
-      },
-      status: "active",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      _id: "2",
-      houseName: "Chung cư Tân Bình",
-      numberOfRooms: 2,
-      address: "123 Lý Thường Kiệt, Quận Tân Bình, TP. Hồ Chí Minh",
-      electricityPrice: "2500",
-      waterPrice: "13000",
-      amenities: {
-        balcony: false,
-        wifi: true,
-        camera: true,
-        airConditioner: false,
-      },
-      status: "inactive",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      _id: "3",
-      houseName: "Biệt thự Thảo Điền",
-      numberOfRooms: 4,
-      address: "456 Thảo Điền, Quận 2, TP. Hồ Chí Minh",
-      electricityPrice: "3500",
-      waterPrice: "20000",
-      amenities: {
-        balcony: true,
-        wifi: false,
-        camera: true,
-        airConditioner: true,
-      },
-      status: "active",
-      image: "https://via.placeholder.com/150",
-    },
-  ]
-
   useEffect(() => {
     getHouses()
   }, [pagination])
@@ -91,29 +40,60 @@ const ManageHouse = () => {
   const getHouses = async () => {
     try {
       setLoading(true)
-      const response = await ManagerService.getAllHouses(
+      // Gọi API lấy danh sách utilities trước
+      const utilityResponse = await ManagerService.getUtilities()
+      const utilitiesMap = (utilityResponse?.data || []).reduce(
+        (map, utility) => {
+          map[utility._id] = utility.name // Lưu id và name vào map
+          return map
+        },
+        {},
+      )
+      setUtilityMap(utilitiesMap) // Lưu utilityMap vào state
+
+      // Gọi API lấy danh sách houses
+      const houseResponse = await ManagerService.getAllHouses(
         pagination.CurrentPage || 1,
         pagination.PageSize || 10,
       )
 
-      console.log("API Response:", response)
-
-      // Sử dụng dữ liệu từ API nếu có, nếu không thì dùng dataSample
-      if (response && response.houses) {
-        setHouses(response.houses)
-        setTotal(response.total)
+      if (houseResponse?.data?.houses) {
+        setHouses(transformHouseData(houseResponse.data.houses, utilitiesMap)) // Truyền utilityMap vào
+        setTotal(houseResponse.data.houses.length)
       } else {
-        setHouses(dataSample) // Dùng dữ liệu mẫu nếu không có dữ liệu từ API
-        setTotal(dataSample.length)
+        console.error("No data found in response", houseResponse)
       }
     } catch (error) {
       console.error("Error fetching houses:", error)
-      // Nếu xảy ra lỗi khi gọi API, hiển thị dữ liệu mẫu
-      setHouses(dataSample)
-      setTotal(dataSample.length)
     } finally {
       setLoading(false)
     }
+  }
+
+  // Hàm này đảm bảo rằng dữ liệu houseData được lưu trữ với `utilities` là id thay vì name
+  const transformHouseData = (houses, utilitiesMap) => {
+    return houses.map(house => {
+      const houseUtilities = Array.isArray(house.utilities)
+        ? house.utilities
+        : []
+      return {
+        _id: house._id,
+        houseName: house.name || "Chưa có tên",
+        numberOfRooms: house.numberOfRoom || 0,
+        address: `${house.location.detailLocation || ""}, ${
+          house.location.ward || ""
+        }, ${house.location.district || ""}, ${house.location.province || ""}`,
+        electricPrice: house.electricPrice
+          ? `${house.electricPrice} VND/kWh`
+          : "Không có",
+        waterPrice: house.waterPrice
+          ? `${house.waterPrice} VND/m³`
+          : "Không có",
+        utilities: houseUtilities.map(utility => utility._id), // Sử dụng id để truyền đi
+        status: house.status ? "active" : "inactive",
+        image: house.image || "https://via.placeholder.com/150",
+      }
+    })
   }
 
   const listBtn = record => [
@@ -168,33 +148,29 @@ const ManageHouse = () => {
     },
     {
       title: "Tiền điện",
-      dataIndex: "electricityPrice",
+      dataIndex: "electricPrice",
       width: 120,
-      key: "electricityPrice",
-      render: text => `${text} VND/kwH`,
+      key: "electricPrice",
     },
     {
       title: "Tiền nước",
       dataIndex: "waterPrice",
       width: 120,
       key: "waterPrice",
-      render: text => `${text} VND/m³`,
     },
     {
       title: "Tiện ích",
-      dataIndex: "amenities",
+      dataIndex: "utilities",
       width: 300,
-      key: "amenities",
-      render: amenities =>
-        amenities
-          ? Object.keys(amenities)
-              .filter(key => amenities[key])
-              .map(key => (
-                <span key={key} style={{ marginRight: 8 }}>
-                  {key}
-                </span>
-              ))
-          : "Không có tiện ích",
+      key: "utilities",
+      render: utilities => {
+        const utilityNames = utilities.map(
+          utilityId => utilityMap[utilityId] || utilityId,
+        )
+        return Array.isArray(utilityNames) && utilityNames.length > 0
+          ? utilityNames.join(", ")
+          : "Không có tiện ích"
+      },
     },
     {
       title: "Ảnh",
@@ -305,12 +281,12 @@ const ManageHouse = () => {
           onOk={getHouses}
         />
       )}
-
       {!!openUpdateHouses && (
         <ModalUpdateHouse
           open={openUpdateHouses}
           onCancel={() => setOpenUpdateHouses(false)}
           onOk={getHouses}
+          houseData={selectedHouse}
         />
       )}
       {!!openViewHouses && (
