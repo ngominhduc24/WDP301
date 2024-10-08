@@ -16,6 +16,7 @@ import RoomController from "../controllers/Room.controller.js";
 import notificationRoute from "./notification.router.js";
 import statisticRoute from "./statistic.route.js";
 
+
 const indexRouter = express.Router();
 
 indexRouter.use("/news",verifyToken,newsRouter)
