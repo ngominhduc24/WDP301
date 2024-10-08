@@ -311,7 +311,7 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
 
                             {!isMobile && (
                               <Dropdown
-                                menu={menuAccount}
+                                overlay={menuAccount}
                                 overlayStyle={{ minWidth: "200px" }}
                               >
                                 <Row gutter={5} className="pointer ">
