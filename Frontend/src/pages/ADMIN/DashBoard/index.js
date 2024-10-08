@@ -75,8 +75,8 @@ const DashBoard = () => {
   }
 
   useEffect(() => {
-    getStatistics()
-    getAllStores()
+    // getStatistics()
+    // getAllStores()
   }, [shopId, year, month])
 
   const handleShopIdChange = value => {

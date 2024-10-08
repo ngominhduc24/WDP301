@@ -345,7 +345,7 @@ export const LayoutStyled = styled.div`
   .login-item {
     padding: 4px 12px;
     &:first-child {
-      border-right: 1px solid #595959;
+      // border-right: 1px solid #595959;
     }
     .login-item_text {
       font-weight: 600;

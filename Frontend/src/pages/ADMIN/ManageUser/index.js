@@ -349,24 +349,24 @@ const ManageUser = () => {
         <div className="title-type-1 d-flex justify-content-space-between align-items-center pb-16 pt-0 mb-16">
           <div className="fs-24">Danh sách quản lý</div>
           <Row gutter={[16, 16]}>
-              <Col>
-                <Button
-                  btntype="primary"
-                  className="btn-hover-shadow"
-                  onClick={() => setOpenInsertUpdate(selectedNode || true)}
-                >
-                  Thêm nhân viên
-                </Button>
-              </Col>
-              <Col>
-                <Button
-                  // onClick={exportUser}
-                  className="btn-hover-shadow"
-                  btntype="third"
-                >
-                  Xuất Excel
-                </Button>
-              </Col>
+            <Col>
+              <Button
+                btntype="primary"
+                className="btn-hover-shadow"
+                onClick={() => setOpenInsertUpdate(selectedNode || true)}
+              >
+                Thêm nhân viên
+              </Button>
+            </Col>
+            <Col>
+              <Button
+                // onClick={exportUser}
+                className="btn-hover-shadow"
+                btntype="third"
+              >
+                Xuất Excel
+              </Button>
+            </Col>
           </Row>
         </div>
       </div>
@@ -375,13 +375,13 @@ const ManageUser = () => {
         getContainer={() => document.getElementById("body-admin-scroll")}
       >
         <Row gutter={[16, 16]}>
-          <Col style={{ width: 300 }}>
+          {/* <Col style={{ width: 300 }}>
             <TreeAnchor
               selectedNode={selectedNode}
               setSelectedNote={setSelectedNote}
               keyId={2}
             />
-          </Col>
+          </Col> */}
           <Col style={{ width: 0 }} flex="auto">
             <SpinCustom spinning={loading}>
               <TableCustom
@@ -475,7 +475,7 @@ const ManageUser = () => {
         <UserDetail
           open={!!openModalUserDetail}
           onCancel={() => setOpenModalUserDetail(false)}
-          data = {openModalUserDetail}
+          data={openModalUserDetail}
           onOk={getAllManagers}
           // department={selectedNode}
           // listButtonShow={listButtonShow}

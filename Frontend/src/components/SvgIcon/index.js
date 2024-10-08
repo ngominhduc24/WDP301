@@ -2530,15 +2530,15 @@ export default function SvgIcon(props) {
                 d="M10.9999 20.1673C12.2039 20.1689 13.3964 19.9325 14.5087 19.4717C15.6211 19.011 16.6314 18.3349 17.4817 17.4824C18.3342 16.6322 19.0102 15.6218 19.471 14.5095C19.9318 13.3971 20.1682 12.2047 20.1666 11.0007C20.1681 9.79665 19.9317 8.60421 19.471 7.49185C19.0102 6.3795 18.3341 5.36917 17.4817 4.51891C16.6314 3.66642 15.6211 2.99037 14.5087 2.5296C13.3964 2.06883 12.2039 1.83243 10.9999 1.83399C9.79592 1.83246 8.60348 2.06887 7.49112 2.52963C6.37877 2.9904 5.36843 3.66644 4.51818 4.51891C3.66571 5.36917 2.98967 6.3795 2.5289 7.49185C2.06813 8.60421 1.83172 9.79665 1.83326 11.0007C1.8317 12.2047 2.0681 13.3971 2.52887 14.5095C2.98963 15.6218 3.66569 16.6322 4.51818 17.4824C5.36843 18.3349 6.37877 19.0109 7.49112 19.4717C8.60348 19.9325 9.79592 20.1689 10.9999 20.1673Z"
                 fill="white"
                 stroke="white"
-                stroke-width="2"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinejoin="round"
               />
               <path
                 d="M7.33325 11L10.0833 13.75L15.5833 8.25"
                 stroke="black"
-                stroke-width="2"
+                strokeWidth="2"
                 strokeLinecap="round"
-                stroke-linejoin="round"
+                strokeLinejoin="round"
               />
             </mask>
             <g mask="url(#mask0_3078_52293)">
@@ -2807,13 +2807,13 @@ export default function SvgIcon(props) {
           <path
             d="M16 1H2C1.44772 1 1 1.44772 1 2V20C1 20.5523 1.44772 21 2 21H16C16.5523 21 17 20.5523 17 20V2C17 1.44772 16.5523 1 16 1Z"
             stroke="#797979"
-            stroke-linejoin="round"
+            strokeLinejoin="round"
           />
           <path
             d="M7.5 6H13.5M7.5 11H13.5M7.5 16H13.5"
             stroke="#797979"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <path
             fill-rule="evenodd"
@@ -2885,9 +2885,9 @@ export default function SvgIcon(props) {
           <path
             d="M1 4.6V19H19V4.6M1 4.6L3.4 1H10M1 4.6H10M19 4.6L16.6 1H10M19 4.6H10M10 4.6V1M7 8.2H13"
             stroke="#555555"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       )
@@ -2904,9 +2904,9 @@ export default function SvgIcon(props) {
           <path
             d="M4 4H20M20 13H21L20 7.5H4L3 13H4M20 13V20M20 13H13M13 13V20H4V13M13 13H4"
             stroke="#555555"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       )
@@ -2924,7 +2924,7 @@ export default function SvgIcon(props) {
             d="M18 8.58121V17.2484C18 17.6462 17.8419 18.0277 17.5606 18.309C17.2793 18.5903 16.8978 18.7484 16.5 18.7484H12.75C12.3522 18.7484 11.9706 18.5903 11.6893 18.309C11.408 18.0277 11.25 17.6462 11.25 17.2484V13.4984C11.25 13.2995 11.171 13.1087 11.0303 12.9681C10.8897 12.8274 10.6989 12.7484 10.5 12.7484H7.49999C7.30108 12.7484 7.11031 12.8274 6.96966 12.9681C6.82901 13.1087 6.74999 13.2995 6.74999 13.4984V17.2484C6.74999 17.6462 6.59196 18.0277 6.31065 18.309C6.02935 18.5903 5.64782 18.7484 5.24999 18.7484H1.5C1.10217 18.7484 0.720643 18.5903 0.439339 18.309C0.158035 18.0277 1.73323e-08 17.6462 1.73323e-08 17.2484V8.58121C-3.15401e-05 8.37361 0.0430304 8.16826 0.126461 7.97816C0.209891 7.78806 0.331872 7.61735 0.484687 7.47683L7.98468 0.400593L7.99499 0.39028C8.27112 0.139155 8.63096 0 9.00421 0C9.37745 0 9.73729 0.139155 10.0134 0.39028C10.0166 0.393948 10.0201 0.397394 10.0237 0.400593L17.5237 7.47683C17.675 7.6181 17.7954 7.78914 17.8774 7.9792C17.9593 8.16926 18.0011 8.37423 18 8.58121Z"
             fill="white"
             stroke="black"
-            stroke-width="2"
+            strokeWidth="2"
           />
         </svg>
       )
@@ -2941,26 +2941,26 @@ export default function SvgIcon(props) {
           <path
             d="M1 2.125C1 1.50368 1.50368 1 2.125 1H7.075C7.69632 1 8.2 1.50368 8.2 2.125V8.875C8.2 9.49632 7.69632 10 7.075 10H2.125C1.50368 10 1 9.49632 1 8.875L1 2.125Z"
             stroke="#555555"
-            stroke-width="2"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinejoin="round"
           />
           <path
             d="M11.8 11.125C11.8 10.5037 12.3037 10 12.925 10H17.875C18.4963 10 19 10.5037 19 11.125V17.875C19 18.4963 18.4963 19 17.875 19H12.925C12.3037 19 11.8 18.4963 11.8 17.875V11.125Z"
             stroke="#555555"
-            stroke-width="2"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinejoin="round"
           />
           <path
             d="M11.8 2.125C11.8 1.50368 12.3037 1 12.925 1H17.875C18.4963 1 19 1.50368 19 2.125V5.275C19 5.89632 18.4963 6.4 17.875 6.4H12.925C12.3037 6.4 11.8 5.89632 11.8 5.275V2.125Z"
             stroke="#555555"
-            stroke-width="2"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinejoin="round"
           />
           <path
             d="M1 14.725C1 14.1037 1.50368 13.6 2.125 13.6H7.075C7.69632 13.6 8.2 14.1037 8.2 14.725V17.875C8.2 18.4963 7.69632 19 7.075 19H2.125C1.50368 19 1 18.4963 1 17.875L1 14.725Z"
             stroke="#555555"
-            stroke-width="2"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinejoin="round"
           />
         </svg>
       )
@@ -2991,9 +2991,3 @@ SvgIcon.propTypes = {
   className: PropTypes.string,
   onClick: PropTypes.func,
 }
-
-SvgIcon.defaultProps = {
-  className: "",
-  onClick: null,
-}
-

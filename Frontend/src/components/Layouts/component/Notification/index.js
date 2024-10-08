@@ -49,12 +49,12 @@ const Notification = props => {
 
   return (
     <Dropdown
-      overlay={
-        <NotifyForm listNotify={listNotify} onClose={() => setVisible(false)} />
-      }
       onOpenChange={handleDropdownVisibleChange}
       open={visible}
       trigger={["click"]}
+      menu={
+        <NotifyForm listNotify={listNotify} onClose={() => setVisible(false)} />
+      }
     >
       <Col className={`pointer ${isMobile && "pr-0"}`}>
         <Badge
