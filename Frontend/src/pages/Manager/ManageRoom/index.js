@@ -14,6 +14,7 @@ import Table from "@mui/material/Table"
 import TableBody from "@mui/material/TableBody"
 import TableCell from "@mui/material/TableCell"
 import TableContainer from "@mui/material/TableContainer"
+import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
 import ReactECharts from "echarts-for-react"
@@ -21,14 +22,21 @@ import ModalInsertRoom from "./components/InsertRoom"
 import ModalViewRoom from "./components/ModalViewRoom"
 import ModalUpdateRoom from "./components/UpdateRoom"
 import ModalPriceConfiguration from "./components/ModalPriceConfiguration"
-
+import Accordion from "@mui/material/Accordion"
+import AccordionActions from "@mui/material/AccordionActions"
+import AccordionSummary from "@mui/material/AccordionSummary"
+import AccordionDetails from "@mui/material/AccordionDetails"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import Typography from "@mui/material/Typography"
 const ManageRoom = () => {
   const [houses, setHouses] = useState([])
   const [floors, setFloors] = useState([])
   const [houseDetail, setHouseDetail] = useState(null)
   const [selectedHouse, setSelectedHouse] = useState(null)
+  const [selectedFloor, setSelectedFloor] = useState(null)
   const [rooms, setRooms] = useState([])
   const [total, setTotal] = useState(0)
+  const [expanded, setExpanded] = useState({})
   const [openInsertRoom, setOpenInsertRoom] = useState(false)
   const [openUpdateRoom, setOpenUpdateRoom] = useState(false)
   const [openViewRoom, setOpenViewRoom] = useState(false)
@@ -56,9 +64,14 @@ const ManageRoom = () => {
     if (selectedHouse) {
       getHouseByHouseId(selectedHouse)
       getFloorByHouseId(selectedHouse)
-      getRoomsByHouse(selectedHouse)
     }
-  }, [selectedHouse, pagination])
+  }, [selectedHouse])
+
+  useEffect(() => {
+    if (selectedHouse && selectedFloor !== null) {
+      getRoomsByHouse(selectedHouse, selectedFloor)
+    }
+  }, [selectedFloor])
 
   const getAllHouses = async () => {
     try {
@@ -97,175 +110,172 @@ const ManageRoom = () => {
       const response = await ManagerService.getHouseFloors(houseId)
       if (response?.data) {
         setFloors(response.data)
+        setSelectedFloor(response.data[0] || null)
       } else {
         setFloors([])
+        setSelectedFloor(null)
       }
     } catch (error) {
       setFloors([])
+      setSelectedFloor(null)
     } finally {
       setLoading(false)
     }
   }
 
-  const getRoomByFloor = async (houseId, floorId) => {
+  const getRoomsByHouse = async (houseId, floorId) => {
     try {
       setLoading(true)
       const response = await ManagerService.getRoomFloor(houseId, floorId)
-      if (response?.data) {
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getRoomsByHouse = async houseId => {
-    try {
-      setLoading(true)
-      const response = await ManagerService.getAllRoomInHouse(houseId)
+      console.log(response.data)
       if (response?.data) {
         setRooms(response.data)
-        setTotal(response.total)
       } else {
         setRooms([])
-        setTotal(0)
       }
     } catch (error) {
       setRooms([])
-      setTotal(0)
     } finally {
       setLoading(false)
     }
   }
 
-  const listBtn = record => [
-    {
-      isEnable: true,
-      name: "Xem phòng",
-      icon: "eye",
-      onClick: () => {
-        setSelectedRoom(record)
-        setOpenViewRoom(true)
-      },
-    },
-    {
-      isEnable: true,
-      name: "Chỉnh sửa",
-      icon: "edit-green",
-      onClick: () => {
-        setSelectedRoom(record)
-        setOpenUpdateRoom(true)
-      },
-    },
-  ]
+  const handleAccordionChange = index => {
+    setExpanded(prevExpanded => ({
+      ...prevExpanded,
+      [index]: !prevExpanded[index],
+    }))
+  }
 
-  const column = [
-    {
-      title: "STT",
-      key: "_id",
-      width: 60,
-      render: (text, row, idx) => (
-        <div className="text-center">
-          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
-        </div>
-      ),
-    },
-    {
-      title: "Tên Phòng",
-      dataIndex: "roomName",
-      width: 200,
-      key: "roomName",
-    },
-    {
-      title: "Tầng",
-      dataIndex: "floor",
-      width: 60,
-      key: "floor",
-    },
-    {
-      title: "Diện tích",
-      dataIndex: "area",
-      width: 120,
-      key: "area",
-    },
-    {
-      title: "Giá thuê",
-      dataIndex: "price",
-      width: 120,
-      key: "price",
-      render: text => `${text} VND/tháng`,
-    },
-    {
-      title: "Ảnh",
-      dataIndex: "image",
-      width: 120,
-      key: "image",
-      render: text => (
-        <img
-          src={text}
-          alt="room"
-          style={{ width: 50, height: 50, cursor: "pointer" }}
-          onClick={() => {
-            setSelectedImage(text)
-            setImageModalVisible(true)
-          }}
-        />
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      align: "center",
-      width: 150,
-      key: "status",
-      render: (_, record) => (
-        <span
-          className={[
-            "no-color",
-            record.status === "available" ? "green-text" : "red-text",
-          ].join(" ")}
+  const renderFloorButtons = () => {
+    return floors.map(floor => (
+      <Button
+        key={floor}
+        btntype={floor === selectedFloor ? "primary" : "secondary"}
+        style={{ marginRight: "8px" }}
+        onClick={() => {
+          setSelectedFloor(floor)
+          getRoomsByHouse(selectedHouse, floor)
+        }}
+      >
+        Tầng {floor}
+      </Button>
+    ))
+  }
+
+  const renderRoomAccordion = () => {
+    return rooms.map((room, index) => (
+      <Accordion
+        key={index}
+        expanded={expanded[index] || false}
+        onChange={() => handleAccordionChange(index)}
+        sx={{
+          marginBottom: "16px",
+          "&:not(:last-child)": {
+            marginBottom: "16px",
+          },
+          "&:not(:first-of-type)": {
+            marginTop: "16px",
+          },
+        }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon style={{ color: "#FFF" }} />}
+          sx={{ background: room.status === "Empty" ? "#183446" : "#1abc9c" }}
         >
-          {record.status === "available" ? "Còn trống" : "Đã thuê"}
-        </span>
-      ),
-    },
-    {
-      title: "Chức năng",
-      align: "center",
-      key: "Action",
-      width: 150,
-      render: (_, record) => (
-        <Space>
-          {listBtn(record).map(
-            (i, idx) =>
-              !!i?.isEnable && (
-                <ButtonCircle
-                  key={idx}
-                  title={i.name}
-                  iconName={i.icon}
-                  onClick={i.onClick}
-                />
-              ),
-          )}
-        </Space>
-      ),
-    },
-  ]
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <Typography sx={{ fontSize: "20px", color: "#FFF" }}>
+              Phòng {room.name} -{" "}
+              {/* {room.status === "Empty" ? "Đang trống" : "Đã thuê"} */}
+              {room?.members?.length === 0 ? "Đang trống" : "Đã thuê"}
+            </Typography>
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Button variant="contained" color="error">
+                Xóa
+              </Button>
+            </Box>
+          </Box>
+        </AccordionSummary>
+        <AccordionDetails>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Giá</TableCell>
+                  <TableCell align="right">Loại phòng</TableCell>
+                  <TableCell align="right">Diện tích (m2)</TableCell>
+                  <TableCell align="right">Số người tối đa</TableCell>
+                  <TableCell align="right">Số người hiện tại</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>{room.roomPrice.toLocaleString()} VND</TableCell>
+                  <TableCell align="right">
+                    {room.roomType === "normal" ? "Bình Thường" : "Cao cấp"}
+                  </TableCell>
+                  <TableCell align="right">{room.area}</TableCell>
+                  <TableCell align="right">{room.quantityMember}</TableCell>
+                  <TableCell align="right">{room.members.length}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Box sx={{ display: "flex", gap: 3, mt: 3 }}>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setSelectedRoom(room)
+                setOpenViewRoom(true)
+              }}
+            >
+              Thông tin phòng
+            </Button>
+            {room?.members?.length === 0 ? (
+              ""
+            ) : (
+              <Button variant="contained">Tạo hóa đơn</Button>
+            )}
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    ))
+  }
 
-  // Hàm này để tính toán số lượng phòng trống và phòng đã thuê
   const calculateRoomRatio = () => {
     const rentedRooms = rooms.filter(room => room.status !== "Empty").length
     const availableRooms = rooms.filter(room => room.status === "Empty").length
     return { rentedRooms, availableRooms }
   }
 
-  // Hàm để render biểu đồ tỷ lệ phòng
   const renderRoomRatioChart = () => {
-    // Tính toán số lượng phòng trống và phòng đã thuê
-    const { rentedRooms, availableRooms } = calculateRoomRatio()
-    const totalRooms = rentedRooms + availableRooms
+    const filteredRooms = rooms.filter(room => room.floor === selectedFloor)
 
-    // Cấu hình biểu đồ
+    // Tính toán số lượng phòng trống và phòng đã được thuê theo tầng hiện tại
+    const rentedRooms = filteredRooms.filter(
+      room => room.status !== "Empty",
+    ).length
+    const availableRooms = filteredRooms.filter(
+      room => room.status === "Empty",
+    ).length
+
+    // Nếu không có phòng ở tầng hiện tại, hiển thị thông báo
+    if (filteredRooms.length === 0) {
+      return <p>Không có phòng nào trong tầng này.</p>
+    }
+
+    // Cập nhật dữ liệu cho biểu đồ
+    const dataSeries = [
+      { value: availableRooms, name: "Phòng Trống" },
+      { value: rentedRooms, name: "Phòng Đã Được Thuê" },
+    ].filter(item => item.value > 0) // Loại bỏ các mục có giá trị 0 để tránh bị trùng lặp nhãn
+
     const option = {
       tooltip: {
         trigger: "item",
@@ -273,27 +283,31 @@ const ManageRoom = () => {
       },
       legend: {
         orient: "vertical",
-        left: "left",
-        data: ["Phòng Trống", "Phòng Đã Được Thuê"],
+        left: "right", // Đặt legend sang phải để không chồng lên biểu đồ
+        top: "20%", // Điều chỉnh vị trí dọc của legend
+        itemGap: 20, // Tăng khoảng cách giữa các item của legend
       },
       series: [
         {
           name: "Tỷ Lệ Phòng",
           type: "pie",
-          radius: ["50%", "70%"], // Tăng bán kính của biểu đồ để làm to biểu đồ
+          radius: ["40%", "70%"], // Điều chỉnh bán kính của biểu đồ
+          center: ["40%", "50%"],
           avoidLabelOverlap: false,
           label: {
             show: true,
             position: "outside",
-            formatter: "{b}: {d}%", // Định dạng nhãn hiển thị
+            formatter: "{b}: {d}%",
+            textStyle: {
+              fontSize: 14,
+            },
           },
           labelLine: {
             show: true,
+            length: 20,
+            length2: 10,
           },
-          data: [
-            { value: availableRooms, name: "Phòng Trống" },
-            { value: rentedRooms, name: "Phòng Đã Được Thuê" },
-          ],
+          data: dataSeries,
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
@@ -307,8 +321,6 @@ const ManageRoom = () => {
 
     return (
       <div style={{ width: "400px", height: "400px" }}>
-        {" "}
-        {/* Điều chỉnh kích thước của biểu đồ */}
         <ReactECharts
           option={option}
           style={{ height: "100%", width: "100%" }}
@@ -354,6 +366,7 @@ const ManageRoom = () => {
 
       <SearchAndFilter pagination={pagination} setPagination={setPagination} />
 
+      {/* Thông tin chung */}
       <Box
         sx={{
           position: "relative",
@@ -425,7 +438,7 @@ const ManageRoom = () => {
           >
             <div>
               <p className="fs-18 fw-bold d-flex justify-content-center">
-                Tỷ Lệ Đầy Phòng
+                Tỷ Lệ Đầy Phòng Theo Tầng
               </p>
               {renderRoomRatioChart()}
             </div>
@@ -449,36 +462,13 @@ const ManageRoom = () => {
             Thông Tin Phòng
           </p>
         </Box>
-
-        <Row>
-          <Col span={24} className=" mb-20">
-            <TableCustom
-              isPrimary
-              rowKey="_id"
-              columns={column}
-              textEmpty="Chưa có phòng nào trong hệ thống"
-              dataSource={rooms}
-              scroll={{ x: "1200px" }}
-              pagination={{
-                hideOnSinglePage: total <= 10,
-                current: pagination?.CurrentPage,
-                pageSize: pagination?.PageSize,
-                responsive: true,
-                total: total,
-                locale: { items_per_page: "" },
-                showSizeChanger: total > 10,
-                onChange: (CurrentPage, PageSize) =>
-                  setPagination({
-                    ...pagination,
-                    CurrentPage,
-                    PageSize,
-                  }),
-              }}
-            />
-          </Col>
-        </Row>
+        <Box sx={{ display: "flex", padding: "20px 0px" }}>
+          {renderFloorButtons()}
+        </Box>
+        <Box>{renderRoomAccordion()}</Box>
       </Box>
 
+      {/* Modal hiển thị ảnh, thêm phòng, sửa phòng... */}
       <Modal
         visible={imageModalVisible}
         footer={null}
@@ -490,14 +480,21 @@ const ManageRoom = () => {
       {!!openInsertRoom && (
         <ModalInsertRoom
           open={openInsertRoom}
+          visible={openInsertRoom}
           onCancel={() => setOpenInsertRoom(false)}
+          houseId={selectedHouse}
+          onOk={() => {
+            setOpenInsertRoom(false)
+            getRoomsByHouse(selectedHouse, selectedFloor)
+          }}
         />
       )}
+
       {!!openViewRoom && (
         <ModalViewRoom
           open={openViewRoom}
           onCancel={() => setOpenViewRoom(false)}
-          room={selectedRoom}
+          roomId={selectedRoom?._id}
         />
       )}
       {!!openUpdateRoom && (

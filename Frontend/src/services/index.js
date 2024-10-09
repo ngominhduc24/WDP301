@@ -28,7 +28,8 @@ export function parseBody(response) {
   // Trường hợp lỗi >= 500
   if (+response?.status >= 500) {
     notice({
-      msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
+      // msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
+      msg: response.error,
       isSuccess: false,
     })
     return resData // Thêm return resData để tránh undefined
@@ -111,7 +112,8 @@ instance.interceptors.response.use(
       })
     } else if (+error?.response?.status >= 500) {
       notice({
-        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
+        // msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
+        msg: error.response.data.error,
         isSuccess: false,
       })
     } else if (

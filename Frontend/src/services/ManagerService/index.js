@@ -9,6 +9,16 @@ import {
   apiUtilities,
   apiOtherUtilities,
   apiUpdateHouse,
+  apiGetBillDetail,
+  apiGetRoomDetail,
+  apiGetBillRoom,
+  apiMemberDetail,
+  apiDeleteMember,
+  apiInsertMember,
+  apiUpdateMember,
+  apiInsertRoom,
+  apiInsertListRoom,
+  apiDownloadTemplate,
 } from "./urls"
 import QueryString from "qs"
 
@@ -72,6 +82,42 @@ const getOtherUtilities = () => {
   return http.get(apiOtherUtilities)
 }
 
+const getRoomDetail = id => {
+  return http.get(apiGetRoomDetail(id))
+}
+
+const getBillRoom = id => {
+  return http.get(apiGetBillRoom(id))
+}
+const getBillDetail = id => {
+  return http.get(apiGetBillDetail(id))
+}
+const getMemberDetail = (roomId, memberId) => {
+  return http.get(apiMemberDetail(roomId, memberId))
+}
+
+const deleteMember = (roomId, memberData) => {
+  return http.put(apiDeleteMember(roomId), memberData)
+}
+
+const insertMember = (roomId, memberData) => {
+  return http.post(apiInsertMember(roomId), memberData)
+}
+
+const updateMember = (roomId, memberData) => {
+  return http.put(apiUpdateMember(roomId), memberData)
+}
+
+// Thêm phòng
+const insertRoom = (houseId, roomData) => {
+  return http.post(apiInsertRoom(houseId), roomData)
+}
+
+const insertListRoom = body => http.post(apiInsertListRoom, body)
+
+const downloadTemplate = () => {
+  return http.get(apiDownloadTemplate)
+}
 const ManagerService = {
   getAllHouses,
   getHouseDetail,
@@ -83,6 +129,17 @@ const ManagerService = {
   updateHouse,
   otherUtilities,
   getOtherUtilities,
+  getRoomDetail,
+  getBillRoom,
+  getBillDetail,
+  getMemberDetail,
+  deleteMember,
+  insertMember,
+  updateMember,
+  insertRoom,
+  insertListRoom,
+  downloadTemplate,
 }
 
 export default ManagerService
+
