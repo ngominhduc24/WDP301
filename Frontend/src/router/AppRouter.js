@@ -48,6 +48,8 @@ const ManagerManageReport = React.lazy(() =>
 // RENTER
 const RenterRoutes = React.lazy(() => import("src/pages/Renter/RenterRoutes"))
 const RenterRoom = React.lazy(() => import("src/pages/Renter/ManageRoom"))
+const RenterNews = React.lazy(() => import("src/pages/Renter/ManageNews"))
+// const RenterReport = React.lazy(() => import("src/pages/Renter/ManageReport"))
 
 function LazyLoadingComponent({ children }) {
   return (
@@ -219,6 +221,22 @@ const routes = [
           </LazyLoadingComponent>
         ),
       },
+      {
+        path: ROUTER.RENTER_NEWS,
+        element: (
+          <LazyLoadingComponent>
+            <RenterNews />
+          </LazyLoadingComponent>
+        ),
+      }
+      // {
+      //   path: ROUTER.RENTER_REPORT,
+      //   element: (
+      //     <LazyLoadingComponent>
+      //       <RenterReport />
+      //     </LazyLoadingComponent>
+      //   ),
+      // }
     ],
   },
 
