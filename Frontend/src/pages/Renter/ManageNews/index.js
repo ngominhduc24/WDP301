@@ -54,7 +54,7 @@ const News = () => {
     currentPage: 1,
   })
 
-  // Mở Modal thêm ghi chú mới
+  // Mở Modal thêm bài viết mới
   const showModal = () => {
     setSelectedNote(null)
     setIsModalOpen(true)
@@ -171,16 +171,16 @@ const News = () => {
             <div>
               <span>{notes.length} Bảng tin</span>
             </div>
-            {/* <Space size={8}>
+            <Space size={8}>
               <div>
                 <Button className="btn-add-note" onClick={showModal}>
                   <div className="d-flex">
                     <SvgIcon className="ml-10 mr-8" name="edit" />
-                    <span className="mt-2 mr-10">Tạo Ghi Chú</span>
+                    <span className="mt-2 mr-10">Tạo bài viết mới</span>
                   </div>
                 </Button>
               </div>
-            </Space> */}
+            </Space>
           </Col>
 
           <Col span={24} className="mt-30">
