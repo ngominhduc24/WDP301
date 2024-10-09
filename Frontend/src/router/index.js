@@ -18,6 +18,8 @@ const ROUTER = {
 
   // RENTER
   RENTER_ROOM: "/renter/room",
+  RENTER_REPORT: "/renter/report",
+  RENTER_NEWS: "/renter/news",
   RENTER_PROFILE: `/renter/profile`,
 
   // MANAGER
