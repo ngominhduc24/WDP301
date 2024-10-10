@@ -10,7 +10,6 @@ import CB1 from "src/components/Modal/CB1"
 
 const { TabPane } = Tabs
 
-// Styled Components
 const DetailsContainer = styled.div`
   padding: 20px;
   .detail-row {
@@ -226,10 +225,8 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
             </DetailsContainer>
           </TabPane>
 
-          {/* Tab Khách Thuê */}
           <TabPane tab="Khách Thuê" key="2">
             <TenantContainer>
-              {/* Hiển thị danh sách khách thuê */}
               <Row gutter={[16, 16]}>
                 {room?.members.length > 0 ? (
                   room.members.map((member, index) => (
@@ -285,7 +282,6 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
             </TenantContainer>
           </TabPane>
 
-          {/* Tab Thông Tin Hóa Đơn */}
           <TabPane tab="Thông Tin Hóa Đơn" key="3">
             <DetailsContainer>
               <Row gutter={[24, 24]}>
@@ -305,7 +301,6 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
         </Tabs>
       </Modal>
 
-      {/* Modal Thêm Khách Thuê */}
       <ModalInsertRenter
         visible={isInsertRenterVisible}
         onCancel={() => setIsInsertRenterVisible(false)}
@@ -313,7 +308,6 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
         onOk={() => getRoomsDetail(roomId)}
       />
 
-      {/* Modal Cập Nhật Khách Thuê */}
       <ModalUpdateRenter
         visible={isUpdateRenterVisible}
         onCancel={() => setIsUpdateRenterVisible(false)}

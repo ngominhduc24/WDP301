@@ -59,16 +59,14 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("")
-  const [avatarFile, setAvatarFile] = useState(null) // Biến lưu trữ file avatar
+  const [avatarFile, setAvatarFile] = useState(null)
 
   useEffect(() => {
-    // Khi `member` thay đổi và modal mở, lấy dữ liệu thành viên từ API
     if (member && visible) {
       fetchMemberDetail()
     }
   }, [member, visible])
 
-  // Hàm lấy dữ liệu thành viên từ API và set vào form
   const fetchMemberDetail = async () => {
     try {
       setLoading(true)
@@ -80,7 +78,7 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
           phoneNumber: memberData.phone,
           cccd: memberData.cccd,
           gender: memberData.gender,
-          dob: memberData.dob ? dayjs(memberData.dob) : null, // Chuyển đổi ngày sinh về đúng định dạng
+          dob: memberData.dob ? dayjs(memberData.dob) : null,
           note: memberData.note,
         })
         setImageUrl(memberData.avatar?.imageData || "")
@@ -92,26 +90,22 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
     }
   }
 
-  // Xử lý khi nhấn "OK"
   const onContinue = async () => {
     try {
       setLoading(true)
       const values = await form.validateFields()
-      console.log(member._id)
-      // Tạo FormData và thêm các thông tin vào
       const formData = new FormData()
-      formData.append("memberId", member._id) // Thêm memberId vào FormData
+      formData.append("memberId", member._id)
       formData.append("name", values.fullName)
       formData.append("phone", values.phoneNumber)
       formData.append("cccd", values.cccd)
       formData.append("gender", values.gender)
-      formData.append("dob", values.dob.format("YYYY-MM-DD")) // Định dạng ngày tháng
+      formData.append("dob", values.dob.format("YYYY-MM-DD"))
       formData.append("note", values.note || "")
       if (avatarFile) {
-        formData.append("avatar", avatarFile) // Thêm file ảnh vào FormData nếu có
+        formData.append("avatar", avatarFile)
       }
 
-      // Gọi API updateMember với FormData
       const response = await ManagerService.updateMember(roomId, formData)
       if (response?.statusCode === 200) {
         message.success("Cập nhật thông tin thành công!")
@@ -131,17 +125,15 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
     }
   }
 
-  // Xử lý upload hình ảnh và lưu file vào state
   const handleImageUpload = ({ file }) => {
     const reader = new FileReader()
     reader.onload = e => {
       setImageUrl(e.target.result)
     }
-    setAvatarFile(file) // Lưu file vào state để dùng khi gửi FormData
+    setAvatarFile(file)
     reader.readAsDataURL(file)
   }
 
-  // Xử lý khi nhấn nút "Hủy"
   const handleCancel = () => {
     form.resetFields()
     setImageUrl("")
@@ -160,7 +152,6 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
       <Styled>
         <Form form={form} layout="vertical">
           <div className="form-container">
-            {/* Khu vực upload ảnh */}
             <div className="image-upload">
               <Upload
                 accept="image/*"
@@ -187,7 +178,6 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
               </div>
             </div>
 
-            {/* Khu vực nhập thông tin */}
             <div className="info-form">
               <Row gutter={16}>
                 <Col span={12}>
@@ -271,7 +261,6 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
               </Row>
             </div>
           </div>
-          {/* Footer */}
           <div className="form-footer">
             <Button
               onClick={handleCancel}

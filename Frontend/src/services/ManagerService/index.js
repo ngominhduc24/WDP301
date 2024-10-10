@@ -19,6 +19,11 @@ import {
   apiInsertRoom,
   apiInsertListRoom,
   apiDownloadTemplate,
+  apiDefaultPrice,
+  apiRemovePriceItem,
+  apiAddPriceItem,
+  apiAddBill,
+  apiGetDebt,
 } from "./urls"
 import QueryString from "qs"
 
@@ -107,7 +112,10 @@ const insertMember = (roomId, memberData) => {
 const updateMember = (roomId, memberData) => {
   return http.put(apiUpdateMember(roomId), memberData)
 }
-
+// Xóa Phòng
+const deleteRoom = roomId => {
+  return http.delete(apiGetRoomDetail(roomId))
+}
 // Thêm phòng
 const insertRoom = (houseId, roomData) => {
   return http.post(apiInsertRoom(houseId), roomData)
@@ -117,6 +125,23 @@ const insertListRoom = body => http.post(apiInsertListRoom, body)
 
 const downloadTemplate = () => {
   return http.get(apiDownloadTemplate)
+}
+// Config Price List
+const getPriceList = () => {
+  return http.get(apiDefaultPrice)
+}
+const removePrice = (houseId, baseId) => {
+  return http.put(apiRemovePriceItem(houseId, baseId))
+}
+const addPrice = (houseId, priceData) => {
+  return http.put(apiAddPriceItem(houseId), priceData)
+}
+// Room Bill
+const getDebt = roomId => {
+  return http.get(apiGetDebt(roomId))
+}
+const addBill = (roomId, billData) => {
+  return http.post(apiInsertRoom(roomId), billData)
 }
 const ManagerService = {
   getAllHouses,
@@ -139,6 +164,12 @@ const ManagerService = {
   insertRoom,
   insertListRoom,
   downloadTemplate,
+  getPriceList,
+  removePrice,
+  addPrice,
+  getDebt,
+  addBill,
+  deleteRoom,
 }
 
 export default ManagerService

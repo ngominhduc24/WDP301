@@ -28,6 +28,8 @@ import AccordionSummary from "@mui/material/AccordionSummary"
 import AccordionDetails from "@mui/material/AccordionDetails"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Typography from "@mui/material/Typography"
+import ModalCreateBill from "./components/ModalCreateBill"
+import CB1 from "src/components/Modal/CB1"
 const ManageRoom = () => {
   const [houses, setHouses] = useState([])
   const [floors, setFloors] = useState([])
@@ -40,6 +42,7 @@ const ManageRoom = () => {
   const [openInsertRoom, setOpenInsertRoom] = useState(false)
   const [openUpdateRoom, setOpenUpdateRoom] = useState(false)
   const [openViewRoom, setOpenViewRoom] = useState(false)
+  const [openModalCreateBill, setOpenModalCreateBill] = useState(false)
   const [openPriceConfig, setOpenPriceConfig] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -127,7 +130,6 @@ const ManageRoom = () => {
     try {
       setLoading(true)
       const response = await ManagerService.getRoomFloor(houseId, floorId)
-      console.log(response.data)
       if (response?.data) {
         setRooms(response.data)
       } else {
@@ -145,6 +147,24 @@ const ManageRoom = () => {
       ...prevExpanded,
       [index]: !prevExpanded[index],
     }))
+  }
+  const deleteRoom = async roomId => {
+    try {
+      setLoading(true)
+      await ManagerService.deleteRoom(roomId)
+      await getRoomsByHouse(selectedHouse, selectedFloor)
+      Notice({
+        type: "success",
+        message: "Xóa phòng thành công!",
+      })
+    } catch (error) {
+      Notice({
+        type: "error",
+        message: "Xóa phòng thất bại!",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const renderFloorButtons = () => {
@@ -169,34 +189,44 @@ const ManageRoom = () => {
         key={index}
         expanded={expanded[index] || false}
         onChange={() => handleAccordionChange(index)}
-        sx={{
+        style={{
           marginBottom: "16px",
-          "&:not(:last-child)": {
-            marginBottom: "16px",
-          },
-          "&:not(:first-of-type)": {
-            marginTop: "16px",
-          },
         }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon style={{ color: "#FFF" }} />}
-          sx={{ background: room.status === "Empty" ? "#183446" : "#1abc9c" }}
+          sx={{
+            background: room?.members?.length === 0 ? "#183446" : "#1abc9c",
+          }}
         >
           <Box
-            sx={{
+            style={{
               display: "flex",
               justifyContent: "space-between",
               width: "100%",
             }}
           >
-            <Typography sx={{ fontSize: "20px", color: "#FFF" }}>
+            <Typography style={{ fontSize: "20px", color: "#FFF" }}>
               Phòng {room.name} -{" "}
-              {/* {room.status === "Empty" ? "Đang trống" : "Đã thuê"} */}
               {room?.members?.length === 0 ? "Đang trống" : "Đã thuê"}
             </Typography>
-            <Box sx={{ display: "flex", gap: 3 }}>
-              <Button variant="contained" color="error">
+            <Box style={{ display: "flex", gap: "3px" }}>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() =>
+                  CB1({
+                    title: `Bạn có chắc chắn xóa phòng ${room.name}?`,
+                    icon: "warning-usb",
+                    okText: "Có",
+                    cancelText: "Không",
+                    onOk: async close => {
+                      await deleteRoom(room._id)
+                      close()
+                    },
+                  })
+                }
+              >
                 Xóa
               </Button>
             </Box>
@@ -227,7 +257,7 @@ const ManageRoom = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box sx={{ display: "flex", gap: 3, mt: 3 }}>
+          <Box style={{ display: "flex", gap: "3px", marginTop: "3px" }}>
             <Button
               variant="contained"
               onClick={() => {
@@ -240,7 +270,15 @@ const ManageRoom = () => {
             {room?.members?.length === 0 ? (
               ""
             ) : (
-              <Button variant="contained">Tạo hóa đơn</Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setSelectedRoom(room)
+                  setOpenModalCreateBill(true)
+                }}
+              >
+                Tạo hóa đơn
+              </Button>
             )}
           </Box>
         </AccordionDetails>
@@ -257,7 +295,6 @@ const ManageRoom = () => {
   const renderRoomRatioChart = () => {
     const filteredRooms = rooms.filter(room => room.floor === selectedFloor)
 
-    // Tính toán số lượng phòng trống và phòng đã được thuê theo tầng hiện tại
     const rentedRooms = filteredRooms.filter(
       room => room.status !== "Empty",
     ).length
@@ -265,16 +302,14 @@ const ManageRoom = () => {
       room => room.status === "Empty",
     ).length
 
-    // Nếu không có phòng ở tầng hiện tại, hiển thị thông báo
     if (filteredRooms.length === 0) {
       return <p>Không có phòng nào trong tầng này.</p>
     }
 
-    // Cập nhật dữ liệu cho biểu đồ
     const dataSeries = [
       { value: availableRooms, name: "Phòng Trống" },
       { value: rentedRooms, name: "Phòng Đã Được Thuê" },
-    ].filter(item => item.value > 0) // Loại bỏ các mục có giá trị 0 để tránh bị trùng lặp nhãn
+    ].filter(item => item.value > 0)
 
     const option = {
       tooltip: {
@@ -283,9 +318,9 @@ const ManageRoom = () => {
       },
       legend: {
         orient: "vertical",
-        left: "right", // Đặt legend sang phải để không chồng lên biểu đồ
-        top: "20%", // Điều chỉnh vị trí dọc của legend
-        itemGap: 20, // Tăng khoảng cách giữa các item của legend
+        left: "right",
+        top: "20%",
+        itemGap: 20,
       },
       series: [
         {
@@ -446,7 +481,6 @@ const ManageRoom = () => {
         </Box>
       </Box>
 
-      {/* Thông tin chi tiết của phòng */}
       <Box
         sx={{ position: "relative", backgroundColor: "#FFFFFF" }}
         className="mt-3"
@@ -468,7 +502,6 @@ const ManageRoom = () => {
         <Box>{renderRoomAccordion()}</Box>
       </Box>
 
-      {/* Modal hiển thị ảnh, thêm phòng, sửa phòng... */}
       <Modal
         visible={imageModalVisible}
         footer={null}
@@ -507,6 +540,16 @@ const ManageRoom = () => {
         <ModalPriceConfiguration
           open={openPriceConfig}
           onCancel={() => setOpenPriceConfig(false)}
+          onOk={() => getHouseByHouseId(houseDetail?._id)}
+          priceList={houseDetail?.priceList}
+          houseId={houseDetail?._id}
+        />
+      )}
+      {!!openModalCreateBill && (
+        <ModalCreateBill
+          open={openModalCreateBill}
+          onCancel={() => setOpenModalCreateBill(false)}
+          roomId={selectedRoom?._id}
         />
       )}
     </SpinCustom>

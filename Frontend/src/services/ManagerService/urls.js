@@ -26,3 +26,15 @@ export const apiDeleteMember = id => `house/room/${id}/delete/member`
 export const apiInsertMember = id => `house/room/${id}/member`
 export const apiUpdateMember = id => `house/room/${id}/member`
 
+// Room Config
+export const apiDefaultPrice = `defaultPrice`
+export const apiRemovePriceItem = (houseId, baseId) =>
+  `house/${houseId}/removePriceItem/${baseId}`
+export const apiAddPriceItem = houseId => `house/${houseId}/addPriceItem`
+
+// Room Bill
+export const apiAddBill = roomId => `bill/room/${roomId}`
+export const apiGetDebt = roomId => `bill/debt/room/${roomId}`
+
+// House News
+export const apiGetNews = houseId => `news/house/${houseId}`

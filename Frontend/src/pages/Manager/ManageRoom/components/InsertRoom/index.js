@@ -35,15 +35,15 @@ const StyledContainer = styled.div`
 const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [utilities, setUtilities] = useState([]) // Danh sách tiện ích chính
-  const [otherUtilities, setOtherUtilities] = useState([]) // Danh sách tiện ích khác
-  const [selectedUtilities, setSelectedUtilities] = useState([]) // Tiện ích chính được chọn
-  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([]) // Tiện ích khác được chọn
+  const [utilities, setUtilities] = useState([])
+  const [otherUtilities, setOtherUtilities] = useState([])
+  const [selectedUtilities, setSelectedUtilities] = useState([])
+  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([])
   const [newAmenity, setNewAmenity] = useState("")
   const [isAddAmenityModalVisible, setIsAddAmenityModalVisible] =
     useState(false)
   const [fileList, setFileList] = useState([])
-  // Gọi API để lấy danh sách tiện ích và tiện ích khác khi mở modal
+
   useEffect(() => {
     if (visible) {
       fetchAllUtilities()
@@ -67,21 +67,18 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
     }
   }
 
-  // Xử lý khi thay đổi trạng thái checkbox tiện ích chính
   const handleUtilityChange = id => {
     setSelectedUtilities(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id],
     )
   }
 
-  // Xử lý khi thay đổi trạng thái checkbox tiện ích khác
   const handleOtherUtilityChange = id => {
     setSelectedOtherUtilities(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id],
     )
   }
 
-  // Xử lý thêm tiện ích khác mới
   const handleSaveOtherUtility = async () => {
     try {
       setLoading(true)
@@ -90,7 +87,7 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
       if (response && !response.isError) {
         message.success(`Thêm tiện ích "${newAmenity}" thành công!`)
         setNewAmenity("")
-        fetchAllUtilities() // Tải lại danh sách tiện ích sau khi thêm
+        fetchAllUtilities()
       } else {
         message.error("Có lỗi xảy ra khi thêm tiện ích mới!")
       }
@@ -103,13 +100,11 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
     }
   }
 
-  // Xử lý khi nhấn "OK" để thêm phòng
   const onContinue = async () => {
     try {
       setLoading(true)
       const values = await form.validateFields()
 
-      // Tạo dữ liệu để gửi đi
       const payload = {
         name: values.roomName,
         status: values.status,
@@ -118,8 +113,8 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
         roomPrice: parseFloat(values.price),
         deposit: parseFloat(values.deposit),
         area: parseFloat(values.area),
-        utilities: selectedUtilities, // Sử dụng các tiện ích chính được chọn
-        otherUtilities: selectedOtherUtilities, // Sử dụng các tiện ích khác được chọn
+        utilities: selectedUtilities,
+        otherUtilities: selectedOtherUtilities,
       }
 
       const response = await ManagerService.insertRoom(houseId, payload)
@@ -141,7 +136,6 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
       setLoading(false)
     }
   }
-  // Xử lý download template
   const handleDownloadTemplate = async () => {
     try {
       setLoading(true)
@@ -150,7 +144,7 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement("a")
         link.href = url
-        link.setAttribute("download", "template.xlsx") // Đặt tên file tải về
+        link.setAttribute("download", "template.xlsx")
         document.body.appendChild(link)
         link.click()
         message.success("Tải template thành công!")
@@ -164,7 +158,6 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
     }
   }
 
-  // Xử lý upload file
   const handleUpload = async () => {
     if (fileList.length === 0) {
       message.warning("Vui lòng chọn file để upload!")
@@ -172,8 +165,8 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
     }
 
     const formData = new FormData()
-    formData.append("excelFile", fileList[0]) // Thêm file vào FormData
-    formData.append("houseId", houseId) // Thêm houseId vào FormData
+    formData.append("excelFile", fileList[0])
+    formData.append("houseId", houseId)
 
     try {
       setLoading(true)
@@ -181,7 +174,7 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
       if (response?.statusCode === 201) {
         message.success("Upload danh sách phòng thành công!")
         onOk && onOk()
-        setFileList([]) // Xóa danh sách file sau khi upload thành công
+        setFileList([])
       } else {
         message.error("Có lỗi xảy ra khi upload danh sách phòng!")
       }
@@ -330,7 +323,6 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
                     </Form.Item>
                   </Col>
 
-                  {/* Danh sách tiện ích chính */}
                   <Col span={24}>
                     <Form.Item label="Tiện Ích Chính">
                       <Row gutter={[16, 16]}>
@@ -349,7 +341,6 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
                     </Form.Item>
                   </Col>
 
-                  {/* Danh sách tiện ích khác */}
                   <Col span={24}>
                     <Form.Item label="Tiện Ích Khác">
                       <Row gutter={[16, 16]}>
@@ -390,10 +381,10 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
                       fileList={fileList}
                       beforeUpload={file => {
                         setFileList([file])
-                        return false // Prevent auto upload
+                        return false
                       }}
-                      onRemove={() => setFileList([])} // Xóa file
-                      maxCount={1} // Chỉ cho phép chọn 1 file
+                      onRemove={() => setFileList([])}
+                      maxCount={1}
                     >
                       <AntButton>Chọn tệp</AntButton>
                     </Upload>
@@ -418,7 +409,6 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
             </TabPane>
           </Tabs>
 
-          {/* Modal thêm tiện ích khác */}
           <CustomModal
             title="Thêm tiện ích"
             visible={isAddAmenityModalVisible}

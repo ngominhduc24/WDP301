@@ -13,7 +13,7 @@ import {
 import Button from "src/components/MyButton/Button"
 import styled from "styled-components"
 import { UploadOutlined, UserOutlined } from "@ant-design/icons"
-import ManagerService from "src/services/ManagerService" // Import ManagerService để gọi hàm API
+import ManagerService from "src/services/ManagerService"
 
 const { Option } = Select
 
@@ -57,27 +57,24 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("")
-  const [avatarFile, setAvatarFile] = useState(null) // Biến lưu trữ file avatar
+  const [avatarFile, setAvatarFile] = useState(null)
 
-  // Xử lý khi nhấn "OK"
   const onContinue = async () => {
     try {
       setLoading(true)
       const values = await form.validateFields()
 
-      // Tạo FormData và thêm các thông tin vào
       const formData = new FormData()
       formData.append("name", values.fullName)
       formData.append("phone", values.phoneNumber)
       formData.append("cccd", values.cccd)
       formData.append("gender", values.gender)
-      formData.append("dob", values.dob.format("YYYY-MM-DD")) // Định dạng ngày tháng
+      formData.append("dob", values.dob.format("YYYY-MM-DD"))
       formData.append("note", values.note || "")
       if (avatarFile) {
-        formData.append("avatar", avatarFile) // Thêm file ảnh vào FormData
+        formData.append("avatar", avatarFile)
       }
 
-      // Gọi API insertMember với FormData
       const response = await ManagerService.insertMember(roomId, formData)
       if (response?.statusCode === 201) {
         message.success("Thêm khách thuê thành công!")
@@ -97,17 +94,15 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
     }
   }
 
-  // Xử lý upload hình ảnh và lưu file vào state
   const handleImageUpload = ({ file }) => {
     const reader = new FileReader()
     reader.onload = e => {
       setImageUrl(e.target.result)
     }
-    setAvatarFile(file) // Lưu file vào state để dùng khi gửi FormData
+    setAvatarFile(file)
     reader.readAsDataURL(file)
   }
 
-  // Xử lý khi nhấn nút "Hủy"
   const handleCancel = () => {
     form.resetFields()
     setImageUrl("")
@@ -126,7 +121,6 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
       <Styled>
         <Form form={form} layout="vertical">
           <div className="form-container">
-            {/* Khu vực upload ảnh */}
             <div className="image-upload">
               <Upload
                 accept="image/*"
@@ -153,7 +147,6 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
               </div>
             </div>
 
-            {/* Khu vực nhập thông tin */}
             <div className="info-form">
               <Row gutter={16}>
                 <Col span={12}>
