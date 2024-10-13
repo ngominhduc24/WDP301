@@ -24,9 +24,21 @@ import {
   apiAddPriceItem,
   apiAddBill,
   apiGetDebt,
+  apiGetNews,
+  apiCreateNews,
+  apiUploadImage,
+  apiAddComment,
+  apiGetComment,
+  apiUpdateNew,
+  apiDeleteNew,
+  apiBillStatistic,
+  apiRevenue,
+  apiProblems,
+  apiGeneral,
+  apiGetProblems,
 } from "./urls"
 import QueryString from "qs"
-
+import axios from "axios"
 const generateRequestId = () => Math.random().toString(36).substring(2, 15)
 
 const getHouseDetail = id => {
@@ -141,7 +153,54 @@ const getDebt = roomId => {
   return http.get(apiGetDebt(roomId))
 }
 const addBill = (roomId, billData) => {
-  return http.post(apiInsertRoom(roomId), billData)
+  return http.post(apiAddBill(roomId), billData)
+}
+// Room News
+const getNews = houseId => {
+  return http.get(apiGetNews(houseId))
+}
+const createNews = roomData => {
+  return http.post(apiCreateNews(), roomData)
+}
+const updateNew = (newId, roomData) => {
+  return http.put(apiUpdateNew(newId), roomData)
+}
+const deleteNew = newId => {
+  return http.delete(apiUpdateNew(newId))
+}
+const uploadImageInstance = axios.create({
+  baseURL: "https://api.cloudinary.com/v1_1/debiqwc2z/image/upload",
+  timeout: 10000,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+})
+// News Comment
+const getComment = newId => {
+  return http.get(apiGetComment(newId))
+}
+const addComment = (newId, roomData) => {
+  return http.post(apiAddComment(newId), roomData)
+}
+const getBillStatistic = month => {
+  const url = `${apiBillStatistic}?month=${month}`
+  return http.get(url)
+}
+
+const getRevenue = () => {
+  return http.get(apiRevenue)
+}
+
+const getProblems = () => {
+  return http.get(apiProblems)
+}
+
+const getGeneralStatistic = () => {
+  return http.get(apiGeneral)
+}
+// problems
+const getManagerProblems = houseId => {
+  return http.get(apiGetProblems(houseId))
 }
 const ManagerService = {
   getAllHouses,
@@ -170,6 +229,18 @@ const ManagerService = {
   getDebt,
   addBill,
   deleteRoom,
+  getNews,
+  createNews,
+  uploadImageInstance,
+  getComment,
+  addComment,
+  updateNew,
+  deleteNew,
+  getBillStatistic,
+  getRevenue,
+  getProblems,
+  getGeneralStatistic,
+  getManagerProblems,
 }
 
 export default ManagerService

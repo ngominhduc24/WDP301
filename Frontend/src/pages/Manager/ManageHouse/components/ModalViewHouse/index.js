@@ -4,24 +4,22 @@ import { useEffect, useState } from "react"
 import ManagerService from "src/services/ManagerService"
 
 const ModalViewHouse = ({ open, onCancel, house }) => {
-  const [utilityNames, setUtilityNames] = useState([]) // Chứa tên của tiện ích chính
-  const [otherUtilityNames, setOtherUtilityNames] = useState([]) // Chứa tên của tiện ích khác
+  const [utilityNames, setUtilityNames] = useState([])
+  const [otherUtilityNames, setOtherUtilityNames] = useState([])
 
   useEffect(() => {
     if (house) {
-      fetchUtilities() // Gọi API khi `house` có dữ liệu
+      fetchUtilities()
     }
   }, [house])
 
-  // Hàm gọi API để lấy thông tin utilities và otherUtilities
   const fetchUtilities = async () => {
     try {
       const [utilitiesResponse, otherUtilitiesResponse] = await Promise.all([
-        ManagerService.getUtilities(), // Gọi API lấy danh sách tiện ích chính
-        ManagerService.getOtherUtilities(), // Gọi API lấy danh sách tiện ích khác
+        ManagerService.getUtilities(),
+        ManagerService.getOtherUtilities(),
       ])
 
-      // Tạo một map để nhanh chóng tra cứu tên từ id
       const utilitiesMap = (utilitiesResponse?.data || []).reduce(
         (map, utility) => {
           map[utility._id] = utility.name
@@ -38,16 +36,12 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
         {},
       )
 
-      // Lấy tên của utilities và otherUtilities từ id truyền vào house
       const utilitiesNames = (house.utilities || []).map(
         id => utilitiesMap[id] || "Unknown Utility",
       )
-
       const otherUtilitiesNames = (house.otherUtilities || []).map(
         id => otherUtilitiesMap[id] || "Unknown Other Utility",
       )
-
-      // Cập nhật state
       setUtilityNames(utilitiesNames)
       setOtherUtilityNames(otherUtilitiesNames)
     } catch (error) {
@@ -77,7 +71,6 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
     >
       <div className="mr-16 ml-16 flex">
         <Row gutter={[16, 16]}>
-          {/* Thông tin chi tiết nhà */}
           <Col span={12} className="mt-40">
             <Row gutter={[16, 16]}>
               <Col span={24}>
@@ -110,7 +103,6 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
                     : "Dừng hoạt động"}
                 </span>
               </Col>
-              {/* Hiển thị tiện ích chính */}
               <Col span={24}>
                 <strong>Tiện ích:</strong>
                 <div>
@@ -129,7 +121,6 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
                   )}
                 </div>
               </Col>
-              {/* Hiển thị tiện ích khác */}
               <Col span={24}>
                 <strong>Tiện ích khác:</strong>
                 <div>
@@ -150,7 +141,6 @@ const ModalViewHouse = ({ open, onCancel, house }) => {
               </Col>
             </Row>
           </Col>
-          {/* Hình ảnh nhà */}
           <Col span={12} style={{ textAlign: "center" }}>
             <img
               src={house?.image || "https://via.placeholder.com/150"}

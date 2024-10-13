@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Row,
   Col,
@@ -8,12 +8,8 @@ import {
   Button,
   Space,
   Pagination,
-  Input,
+  Select,
   Empty,
-  Avatar,
-  List,
-  Comment,
-  Form,
 } from "antd"
 import { EllipsisOutlined, MessageOutlined } from "@ant-design/icons"
 import SpinCustom from "src/components/Spin"
@@ -23,125 +19,128 @@ import SvgIcon from "src/components/SvgIcon"
 import ModalInsertNews from "./modal/ModalInsertNews"
 import ModalUpdateNews from "./modal/ModalUpdateNews"
 import ModalComment from "./modal/ModalComment"
-const News = () => {
-  // Dữ liệu mẫu ban đầu
-  const fakeData = [
-    {
-      BookingNoteID: 1,
-      title: "Tin tức tăng giá phòng",
-      content: "Giá phòng tăng 10% trong tháng 10.",
-      createdDate: "2024-10-01T03:22:40.844Z",
-    },
-    {
-      BookingNoteID: 2,
-      title: "Cập nhật dịch vụ phòng",
-      content: "Dịch vụ phòng sẽ có thêm đồ uống miễn phí.",
-      createdDate: "2024-10-02T08:22:40.844Z",
-    },
-  ]
+import ManagerService from "src/services/ManagerService"
+import Notice from "src/components/Notice"
+import CB1 from "src/components/Modal/CB1"
+const { Option } = Select
 
-  const [notes, setNotes] = useState(fakeData)
+const News = () => {
+  const [notes, setNotes] = useState([])
+  const [houses, setHouses] = useState([])
+  const [selectedHouse, setSelectedHouse] = useState(null)
   const [selectedNote, setSelectedNote] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
+  const [imageModalVisible, setImageModalVisible] = useState(false)
+  const [selectedImage, setSelectedImage] = useState(null)
   const [loading, setLoading] = useState(false)
   const [selectedNew, setSelectedNew] = useState(null)
-  const [selectedPost, setSelectedPost] = useState(null)
-  const [comments, setComments] = useState([])
   const [pagination, setPagination] = useState({
     pageSize: 5,
     currentPage: 1,
   })
 
-  // Mở Modal thêm ghi chú mới
+  useEffect(() => {
+    fetchHouses()
+  }, [])
+
+  useEffect(() => {
+    if (selectedHouse) {
+      fetchNews(selectedHouse)
+    }
+  }, [selectedHouse])
+
+  const fetchHouses = async () => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getAllHouses()
+      const housesData = response?.data?.houses || []
+      setHouses(housesData)
+      if (housesData.length > 0) {
+        setSelectedHouse(housesData[0]._id)
+      }
+    } catch (error) {
+      console.error("Error fetching houses:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchNews = async houseId => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getNews(houseId)
+      const newsData = response?.data?.data || []
+      setNotes(newsData)
+    } catch (error) {
+      console.error("Error fetching news:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const showModal = () => {
     setSelectedNote(null)
     setIsModalOpen(true)
   }
 
-  // Mở Modal chỉnh sửa ghi chú
   const showModalUpdate = note => {
     setSelectedNew(note)
     setIsModalUpdateOpen(true)
   }
 
-  // Hiển thị modal bình luận
   const showCommentModal = post => {
-    setSelectedPost(post)
-    setComments([{ author: "Mac Hungg", content: "Mọi người lưu ý." }]) // Dữ liệu mẫu cho bình luận
+    setSelectedNew(post)
     setIsCommentModalOpen(true)
   }
 
-  // Đóng modal bình luận
   const handleCommentModalCancel = () => {
     setIsCommentModalOpen(false)
   }
 
-  // Xóa ghi chú
-  const handleDeleteNote = noteID => {
-    Modal.confirm({
-      title: "Xóa ghi chú",
-      content: "Bạn có chắc chắn muốn xóa ghi chú này không?",
-      onOk: () => {
-        setNotes(notes.filter(note => note.BookingNoteID !== noteID))
+  const handleDeleteNews = async noteID => {
+    try {
+      setLoading(true)
+      await ManagerService.deleteNew(noteID)
+      Notice({ msg: "Xóa bài viết thành công" })
+      fetchNews(selectedHouse)
+    } catch (error) {
+      console.error("Error deleting news:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const showDeleteConfirm = record => {
+    CB1({
+      record,
+      title: `Bạn có chắc chắn xóa nội dung này?`,
+      icon: "warning-usb",
+      okText: "Có",
+      cancelText: "Không",
+      onOk: close => {
+        handleDeleteNews(record._id)
+        close()
       },
     })
   }
 
-  // Lưu ghi chú mới
-  const handleSaveNote = values => {
-    if (selectedNote) {
-      setNotes(
-        notes.map(note =>
-          note.BookingNoteID === selectedNote.BookingNoteID
-            ? { ...note, ...values }
-            : note,
-        ),
-      )
-    } else {
-      const newNote = {
-        BookingNoteID: notes.length + 1,
-        ...values,
-        createdDate: new Date().toISOString(),
-      }
-      setNotes([...notes, newNote])
-    }
-    setIsModalOpen(false)
-  }
-
-  // Cập nhật ghi chú hiện có
-  const handleUpdateNote = values => {
-    setNotes(
-      notes.map(note =>
-        note.BookingNoteID === selectedNew.BookingNoteID
-          ? { ...note, ...values }
-          : note,
-      ),
-    )
-    setIsModalUpdateOpen(false)
-  }
-
-  // Xử lý chuyển trang
   const handlePageChange = page => {
     setPagination({ ...pagination, currentPage: page })
   }
 
-  // Thêm bình luận mới vào danh sách bình luận
-  const handleAddComment = comment => {
-    setComments([...comments, { author: "User", content: comment }])
+  const handleImageClick = image => {
+    setSelectedImage(image)
+    setImageModalVisible(true)
   }
 
-  // Menu cho các tùy chọn
   const menu = record => (
     <Menu>
       <Menu.Item key="edit" onClick={() => showModalUpdate(record)}>
         Chỉnh sửa
       </Menu.Item>
-      <Menu.Item
-        key="delete"
-        onClick={() => handleDeleteNote(record.BookingNoteID)}
-      >
+      <Menu.Item key="delete" onClick={() => showDeleteConfirm(record)}>
         Xóa
       </Menu.Item>
     </Menu>
@@ -151,7 +150,19 @@ const News = () => {
     <SpinCustom spinning={loading}>
       <NoteStyle>
         <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30 mr-12 ml-12">
-          <div>Ghi chú</div>
+          <div>Bảng tin</div>
+          <Select
+            value={selectedHouse}
+            style={{ width: 200 }}
+            onChange={value => setSelectedHouse(value)}
+          >
+            {houses?.length > 0 &&
+              houses.map(house => (
+                <Option key={house._id} value={house._id}>
+                  {house?.name || "Unknown House"}
+                </Option>
+              ))}
+          </Select>
         </div>
         <Row className="mt-8 mb-8 mr-12 ml-12">
           <Col span={24}>
@@ -176,7 +187,7 @@ const News = () => {
                 <Button className="btn-add-note" onClick={showModal}>
                   <div className="d-flex">
                     <SvgIcon className="ml-10 mr-8" name="edit" />
-                    <span className="mt-2 mr-10">Tạo Ghi Chú</span>
+                    <span className="mt-2 mr-10">Tạo Tin</span>
                   </div>
                 </Button>
               </div>
@@ -193,7 +204,7 @@ const News = () => {
                   )
                   .map(record => (
                     <div
-                      key={record.BookingNoteID}
+                      key={record._id}
                       gutter={16}
                       style={{
                         border: "2px solid #ddd",
@@ -210,7 +221,7 @@ const News = () => {
                             <div
                               style={{ color: "white" }}
                               className="mb-8"
-                            >{`Chương trình họp: ${record.title}`}</div>
+                            >{`Tin tức tại nhà: ${record.title}`}</div>
                             <div
                               onClick={e => {
                                 e.stopPropagation()
@@ -242,7 +253,23 @@ const News = () => {
                             style={{ maxWidth: "100%" }}
                             className="notify-content"
                           >
-                            <div className="mb-8">{`Ghi chú: ${record.content}`}</div>
+                            <div className="mb-8">
+                              {`Ghi chú: ${record.content} - ${record.authorId.name} (${record.authorId.accountType})`}
+                            </div>
+                            {record.images.length > 0 &&
+                              record.images.map((image, index) => (
+                                <img
+                                  key={index}
+                                  src={image}
+                                  alt="news"
+                                  style={{
+                                    maxWidth: "100px",
+                                    marginRight: "8px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => handleImageClick(image)}
+                                />
+                              ))}
                           </div>
                           <div
                             style={{
@@ -251,9 +278,7 @@ const News = () => {
                               paddingRight: "8px",
                             }}
                           >
-                            {new Date(record.createdDate).toLocaleString(
-                              "vi-VN",
-                            )}
+                            {new Date(record.createdAt).toLocaleString("vi-VN")}
                           </div>
                           <Button
                             type="primary"
@@ -283,7 +308,7 @@ const News = () => {
                   }}
                 >
                   <p className="mt-24 fs-14 fw-600 ml-30">
-                    <Empty description="Không có ghi chú nào." />
+                    <Empty description="Không có tin tức nào." />
                   </p>
                 </div>
               )}
@@ -306,30 +331,38 @@ const News = () => {
         </Row>
       </NoteStyle>
 
-      {/* Modal thêm mới ghi chú */}
       <ModalInsertNews
         open={isModalOpen}
-        onOk={handleSaveNote}
+        onOk={() => fetchNews(selectedHouse)}
         onCancel={() => setIsModalOpen(false)}
         note={selectedNote}
+        houseId={selectedHouse}
       />
 
-      {/* Modal cập nhật ghi chú */}
       <ModalUpdateNews
         open={isModalUpdateOpen}
-        onOk={handleUpdateNote}
+        onOk={() => fetchNews(selectedHouse)}
         onCancel={() => setIsModalUpdateOpen(false)}
         selectedNode={selectedNew}
+        houseId={selectedHouse}
       />
+
+      <Modal
+        visible={imageModalVisible}
+        footer={null}
+        onCancel={() => setImageModalVisible(false)}
+      >
+        <img src={selectedImage} alt="news-detail" style={{ width: "100%" }} />
+      </Modal>
 
       <ModalComment
         open={isCommentModalOpen}
         onCancel={handleCommentModalCancel}
-        post={selectedPost || {}}
-        onSubmit={handleAddComment}
+        post={selectedNew || {}}
       />
     </SpinCustom>
   )
 }
 
 export default News
+

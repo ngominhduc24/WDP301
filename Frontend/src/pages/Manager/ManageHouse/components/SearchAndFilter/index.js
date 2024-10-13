@@ -13,24 +13,19 @@ const SearchAndFilter = ({ pagination, setPagination, onSearch }) => {
   const handleStatusChange = value => {
     setPagination({
       ...pagination,
-      Status: value === "all" ? 0 : parseInt(value, 10), // Parse value to integer if necessary
+      Status: value === "all" ? 0 : parseInt(value, 10),
     })
   }
 
   const handleSearch = value => {
-    onSearch(value) // Gọi hàm `onSearch` khi người dùng nhập tìm kiếm
+    onSearch(value)
   }
 
   return (
     <div>
       <Row gutter={[16, 8]} className="mb-15">
         <Col xl={19} lg={24} md={24} sm={24} xs={24}>
-          <FlInput
-            onSearch={handleSearch} // Thay đổi thành hàm `handleSearch`
-            search
-            allowClear
-            label="Tìm kiếm"
-          />
+          <FlInput onSearch={handleSearch} search allowClear label="Tìm kiếm" />
         </Col>
         <Col xl={5} lg={24} md={24} sm={24} xs={24}>
           <Button

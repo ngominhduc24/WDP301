@@ -271,7 +271,6 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                 </Form.Item>
               </Col>
 
-              {/* Hiển thị danh sách tiện ích */}
               <Col span={24}>
                 <Form.Item label="Tiện Ích Chính">
                   <Row gutter={[16, 16]}>
@@ -290,7 +289,6 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                 </Form.Item>
               </Col>
 
-              {/* Hiển thị danh sách tiện ích khác */}
               <Col span={24}>
                 <Form.Item label="Tiện Ích Khác">
                   <Row gutter={[16, 16]}>
@@ -319,7 +317,6 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
           </Form>
         </StyledContainer>
 
-        {/* Modal thêm tiện ích */}
         <CustomModal
           title="Thêm tiện ích"
           visible={isAddAmenityModalVisible}

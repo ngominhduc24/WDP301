@@ -38,3 +38,21 @@ export const apiGetDebt = roomId => `bill/debt/room/${roomId}`
 
 // House News
 export const apiGetNews = houseId => `news/house/${houseId}`
+export const apiCreateNews = houseId => `news`
+export const apiUpdateNew = newId => `news/${newId}`
+export const apiDeleteNew = newId => `news/${newId}`
+export const apiUploadImage = `https://api.cloudinary.com/v1_1/debiqwc2z/image/upload`
+
+// News Comment
+export const apiAddComment = newId => `news/${newId}/comment`
+export const apiGetComment = newId => `news/${newId}/comment`
+
+// Manager Host Statistic
+export const apiBillStatistic = `statistic/bills`
+export const apiRevenue = `statistic/revenue`
+export const apiProblems = `statistic/problems`
+export const apiGeneral = `statistic/general`
+
+// Problems
+export const apiGetProblems = houseId => `/problem/house/${houseId}`
+

@@ -16,17 +16,16 @@ const StyledContainer = styled.div`
 const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [utilities, setUtilities] = useState([]) // State lưu tiện ích chính
-  const [otherUtilities, setOtherUtilities] = useState([]) // State lưu tiện ích khác
-  const [selectedUtilities, setSelectedUtilities] = useState([]) // Tiện ích đã chọn
-  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([]) // Tiện ích khác đã chọn
-  const [electricPrice, setElectricPrice] = useState("") // State lưu tiền điện dạng string
-  const [waterPrice, setWaterPrice] = useState("") // State lưu tiền nước dạng string
-  const [newAmenity, setNewAmenity] = useState("") // Tiện ích mới
+  const [utilities, setUtilities] = useState([])
+  const [otherUtilities, setOtherUtilities] = useState([])
+  const [selectedUtilities, setSelectedUtilities] = useState([])
+  const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([])
+  const [electricPrice, setElectricPrice] = useState("")
+  const [waterPrice, setWaterPrice] = useState("")
+  const [newAmenity, setNewAmenity] = useState("")
   const [isAddAmenityModalVisible, setIsAddAmenityModalVisible] =
     useState(false)
 
-  // State địa chỉ nhà
   const [selectedProvince, setSelectedProvince] = useState("")
   const [selectedDistrict, setSelectedDistrict] = useState("")
   const [selectedWard, setSelectedWard] = useState("")
