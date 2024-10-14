@@ -24,7 +24,6 @@ const PersonProfile = () => {
   const userID = getStorage(STORAGE.USER_ID)
   const user = getStorage(STORAGE.USER_INFO)
   console.log(user)
-  // Upload ảnh đại diện
   const uploadImg = async file => {
     try {
       setLoading(true)
@@ -38,23 +37,6 @@ const PersonProfile = () => {
       setLoading(false)
     }
   }
-
-  // Lấy thông tin người dùng
-  // const getInfo = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const res = await UserService.getUserById(userID)
-  //     console.log("API response:", res)
-  //     if (res?.isError) return
-  //     setUser(res)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   getInfo()
-  // }, [avatarUpdated])
 
   // Đổi ảnh đại diện
   // const changeAvatar = async () => {
@@ -237,6 +219,10 @@ const PersonProfile = () => {
                   <div className="title-infor">Loại tài khoản:</div>
                   <div>{user?.accountType}</div>
                 </div>
+                <div className="infor-box">
+                  <div className="title-infor">Ngày tạo:</div>
+                  <div>{moment(user?.createdAt).format("DD/MM/YYYY")}</div>
+                </div>
               </div>
             </Col>
             <Col xs={24} sm={12} md={12} lg={12} xl={8} xxl={8}>
@@ -251,9 +237,18 @@ const PersonProfile = () => {
                     {user?.status ? "Đang hoạt động" : "Dừng hoạt động"}
                   </div>
                 </div>
+
                 <div className="infor-box">
-                  <div className="title-infor">Ngày tạo:</div>
-                  <div>{moment(user?.createdAt).format("DD/MM/YYYY")}</div>
+                  <div className="title-infor">payosClientId:</div>
+                  <div>{user?.payosClientId || "Chưa cập nhật"}</div>
+                </div>
+                <div className="infor-box">
+                  <div className="title-infor">payosAPIKey:</div>
+                  <div>{user?.payosAPIKey || "Chưa cập nhật"}</div>
+                </div>
+                <div className="infor-box">
+                  <div className="title-infor">payosCheckSum:</div>
+                  <div>{user?.payosCheckSum || "Chưa cập nhật"}</div>
                 </div>
               </div>
             </Col>

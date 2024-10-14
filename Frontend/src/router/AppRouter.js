@@ -7,10 +7,6 @@ import SpinCustom from "src/components/Spin"
 // ANONYMOUS
 const PublicRouters = React.lazy(() => import("src/pages/PublicRouters"))
 const SvgViewer = React.lazy(() => import("src/pages/SvgViewer"))
-
-const MeetingInvitation = React.lazy(() =>
-  import("src/pages/SvgViewer/MeetingInvitation"),
-)
 const NotFound = React.lazy(() => import("src/pages/NotFound"))
 const LoginPage = React.lazy(() => import("src/pages/ANONYMOUS/LoginPage"))
 
@@ -48,6 +44,8 @@ const ManagerManageReport = React.lazy(() =>
 // RENTER
 const RenterRoutes = React.lazy(() => import("src/pages/Renter/RenterRoutes"))
 const RenterRoom = React.lazy(() => import("src/pages/Renter/ManageRoom"))
+const RenterNews = React.lazy(() => import("src/pages/Renter/ManageNews"))
+const RenterReport = React.lazy(() => import("src/pages/Renter/ManageReport"))
 
 function LazyLoadingComponent({ children }) {
   return (
@@ -203,7 +201,6 @@ const routes = [
   },
 
   // RENTER
-
   {
     element: (
       <LazyLoadingComponent>
@@ -216,6 +213,22 @@ const routes = [
         element: (
           <LazyLoadingComponent>
             <RenterRoom />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.RENTER_NEWS,
+        element: (
+          <LazyLoadingComponent>
+            <RenterNews />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.RENTER_REPORT,
+        element: (
+          <LazyLoadingComponent>
+            <RenterReport />
           </LazyLoadingComponent>
         ),
       },

@@ -2,22 +2,26 @@ import React, { useState, useEffect } from "react"
 import { Col, Row, Select, Space } from "antd"
 import SpinCustom from "src/components/Spin"
 import Notice from "src/components/Notice"
-import ManagerService from "src/services/ManagerService"
 import TableCustom from "src/components/TableCustom"
 import InsertUpdateReport from "./components/InsertUpdateReport"
 import ModalViewDetailReport from "./components/ModalViewReport"
 import SearchAndFilter from "./components/SearchAndFilter"
 import Button from "src/components/MyButton/Button"
-
+import RenterService from "src/services/RenterService"
+import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+import CB1 from "src/components/Modal/CB1"
+import ButtonCircle from "src/components/MyButton/ButtonCircle"
+import InsertReport from "./components/InsertReport"
 const ManageReport = () => {
+  const userInfo = getStorage(STORAGE.USER_INFO)
   const { Option } = Select
-  const [houses, setHouses] = useState([])
   const [selectedHouse, setSelectedHouse] = useState(null)
   const [allProblems, setAllProblems] = useState([])
   const [filteredProblems, setFilteredProblems] = useState([])
   const [loading, setLoading] = useState(false)
   const [selectedProblem, setSelectedProblem] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [openInsertProblem, setOpenInsertProblem] = useState(false)
   const [isModalViewDetailProblem, setIsModalViewDetailProblem] =
     useState(false)
 
@@ -29,37 +33,36 @@ const ManageReport = () => {
   })
 
   useEffect(() => {
-    fetchHouses()
+    fetchHouse()
   }, [])
 
   useEffect(() => {
-    if (selectedHouse) fetchProblems(selectedHouse)
-  }, [selectedHouse])
+    if (userInfo?.roomId) fetchProblems(userInfo?.roomId)
+  }, [userInfo?.roomId])
 
   useEffect(() => {
     applyFiltersAndSearch()
   }, [pagination, allProblems])
 
-  const fetchHouses = async () => {
+  const fetchHouse = async () => {
     try {
       setLoading(true)
-      const response = await ManagerService.getAllHouses()
-      setHouses(response.data.houses || [])
-      if (response.data.houses.length > 0) {
-        setSelectedHouse(response.data.houses[0]._id)
+      const response = await RenterService.getRoomDetail(userInfo?.roomId)
+      const housesData = response?.data?.houseId || []
+      if (housesData) {
+        setSelectedHouse(housesData._id)
       }
     } catch (error) {
       console.error("Error fetching houses:", error)
-      Notice({ msg: "Không thể lấy danh sách nhà" })
     } finally {
       setLoading(false)
     }
   }
 
-  const fetchProblems = async houseId => {
+  const fetchProblems = async roomId => {
     try {
       setLoading(true)
-      const response = await ManagerService.getManagerProblems(houseId)
+      const response = await RenterService.getRoomProblems(roomId)
       setAllProblems(response.data.data || [])
     } catch (error) {
       console.error("Error fetching problems:", error)
@@ -96,6 +99,21 @@ const ManageReport = () => {
     setSelectedProblem(problem)
     setIsModalViewDetailProblem(true)
   }
+  const handleDeleteProblem = async problemId => {
+    try {
+      setLoading(true)
+      const res = await RenterService.deleteProblems(problemId)
+      if (res?.isError) return
+      fetchProblems(userInfo?.roomId)
+      Notice({
+        msg: "Xóa thành công.",
+      })
+    } catch (error) {
+      console.error("Error deleting booking note:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const columns = [
     {
@@ -114,23 +132,44 @@ const ManageReport = () => {
     },
     { title: "Phòng", dataIndex: ["roomId", "name"], key: "room" },
     {
-      title: "Hành Động",
-      key: "action",
+      title: "Chức năng",
+      align: "center",
+      key: "Action",
+      width: 100,
       render: (_, record) => (
         <Space>
-          <Button btntype="primary" onClick={() => handleUpdate(record)}>
-            UPDATE
-          </Button>
-          <Button
-            btntype="default"
-            onClick={() => handleOpenView(record)}
-            style={{ backgroundColor: "yellow" }}
-          >
-            Xem chi tiết
-          </Button>
+          {listBtn(record).map(
+            (i, idx) =>
+              !!i?.isEnable && (
+                <ButtonCircle
+                  key={idx}
+                  title={i.name}
+                  iconName={i.icon}
+                  onClick={i.onClick}
+                />
+              ),
+          )}
         </Space>
       ),
     },
+    // {
+    //   title: "Hành Động",
+    //   key: "action",
+    //   render: (_, record) => (
+    //     <Space>
+    //       <Button btntype="primary" onClick={() => handleUpdate(record)}>
+    //         UPDATE
+    //       </Button>
+    //       <Button
+    //         btntype="default"
+    //         onClick={() => handleOpenView(record)}
+    //         style={{ backgroundColor: "yellow" }}
+    //       >
+    //         Xem chi tiết
+    //       </Button>
+    //     </Space>
+    //   ),
+    // },
   ]
 
   const renderStatus = status => {
@@ -147,6 +186,41 @@ const ManageReport = () => {
         return status
     }
   }
+  const listBtn = record => [
+    {
+      isEnable: true,
+      name: "Xem chi tiết",
+      icon: "eye",
+      onClick: () => {
+        handleOpenView(record)
+      },
+    },
+    {
+      isEnable: true,
+      name: "Chỉnh sửa",
+      icon: "edit-green",
+      onClick: () => {
+        handleUpdate(record)
+      },
+    },
+    {
+      isEnable: true,
+      name: "Xóa",
+      icon: "delete-red-row",
+      onClick: () =>
+        CB1({
+          record,
+          title: `bạn chắc chắn muốn xóa?`,
+          icon: "warning-usb",
+          okText: "Có",
+          cancelText: "Không",
+          onOk: async close => {
+            handleDeleteProblem(record?._id)
+            close()
+          },
+        }),
+    },
+  ]
 
   return (
     <SpinCustom spinning={loading}>
@@ -154,6 +228,16 @@ const ManageReport = () => {
         <span style={{ fontWeight: "bold", marginRight: "8px" }}>
           Vấn Đề Nhà Trọ
         </span>
+        <div>
+          <Button
+            btntype="third"
+            onClick={() => {
+              setOpenInsertProblem(true)
+            }}
+          >
+            Thêm vấn đề
+          </Button>
+        </div>
       </div>
 
       <Row className="mt-8 mb-8 mr-12 ml-12">
@@ -162,22 +246,6 @@ const ManageReport = () => {
             pagination={pagination}
             setPagination={setPagination}
           />
-        </Col>
-      </Row>
-
-      <Row className="mt-8 mb-20 mr-12 ml-12">
-        <Col span={6}>
-          <Select
-            value={selectedHouse}
-            style={{ width: "100%" }}
-            onChange={setSelectedHouse}
-          >
-            {houses.map(house => (
-              <Option key={house._id} value={house._id}>
-                {house.name}
-              </Option>
-            ))}
-          </Select>
         </Col>
       </Row>
 
@@ -191,16 +259,21 @@ const ManageReport = () => {
       <InsertUpdateReport
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
-        onOk={() => fetchProblems(selectedHouse)}
+        onOk={() => fetchProblems(userInfo?.roomId)}
         problem={selectedProblem}
         defaultStatus={selectedProblem?.status}
       />
-
+      <InsertReport
+        open={openInsertProblem}
+        onCancel={() => setOpenInsertProblem(false)}
+        onOk={() => fetchProblems(userInfo?.roomId)}
+        roomId={userInfo?.roomId}
+      />
       <ModalViewDetailReport
         open={isModalViewDetailProblem}
         onCancel={() => setIsModalViewDetailProblem(false)}
         problemId={selectedProblem?._id}
-        onOk={() => fetchProblems(selectedHouse)}
+        onOk={() => fetchProblems(userInfo?.roomId)}
       />
     </SpinCustom>
   )

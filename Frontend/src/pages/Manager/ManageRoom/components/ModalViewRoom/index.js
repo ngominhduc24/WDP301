@@ -123,7 +123,6 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
     setIsUpdateRenterVisible(true)
   }
 
-  // Thêm hàm xử lý xóa khách thuê
   const handleDeleteRenter = member => {
     CB1({
       title: `Bạn có chắc chắn muốn xóa khách thuê này không?`,

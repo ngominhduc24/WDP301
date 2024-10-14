@@ -36,6 +36,8 @@ import {
   apiProblems,
   apiGeneral,
   apiGetProblems,
+  apiUpdateProblems,
+  apiGetDetailProblem,
 } from "./urls"
 import QueryString from "qs"
 import axios from "axios"
@@ -186,7 +188,7 @@ const getBillStatistic = month => {
   const url = `${apiBillStatistic}?month=${month}`
   return http.get(url)
 }
-
+// Dashboard
 const getRevenue = () => {
   return http.get(apiRevenue)
 }
@@ -201,6 +203,12 @@ const getGeneralStatistic = () => {
 // problems
 const getManagerProblems = houseId => {
   return http.get(apiGetProblems(houseId))
+}
+const updateProblems = (problemId, problemData) => {
+  return http.put(apiUpdateProblems(problemId), problemData)
+}
+const getDetailProblem = houseId => {
+  return http.get(apiGetDetailProblem(houseId))
 }
 const ManagerService = {
   getAllHouses,
@@ -241,6 +249,8 @@ const ManagerService = {
   getProblems,
   getGeneralStatistic,
   getManagerProblems,
+  updateProblems,
+  getDetailProblem,
 }
 
 export default ManagerService

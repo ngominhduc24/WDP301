@@ -14,10 +14,10 @@ const ROUTER = {
   MANAGE_PRODUCTS: "/admin/manage-products",
   PROFILE: `/thong-tin-ca-nhan`,
 
-  // USER
-
-  // STAFF
+  // RENTER
   RENTER_ROOM: "/renter/room",
+  RENTER_NEWS: "/renter/news",
+  RENTER_REPORT: "/renter/report",
   RENTER_PROFILE: `/staff/thong-tin-ca-nhan`,
 
   // MANAGER
@@ -28,17 +28,6 @@ const ROUTER = {
   MANAGER_NEWS: "/manager/new",
   MANAGER_BILLS: "/manager/bills",
   MANAGER_PROFILE: `/manager/personal`,
-  // WAREHOUSE MANAGER
-  WAREHOUSE_MANAGER_DASHBOARD: "/warehouse-manager/dashboard",
-  WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_SHOP:
-    "/warehouse-manager/manage-invoices/to-shop",
-  WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_WAREHOUSE:
-    "/warehouse-manager/manage-invoices/to-warehouse",
-  WAREHOUSE_MANAGER_MANAGE_WAREHOUSE: "/warehouse-manager/manage-warehouse",
-  WAREHOUSE_MANAGER_PROFILE: `/warehouse-manager-thong-tin-ca-nhan`,
-  WAREHOUSE_MANAGER_MANAGE_PRODUCT: "/warehouse-manager/manage-product",
-  WAREHOUSE_MANAGER_MANAGE_STORE: "/warehouse-manager/manage-store",
-  WAREHOUSE_MANAGER_REQUEST_TO: "/warehouse-manager/request-to",
 }
 export default ROUTER
 

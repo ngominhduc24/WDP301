@@ -19,17 +19,16 @@ import SvgIcon from "src/components/SvgIcon"
 import ModalInsertNews from "./modal/ModalInsertNews"
 import ModalUpdateNews from "./modal/ModalUpdateNews"
 import ModalComment from "./modal/ModalComment"
-import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
 import CB1 from "src/components/Modal/CB1"
+import RenterService from "src/services/RenterService"
 import STORAGE, { getStorage, setStorage } from "src/lib/storage"
 
 const { Option } = Select
 
 const News = () => {
-  const userInfo = getStorage(STORAGE.USER_INFO)
   const [notes, setNotes] = useState([])
-  const [houses, setHouses] = useState([])
+  const userInfo = getStorage(STORAGE.USER_INFO)
   const [selectedHouse, setSelectedHouse] = useState(null)
   const [selectedNote, setSelectedNote] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -43,25 +42,27 @@ const News = () => {
     pageSize: 5,
     currentPage: 1,
   })
-
   useEffect(() => {
-    fetchHouses()
-  }, [])
-
+    if (userInfo?.roomId) {
+      fetchHouse(userInfo?.roomId)
+    }
+  }, [userInfo?.roomId])
   useEffect(() => {
     if (selectedHouse) {
       fetchNews(selectedHouse)
     }
   }, [selectedHouse])
 
-  const fetchHouses = async () => {
+  const fetchHouse = async () => {
     try {
       setLoading(true)
-      const response = await ManagerService.getAllHouses()
-      const housesData = response?.data?.houses || []
-      setHouses(housesData)
-      if (housesData.length > 0) {
-        setSelectedHouse(housesData[0]._id)
+      const userInfo = getStorage(STORAGE.USER_INFO)
+      const response = await RenterService.getRoomDetail(userInfo?.roomId)
+      const housesData = response?.data?.houseId || []
+      if (housesData) {
+        console.log("hello")
+        fetchNews(housesData._id)
+        setSelectedHouse(housesData._id)
       }
     } catch (error) {
       console.error("Error fetching houses:", error)
@@ -73,7 +74,7 @@ const News = () => {
   const fetchNews = async houseId => {
     try {
       setLoading(true)
-      const response = await ManagerService.getNews(houseId)
+      const response = await RenterService.getNews(houseId)
       const newsData = response?.data?.data || []
       setNotes(newsData)
     } catch (error) {
@@ -105,7 +106,7 @@ const News = () => {
   const handleDeleteNews = async noteID => {
     try {
       setLoading(true)
-      await ManagerService.deleteNew(noteID)
+      await RenterService.deleteNew(noteID)
       Notice({ msg: "Xóa bài viết thành công" })
       fetchNews(selectedHouse)
     } catch (error) {
@@ -159,18 +160,6 @@ const News = () => {
       <NoteStyle>
         <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30 mr-12 ml-12">
           <div>Bảng tin</div>
-          <Select
-            value={selectedHouse}
-            style={{ width: 200 }}
-            onChange={value => setSelectedHouse(value)}
-          >
-            {houses?.length > 0 &&
-              houses.map(house => (
-                <Option key={house._id} value={house._id}>
-                  {house?.name || "Unknown House"}
-                </Option>
-              ))}
-          </Select>
         </div>
         <Row className="mt-8 mb-8 mr-12 ml-12">
           <Col span={24}>

@@ -47,14 +47,10 @@ export const apiUploadImage = `https://api.cloudinary.com/v1_1/debiqwc2z/image/u
 export const apiAddComment = newId => `news/${newId}/comment`
 export const apiGetComment = newId => `news/${newId}/comment`
 
-// Manager Host Statistic
-export const apiBillStatistic = `statistic/bills`
-export const apiRevenue = `statistic/revenue`
-export const apiProblems = `statistic/problems`
-export const apiGeneral = `statistic/general`
-
 // Problems
 export const apiGetProblems = houseId => `/problem/house/${houseId}`
 export const apiUpdateProblems = problemId => `/problem/${problemId}`
 export const apiGetDetailProblem = problemId => `/problem/${problemId}`
+export const apiGetRoomProblems = roomId => `/problem/room/${roomId}`
+export const apiInsertProblems = houseId => `/problem/`
 

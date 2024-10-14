@@ -404,6 +404,7 @@ const ManageRoom = () => {
       {/* Thông tin chung */}
       <Box
         sx={{
+          marginTop: "10px",
           position: "relative",
           backgroundColor: "#FFFFFF",
           marginBottom: "20px",

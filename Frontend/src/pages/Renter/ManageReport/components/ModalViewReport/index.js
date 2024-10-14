@@ -74,13 +74,6 @@ const ModalViewDetailReport = ({ open, onCancel, onOk, problemId }) => {
             <Button btntype="third" className="mt-12 mb-12" onClick={onCancel}>
               Đóng
             </Button>
-            <Button
-              btntype="primary"
-              className="ml-8 mt-12 mb-12"
-              onClick={handleUpdate}
-            >
-              Cập nhật
-            </Button>
           </div>
         }
       >

@@ -26,7 +26,7 @@ const SearchAndFilter = ({ pagination, setPagination }) => {
             onSearch={e => setPagination({ ...pagination, TextSearch: e })}
             search
             allowClear
-            label="Tìm kiếm chương trình họp"
+            label="Tìm kiếm phòng trọ"
           />
         </Col>
         <Col xl={5} lg={24} md={24} sm={24} xs={24}>
@@ -46,7 +46,7 @@ const SearchAndFilter = ({ pagination, setPagination }) => {
         <FadeIn>
           <Row gutter={[16, 0]}>
             <Col span={8}>
-              <FlDatePicker
+              {/* <FlDatePicker
                 label="Thời gian bắt đầu"
                 onChange={e =>
                   e
@@ -56,16 +56,36 @@ const SearchAndFilter = ({ pagination, setPagination }) => {
                     })
                     : setPagination({ ...pagination, FromDate: "" })
                 }
-              />
+              /> */}
+              <FlSelect
+                onChange={e =>
+                  setPagination({ ...pagination, ApproveStatus: e })
+                }
+                label="Diện tích"
+              >
+                <Option value={0}>Tất cả</Option>
+                <Option value={1}>Dưới 25m vuông</Option>
+                <Option value={2}>Trên 25m vuông</Option>
+                {getListComboByKey(
+                  SYSTEM_KEY?.BOOKING_STATUS_BROWSE,
+                  listSystemKey,
+                ).map(i => (
+                  <Option key={i?.CodeValue} value={i?.CodeValue}>
+                    {i?.Description}
+                  </Option>
+                ))}
+              </FlSelect>
             </Col>
             <Col span={8}>
               <FlSelect
                 onChange={e =>
                   setPagination({ ...pagination, ApproveStatus: e })
                 }
-                label="Trạng thái duyệt"
+                label="Giá thuê"
               >
                 <Option value={0}>Tất cả</Option>
+                <Option value={1}>Dưới 5tr VND</Option>
+                <Option value={2}>Trên 5tr VND</Option>
                 {getListComboByKey(
                   SYSTEM_KEY?.BOOKING_STATUS_BROWSE,
                   listSystemKey,

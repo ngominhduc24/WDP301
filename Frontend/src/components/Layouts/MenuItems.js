@@ -127,13 +127,13 @@ export const MenuItemRenter = () => {
       tabid: [1],
     },
     {
-      key: ROUTER.RENTER_ROOM,
+      key: ROUTER.RENTER_NEWS,
       label: "Bảng Tin",
       icon: <SvgIcon name="notes" />,
       tabid: [1],
     },
     {
-      key: ROUTER.RENTER_ROOM,
+      key: ROUTER.RENTER_REPORT,
       label: "Báo cáo vấn đề",
       icon: <SvgIcon name="filevankien" />,
       tabid: [1],
