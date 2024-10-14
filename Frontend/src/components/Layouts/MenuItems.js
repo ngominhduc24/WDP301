@@ -31,49 +31,46 @@ export default MenuItemBreadcrumb
 export const MenuItemAdmin = () => {
   return [
     {
-      key: ROUTER.DASHBOARD,
-      label: "Dashboard",
+      key: ROUTER.ADMIN_DASHBOARD,
+      label: "Thống Kê",
       icon: <SvgIcon name="dashboard" />,
       tabid: [1],
     },
     {
-      key: "subkey1",
-      label: "Products",
-      icon: <SvgIcon name="product" />,
-      tabid: [2, 3],
-      children: [
-        {
-          key: ROUTER.MANAGE_PRODUCTS,
-          label: "Manage Products",
-          tabid: [2],
-        },
-      ],
+      key: ROUTER.ADMIN_HOUSE,
+      label: "Danh Sách Nhà",
+      icon: <SvgIcon name="warehouse" />,
+      tabid: [2],
     },
     {
-      key: "subkey2",
-      label: "Store",
+      key: ROUTER.ADMIN_ROOM,
+      label: "Danh Sách Phòng",
       icon: <SvgIcon name="store" />,
-      tabid: [6, 7],
-      children: [
-        {
-          key: ROUTER.MANAGE_STORE,
-          label: "Manage Store",
-          tabid: [6],
-        },
-      ],
+      tabid: [3],
     },
     {
-      key: "subkey4",
-      label: "Administrator",
-      icon: <SvgIcon name="menu17" />,
-      tabid: [10],
-      children: [
-        {
-          key: ROUTER.MANAGE_USER,
-          label: "Manage User",
-          tabid: [10],
-        },
-      ],
+      key: ROUTER.ADMIN_NEWS,
+      label: "Bảng Tin",
+      icon: <SvgIcon name="notes" />,
+      tabid: [4],
+    },
+    {
+      key: ROUTER.ADMIN_REPORT,
+      label: "Báo Cáo",
+      icon: <SvgIcon name="filevankien" />,
+      tabid: [5],
+    },
+    {
+      key: ROUTER.ADMIN_BILLS,
+      label: "Hóa Đơn",
+      icon: <SvgIcon name="menu20" />,
+      tabid: [6],
+    },
+    {
+      key: ROUTER.ADMIN_USER,
+      label: "Quản lý tài khoản",
+      icon: <SvgIcon name="menu13" />,
+      tabid: [7],
     },
   ]
 }
@@ -114,6 +111,12 @@ export const MenuItemManager = () => {
       label: "Hóa Đơn",
       icon: <SvgIcon name="menu20" />,
       tabid: [6],
+    },
+    {
+      key: ROUTER.MANAGER_USER,
+      label: "Quản lý tài khoản",
+      icon: <SvgIcon name="menu13" />,
+      tabid: [7],
     },
   ]
 }

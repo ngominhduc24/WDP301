@@ -65,7 +65,7 @@ const LoginPage = () => {
     if (data) {
       if (data.accountType === "admin") {
         dispatch(setIsAdmin(true))
-        navigate(ROUTER.DASHBOARD)
+        navigate(ROUTER.ADMIN_DASHBOARD)
       } else if (data.accountType === "renter") {
         navigate(ROUTER.RENTER_ROOM)
       } else if (data.accountType === "host") {

@@ -28,7 +28,7 @@ function AdminRoutes() {
   const userRole = userInfo?.role
 
   return !!isLogin ? (
-    role.role === "ADMIN" ? (
+    role.accountType === "admin" ? (
       <MainLayout isAdmin={true}>
         <Outlet />
       </MainLayout>

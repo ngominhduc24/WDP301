@@ -8,11 +8,14 @@ const ROUTER = {
   TEST_PRINT: "/test-print",
 
   // ADMIN
-  DASHBOARD: "/admin/dashboard",
-  MANAGE_USER: "/admin/manage-user",
-  MANAGE_STORE: "/admin/manage-store",
-  MANAGE_PRODUCTS: "/admin/manage-products",
-  PROFILE: `/thong-tin-ca-nhan`,
+  ADMIN_DASHBOARD: "/admin/dashboard",
+  ADMIN_HOUSE: "/admin/house",
+  ADMIN_ROOM: "/admin/room",
+  ADMIN_REPORT: "/admin/report",
+  ADMIN_NEWS: "/admin/new",
+  ADMIN_BILLS: "/admin/bills",
+  ADMIN_USER: "/admin/user",
+  ADMIN_PROFILE: `/admin/personal`,
 
   // RENTER
   RENTER_ROOM: "/renter/room",
@@ -27,6 +30,7 @@ const ROUTER = {
   MANAGER_REPORT: "/manager/report",
   MANAGER_NEWS: "/manager/new",
   MANAGER_BILLS: "/manager/bills",
+  MANAGER_USER: "/manager/user",
   MANAGER_PROFILE: `/manager/personal`,
 }
 export default ROUTER

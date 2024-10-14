@@ -23,10 +23,9 @@ export const ModalWrapper = styled.div`
   }
 
   .ant-modal-confirm-btns {
-    margin-top: 12px;
+    margin-top: 16px;
+    padding-bottom: 16px;
     justify-content: center;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
   }
 `
 

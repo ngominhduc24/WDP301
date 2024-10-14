@@ -18,10 +18,18 @@ const ChangePassword = React.lazy(() =>
 const PersonProfile = React.lazy(() => import("src/pages/USER/PersonProfile"))
 // ADMIN
 const AdminRoutes = React.lazy(() => import("src/pages/ADMIN/AminRoutes"))
-const Dashboard = React.lazy(() => import("src/pages/ADMIN/DashBoard"))
-const ManageUser = React.lazy(() => import("src/pages/ADMIN/ManageUser"))
-const ManageStore = React.lazy(() => import("src/pages/ADMIN/ManageStore"))
-const ManageProduct = React.lazy(() => import("src/pages/ADMIN/ManageProduct"))
+const AdminDashBoard = React.lazy(() =>
+  import("src/pages/ADMIN/ManagerManageDashboard"),
+)
+const AdminManageHouses = React.lazy(() =>
+  import("src/pages/ADMIN/ManageHouse"),
+)
+const AdminManageRoom = React.lazy(() => import("src/pages/ADMIN/ManageRoom"))
+const AdminManageNews = React.lazy(() => import("src/pages/ADMIN/ManageNews"))
+const AdminManageReport = React.lazy(() =>
+  import("src/pages/ADMIN/ManageReport"),
+)
+const AdminUser = React.lazy(() => import("src/pages/ADMIN/ManageUser"))
 // MANAGER
 const ManagerRoutes = React.lazy(() =>
   import("src/pages/Manager/ManagerRoutes"),
@@ -41,6 +49,7 @@ const ManagerManageNews = React.lazy(() =>
 const ManagerManageReport = React.lazy(() =>
   import("src/pages/Manager/ManageReport"),
 )
+const ManagerUser = React.lazy(() => import("src/pages/Manager/ManageUser"))
 // RENTER
 const RenterRoutes = React.lazy(() => import("src/pages/Renter/RenterRoutes"))
 const RenterRoom = React.lazy(() => import("src/pages/Renter/ManageRoom"))
@@ -80,34 +89,50 @@ const routes = [
     ),
     children: [
       {
-        path: ROUTER.DASHBOARD,
+        path: ROUTER.ADMIN_DASHBOARD,
         element: (
           <LazyLoadingComponent>
-            <Dashboard />
+            <AdminDashBoard />
           </LazyLoadingComponent>
         ),
       },
       {
-        path: ROUTER.MANAGE_USER,
+        path: ROUTER.ADMIN_HOUSE,
         element: (
           <LazyLoadingComponent>
-            <ManageUser />
+            <AdminManageHouses />
           </LazyLoadingComponent>
         ),
       },
       {
-        path: ROUTER.MANAGE_STORE,
+        path: ROUTER.ADMIN_ROOM,
         element: (
           <LazyLoadingComponent>
-            <ManageStore />
+            <AdminManageRoom />
           </LazyLoadingComponent>
         ),
       },
       {
-        path: ROUTER.MANAGE_PRODUCTS,
+        path: ROUTER.ADMIN_NEWS,
         element: (
           <LazyLoadingComponent>
-            <ManageProduct />
+            <AdminManageNews />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.ADMIN_REPORT,
+        element: (
+          <LazyLoadingComponent>
+            <AdminManageReport />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.ADMIN_USER,
+        element: (
+          <LazyLoadingComponent>
+            <AdminUser />
           </LazyLoadingComponent>
         ),
       },
@@ -186,6 +211,14 @@ const routes = [
         element: (
           <LazyLoadingComponent>
             <ManagerManageReport />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.MANAGER_USER,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerUser />
           </LazyLoadingComponent>
         ),
       },

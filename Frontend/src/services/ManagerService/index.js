@@ -38,6 +38,7 @@ import {
   apiGetProblems,
   apiUpdateProblems,
   apiGetDetailProblem,
+  apiGetUser,
 } from "./urls"
 import QueryString from "qs"
 import axios from "axios"
@@ -210,6 +211,12 @@ const updateProblems = (problemId, problemData) => {
 const getDetailProblem = houseId => {
   return http.get(apiGetDetailProblem(houseId))
 }
+
+// user
+const getUser = (houseId, page = 1, limit = 10) => {
+  return http.get(apiGetUser(houseId, page, limit))
+}
+
 const ManagerService = {
   getAllHouses,
   getHouseDetail,
@@ -251,6 +258,7 @@ const ManagerService = {
   getManagerProblems,
   updateProblems,
   getDetailProblem,
+  getUser,
 }
 
 export default ManagerService

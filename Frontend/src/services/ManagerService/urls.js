@@ -58,3 +58,7 @@ export const apiGetProblems = houseId => `/problem/house/${houseId}`
 export const apiUpdateProblems = problemId => `/problem/${problemId}`
 export const apiGetDetailProblem = problemId => `/problem/${problemId}`
 
+// Users
+export const apiGetUser = (houseId, page = 1, limit = 10) =>
+  `/account/house/${houseId}?page=${page}&limit=${limit}`
+
