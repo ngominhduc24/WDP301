@@ -37,13 +37,6 @@ class AuthService {
           sameSite: "None",
         });
 
-        res.cookie("refreshToken", genRefreshToken, {
-          httpOnly: false,
-          secure: false,
-          path: "/",
-          sameSite: "lax",
-        });
-
         await Account.findByIdAndUpdate(
           { _id: findAccount.id },
           { refreshToken: genRefreshToken }
