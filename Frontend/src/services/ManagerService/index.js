@@ -39,6 +39,9 @@ import {
   apiUpdateProblems,
   apiGetDetailProblem,
   apiGetUser,
+  apiGetRoomWithBill,
+  apiGetDetailBill,
+  apiPaymentByCash,
 } from "./urls"
 import QueryString from "qs"
 import axios from "axios"
@@ -158,6 +161,15 @@ const getDebt = roomId => {
 const addBill = (roomId, billData) => {
   return http.post(apiAddBill(roomId), billData)
 }
+const getRoomWithBill = (houseId, month) => {
+  return http.get(apiGetRoomWithBill(houseId, month))
+}
+const getDetailBill = billId => {
+  return http.get(apiGetDetailBill(billId))
+}
+const paymentByCash = (billId, billData) => {
+  return http.post(apiPaymentByCash(billId), billData)
+}
 // Room News
 const getNews = houseId => {
   return http.get(apiGetNews(houseId))
@@ -259,6 +271,9 @@ const ManagerService = {
   updateProblems,
   getDetailProblem,
   getUser,
+  getRoomWithBill,
+  getDetailBill,
+  paymentByCash,
 }
 
 export default ManagerService

@@ -35,6 +35,10 @@ export const apiAddPriceItem = houseId => `house/${houseId}/addPriceItem`
 // Room Bill
 export const apiAddBill = roomId => `bill/room/${roomId}`
 export const apiGetDebt = roomId => `bill/debt/room/${roomId}`
+export const apiGetRoomWithBill = (houseId, month) =>
+  `house/${houseId}/getRoomWithBills?month=${month}`
+export const apiGetDetailBill = billId => `bill/${billId}`
+export const apiPaymentByCash = billId => `bill/${billId}`
 
 // House News
 export const apiGetNews = houseId => `news/house/${houseId}`

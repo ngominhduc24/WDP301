@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react"
-import { Tabs, Button as AntButton, message } from "antd"
 import {
-  Box,
-  Grid,
+  Tabs,
+  Button as AntButton,
+  message,
+  Row,
   Typography,
-  Avatar,
-  Button as MuiButton,
-} from "@mui/material"
+  Table,
+} from "antd"
+import { Box, Grid, Avatar, Button as MuiButton } from "@mui/material"
 import { EditOutlined, DeleteOutlined, UserOutlined } from "@ant-design/icons"
 import { styled } from "@mui/system"
 import RenterService from "src/services/RenterService"
@@ -42,9 +43,12 @@ const ManageRoom = () => {
   const [isInsertRenterVisible, setIsInsertRenterVisible] = useState(false)
   const [isUpdateRenterVisible, setIsUpdateRenterVisible] = useState(false)
   const [selectedMember, setSelectedMember] = useState(null)
+  const [billDetail, setBillDetail] = useState(null)
+
   useEffect(() => {
     if (userInfo?.roomId) {
       getRoomsDetail(userInfo?.roomId)
+      getBillDetail(userInfo?.roomId)
     }
   }, [userInfo?.roomId])
 
@@ -94,7 +98,40 @@ const ManageRoom = () => {
       },
     })
   }
-
+  const getBillDetail = async id => {
+    try {
+      const response = await RenterService.getBillDetail(id)
+      if (response?.data) {
+        setBillDetail(response.data[0])
+      }
+    } catch (error) {
+      message.error("Không thể tải thông tin hóa đơn!")
+    }
+  }
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "stt",
+      key: "stt",
+      render: (text, _, index) => index + 1,
+    },
+    { title: "Tên", dataIndex: ["base", "name"], key: "name" },
+    {
+      title: "Đơn giá",
+      dataIndex: "unitPrice",
+      key: "unitPrice",
+      render: value => `${value.toLocaleString()} ₫`,
+    },
+    { title: "Đơn vị", dataIndex: ["base", "unit"], key: "unit" },
+    { title: "Chỉ số đầu", dataIndex: "startUnit", key: "startUnit" },
+    { title: "Chỉ số cuối", dataIndex: "endUnit", key: "endUnit" },
+    {
+      title: "Thành tiền",
+      dataIndex: "totalUnit",
+      key: "totalUnit",
+      render: value => `${value.toLocaleString()} ₫`,
+    },
+  ]
   return (
     <Box
       sx={{
@@ -229,8 +266,92 @@ const ManageRoom = () => {
           </TabPane>
           <TabPane tab="Thông Tin Hóa Đơn" key="3">
             <StyledBox>
-              <Typography variant="h6">Phòng: {room?.name || "N/A"}</Typography>
-              <Typography variant="h6">Thông Tin Hóa Đơn: ...</Typography>
+              <Row
+                justify="space-between"
+                align="middle"
+                style={{ marginBottom: 16 }}
+              >
+                <Typography.Title level={4}>
+                  Tháng{" "}
+                  {billDetail
+                    ? new Date(billDetail.createdAt).getMonth() + 1
+                    : ""}
+                  /
+                  {billDetail
+                    ? new Date(billDetail.createdAt).getFullYear()
+                    : ""}
+                </Typography.Title>
+                <Typography.Text
+                  type={billDetail?.isPaid ? "success" : "danger"}
+                >
+                  {billDetail?.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}.
+                  Tổng tiền:{" "}
+                  {billDetail?.total
+                    ? `${billDetail.total.toLocaleString()} ₫`
+                    : ""}
+                </Typography.Text>
+              </Row>
+
+              <Table
+                dataSource={billDetail?.priceList || []}
+                columns={columns}
+                pagination={false}
+                bordered
+                summary={() => (
+                  <>
+                    <Table.Summary.Row>
+                      <Table.Summary.Cell colSpan={6}>
+                        <Typography.Text strong>
+                          Tiền phòng/tháng
+                        </Typography.Text>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell>
+                        {billDetail?.roomPrice
+                          ? `${billDetail.roomPrice.toLocaleString()} ₫`
+                          : ""}
+                      </Table.Summary.Cell>
+                    </Table.Summary.Row>
+                    <Table.Summary.Row>
+                      <Table.Summary.Cell colSpan={6}>
+                        <Typography.Text strong>Tiền Nợ</Typography.Text>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell>
+                        {billDetail?.debt
+                          ? `${billDetail.debt.toLocaleString()} ₫`
+                          : ""}
+                      </Table.Summary.Cell>
+                    </Table.Summary.Row>
+                    <Table.Summary.Row>
+                      <Table.Summary.Cell colSpan={6}>
+                        <Typography.Text strong>Tổng</Typography.Text>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell>
+                        {billDetail?.total
+                          ? `${billDetail.total.toLocaleString()} ₫`
+                          : ""}
+                      </Table.Summary.Cell>
+                    </Table.Summary.Row>
+                  </>
+                )}
+              />
+
+              <Row justify="start" style={{ marginTop: 16 }}>
+                <Typography.Text strong>Link Thanh Toán:</Typography.Text>
+                {!billDetail?.isPaid && (
+                  <AntButton
+                    type="link"
+                    onClick={() =>
+                      window.open(
+                        `https://pay.payos.vn/web/${billDetail?.paymentLink?.paymentLinkId}`,
+                        "_blank",
+                      )
+                    }
+                    style={{ marginLeft: 8, paddingBottom: 12 }}
+                  >
+                    NHẤN VÀO ĐÂY
+                  </AntButton>
+                )}
+              </Row>
             </StyledBox>
           </TabPane>
         </Tabs>

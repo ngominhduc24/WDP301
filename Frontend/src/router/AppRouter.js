@@ -49,6 +49,7 @@ const ManagerManageNews = React.lazy(() =>
 const ManagerManageReport = React.lazy(() =>
   import("src/pages/Manager/ManageReport"),
 )
+const ManageBill = React.lazy(() => import("src/pages/Manager/ManageBill"))
 const ManagerUser = React.lazy(() => import("src/pages/Manager/ManageUser"))
 // RENTER
 const RenterRoutes = React.lazy(() => import("src/pages/Renter/RenterRoutes"))
@@ -211,6 +212,14 @@ const routes = [
         element: (
           <LazyLoadingComponent>
             <ManagerManageReport />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.MANAGER_BILLS,
+        element: (
+          <LazyLoadingComponent>
+            <ManageBill />
           </LazyLoadingComponent>
         ),
       },
