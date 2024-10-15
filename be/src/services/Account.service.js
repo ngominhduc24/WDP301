@@ -11,66 +11,59 @@ class AccountService {
                 return res.send("Account not found !!");
             }
 
-            const {
-                password,
-                refreshToken,
-                passwordResetCode,
-                imageStores,
-                ...other
-            } = profile._doc;
-            return res.status(200).json({
-                data: other,
-            });
-        } catch (error) {
-            return res.status(500).json({
-                message: "Internal Server Error",
-            });
-        }
+      const {
+        password,
+        refreshToken,
+        passwordResetCode,
+        imageStores,
+        ...other
+      } = profile._doc;
+      return res.status(200).json({
+        data: other,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
-    async updateProfile(req, res) {
-        try {
-            const accountId = getCurrentUser(req);
-            const account = await Account.findById(accountId);
-            if (!account) {
-                return res.send("Account not found !!");
-            }
+  }
+  async updateProfile(req, res) {
+    try {
+      const accountId = getCurrentUser(req);
+      const account = await Account.findById(accountId);
+      if (!account) {
+        return res.send("Account not found !!");
+      }
 
-            const {
-                name,
-                phone,
-                avatar,
-                payosClientId,
-                payosAPIKey,
-                payosCheckSum,
-            } = req.body;
-            await Account.findByIdAndUpdate(accountId, {
-                name,
-                phone,
-                avatar,
-                payosClientId,
-                payosAPIKey,
-                payosCheckSum,
-            });
+      const { name, phone, avatar, payosClientId, payosAPIKey, payosCheckSum } =
+        req.body;
+      await Account.findByIdAndUpdate(accountId, {
+        name,
+        phone,
+        avatar,
+        payosClientId,
+        payosAPIKey,
+        payosCheckSum,
+      });
 
-            Account.findById(accountId).then((data) => {
-                const {
-                    password,
-                    _id,
-                    refreshToken,
-                    passwordResetCode,
-                    imageStores,
-                    ...other
-                } = data._doc;
-                return res.status(200).json({
-                    message: "Update Successfully",
-                    data: other,
-                });
-            });
-        } catch (error) {
-            return res.status(500).json({
-                message: "Internal Server Error",
-            });
-        }
+      Account.findById(accountId).then((data) => {
+        const {
+          password,
+          _id,
+          refreshToken,
+          passwordResetCode,
+          imageStores,
+          ...other
+        } = data._doc;
+        return res.status(200).json({
+          message: "Update Successfully",
+          data: other,
+        });
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
     async changePassword(req, res) {
         try {
@@ -108,7 +101,13 @@ class AccountService {
                 message: "Internal Server Error",
             });
         }
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
+  }
 }
 
 export default new AccountService();
