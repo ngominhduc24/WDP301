@@ -40,6 +40,7 @@ const accountValidate = {
       .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
       .required(),
   }),
+
   validateUploadImage: Joi.object({
     url: Joi.string().uri().required(),
     description: Joi.string().allow("", null),
