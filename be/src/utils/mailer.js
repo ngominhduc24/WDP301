@@ -1,33 +1,24 @@
 import nodemailer from "nodemailer";
-import config from "../../config/default.js";
-import * as dotenv from 'dotenv'
+import * as dotenv from "dotenv";
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.AUTH_EMAIL_USER,
-        pass: process.env.AUTH_EMAIL_PASSWORD,
-    }
-})
-
-// const transporter = nodemailer.createTransport({
-//     host: "smtp.ethereal.email",
-//     port: 587,
-//     secure: false,
-//     auth: {
-//         user: "alford.gaylord@ethereal.email",
-//         pass: "kJ8AKDYsYxJWMSNa22",
-//     }
-// })
+  service: "gmail",
+  auth: {
+    user: process.env.AUTH_EMAIL_USER,
+    pass: process.env.AUTH_EMAIL_PASSWORD,
+  },
+});
 
 async function sendEmail(payload) {
-    transporter.sendMail(payload, (err, info) => {
-        if (err) {
-            return err;
-        }
-
-    });
+  try {
+    console.log("Email sent:");
+    const info = await transporter.sendMail(payload);
+    return info;
+  } catch (err) {
+    console.error("Error while sending email:", err); // Log lỗi
+    throw err;
+  }
 }
 
 export default sendEmail;
