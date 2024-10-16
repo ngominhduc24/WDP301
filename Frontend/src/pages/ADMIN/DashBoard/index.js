@@ -1,362 +1,164 @@
 import React, { useEffect, useState } from "react"
-import {
-  Card,
-  Statistic,
-  Row,
-  Col,
-  Select,
-  DatePicker,
-  Progress,
-  Avatar,
-  Table,
-} from "antd"
+import { Card, Col, Row, Statistic, Table } from "antd"
 import ReactECharts from "echarts-for-react"
-import AdminServices from "src/services/AdminService"
+import Cookies from "js-cookie"
 
-const { Option } = Select
-const { MonthPicker } = DatePicker
+// Dữ liệu mẫu
+const dataFake = {
+  numberOfHouses: 5,
+  numberOfRooms: 20,
+  availableRooms: 5,
+  rentedRooms: 15,
+  paymentTracking: [
+    { status: "Paid", count: 10, total: 10000 },
+    { status: "Unpaid", count: 5, total: 5000 },
+  ],
+  issueTracking: [
+    { type: "New", count: 2 },
+    { type: "In Progress", count: 1 },
+    { type: "Resolved", count: 3 },
+  ],
+}
 
-const DashBoard = () => {
-  const [data, setData] = useState({
-    revenueByDay: [],
-    top5ShopsByRevenue: [],
-    bottom5ShopsByRevenue: [],
-    top5SellingProductsByQuantity: [],
-    least5SellingProductsByQuantity: [],
-    totalRevenue: 0,
-    totalOrders: 0,
-    totalOrderQuantity: 0,
-    totalImportCost: 0,
-    totalImportQuantity: 0,
-    remainQuantity: 0,
-    remainProductValue: 0,
-  })
-  const [listShop, setListShop] = useState([])
-  const [shopId, setShopId] = useState("-1")
-  const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
-  let barChartOptions = {}
-  let barChartOptions2 = {}
-  const getStatistics = async () => {
-    try {
-      const res = await AdminServices.getStatistics({
-        shopId,
-        year,
-        month,
-      })
-      setData(res)
-      console.log("statistic: ", res)
-    } catch (error) {
-      console.log("Error fetching statistics:", error)
-    }
-  }
+const monthlyData = [
+  { month: "Jan", rented: 10, available: 10 },
+  { month: "Feb", rented: 12, available: 8 },
+  { month: "Mar", rented: 15, available: 5 },
+  { month: "Apr", rented: 16, available: 4 },
+  { month: "May", rented: 18, available: 2 },
+]
 
-  const getAllStores = async () => {
-    try {
-      const res = await AdminServices.getAllStores()
-      console.log("Store list: ", res)
-      setListShop([
-        {
-          _id: "-1",
-          name: "Tất cả cửa hàng",
-        },
-        {
-          _id: "0",
-          name: "Tổng kho",
-        },
-        ...res.map(shop => ({
-          _id: shop._id,
-          name: shop.name,
-        })),
-      ])
-    } catch (error) {
-      console.log("Error fetching stores:", error)
-    }
-  }
+const columnsPayment = [
+  { title: "Status", dataIndex: "status", key: "status" },
+  { title: "Number of Invoices", dataIndex: "count", key: "count" },
+  { title: "Total Amount", dataIndex: "total", key: "total" },
+]
 
+const columnsIssue = [
+  { title: "Issue Type", dataIndex: "type", key: "type" },
+  { title: "Number of Issues", dataIndex: "count", key: "count" },
+]
+
+const ManagerDashBoard = () => {
+  const [info, setInfo] = useState(dataFake)
   useEffect(() => {
-    // getStatistics()
-    // getAllStores()
-  }, [shopId, year, month])
-
-  const handleShopIdChange = value => {
-    setShopId(value)
-  }
-
-  const handleMonthChange = value => {
-    setMonth(value)
-  }
-
-  const handleYearChange = value => {
-    setYear(value)
-  }
-
-  const lineChartOptions = {
-    tooltip: {},
-    xAxis: {
-      type: "category",
-      data: data.revenueByDay.map(day => day.day),
-    },
-    yAxis: {
-      type: "value",
-    },
+    const accessToken = Cookies.get("accessToken")
+    console.log(accessToken)
+  })
+  // Cấu hình biểu đồ cột (Bar Chart)
+  const barChartOption = {
+    title: { text: "Thống Kê Phòng Trọ Theo Tháng (Năm 2024)" },
+    tooltip: { trigger: "axis" },
+    legend: { data: ["Phòng Đã Thuê", "Phòng Trống"] },
+    xAxis: { type: "category", data: monthlyData.map(item => item.month) },
+    yAxis: { type: "value" },
     series: [
       {
-        name: "Doanh thu",
-        type: "line",
-        data: data.revenueByDay.map(day => day.revenue),
+        name: "Phòng Đã Thuê",
+        type: "bar",
+        data: monthlyData.map(item => item.rented),
+        color: "#5470C6",
+      },
+      {
+        name: "Phòng Trống",
+        type: "bar",
+        data: monthlyData.map(item => item.available),
+        color: "#91CC75",
       },
     ],
   }
-  if (shopId === "-1" || shopId === "0") {
-    barChartOptions = {
-      tooltip: {},
-      xAxis: {
-        type: "category",
-        data: data.top5ShopsByRevenue.map(shop => shop.shopName),
-      },
-      yAxis: {
-        type: "value",
-      },
-      series: [
-        {
-          name: "Doanh thu",
-          type: "bar",
-          data: data.top5ShopsByRevenue.map(shop => shop.totalRevenue),
-        },
-      ],
-    }
 
-    barChartOptions2 = {
-      tooltip: {},
-      xAxis: {
-        type: "category",
-        data: data.bottom5ShopsByRevenue.map(shop => shop.shopName),
+  // Cấu hình biểu đồ đường (Line Chart)
+  const lineChartOption = {
+    title: { text: "Biểu Đồ Theo Dõi Số Lượng Phòng" },
+    tooltip: { trigger: "axis" },
+    legend: { data: ["Phòng Đã Thuê", "Phòng Trống"] },
+    xAxis: { type: "category", data: monthlyData.map(item => item.month) },
+    yAxis: { type: "value" },
+    series: [
+      {
+        name: "Phòng Đã Thuê",
+        type: "line",
+        data: monthlyData.map(item => item.rented),
+        color: "#5470C6",
       },
-      yAxis: {
-        type: "value",
+      {
+        name: "Phòng Trống",
+        type: "line",
+        data: monthlyData.map(item => item.available),
+        color: "#91CC75",
       },
-      series: [
-        {
-          name: "Doanh thu",
-          type: "bar",
-          data: data.bottom5ShopsByRevenue.map(shop => shop.totalRevenue),
-        },
-      ],
-    }
+    ],
   }
 
-  const bestSellingProducts = [
-    {
-      title: "Product",
-      dataIndex: "productName",
-      key: "productName",
-      render: (text, record) => (
-        <>
-          <Avatar src={record.image} />
-          <span style={{ marginLeft: 8 }}>{text}</span>
-        </>
-      ),
-    },
-    {
-      title: "Quantity Sold",
-      dataIndex: "totalQuantity",
-      key: "totalQuantity",
-    },
-    {
-      title: "Revenue (%)",
-      dataIndex: "percentage",
-      key: "percentage",
-      render: percentage => (
-        <Progress percent={percentage} type="line" strokeColor="blue" />
-      ),
-    },
-  ]
-
-  const leastSellingProducts = [
-    {
-      title: "Product",
-      dataIndex: "productName",
-      key: "productName",
-      render: (text, record) => (
-        <>
-          <Avatar src={record.image} />
-          <span style={{ marginLeft: 8 }}>{text}</span>
-        </>
-      ),
-    },
-    {
-      title: "Quantity Sold",
-      dataIndex: "totalQuantity",
-      key: "totalQuantity",
-    },
-    {
-      title: "Revenue (%)",
-      dataIndex: "percentage",
-      key: "percentage",
-      render: percentage => (
-        <Progress percent={percentage} type="line" strokeColor="blue" />
-      ),
-    },
-  ]
-
   return (
-    <div>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={24}>
-          <Card>
-            <Select
-              defaultValue={shopId}
-              style={{ width: 200, marginBottom: 16 }}
-              onChange={handleShopIdChange}
-            >
-              {listShop.map(shop => (
-                <Option key={shop._id} value={shop._id}>
-                  {shop.name}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              defaultValue={month}
-              style={{ width: 120, marginBottom: 16, marginLeft: 16 }}
-              onChange={handleMonthChange}
-            >
-              {Array.from({ length: 12 }, (v, k) => (
-                <Option key={k + 1} value={k + 1}>
-                  Tháng {k + 1}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              defaultValue={year}
-              style={{ width: 120, marginBottom: 16, marginLeft: 16 }}
-              onChange={handleYearChange}
-            >
-              {Array.from({ length: 10 }, (v, k) => (
-                <Option key={k + 2020} value={k + 2020}>
-                  {k + 2020}
-                </Option>
-              ))}
-            </Select>
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={8}>
-          <Card title="Tổng doanh thu">
-            <Statistic
-              title="Doanh thu"
-              value={data.totalRevenue}
-              precision={2}
-              prefix="$"
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card title="Tổng số đơn hàng">
-            <Statistic title="Số đơn hàng" value={data.totalOrders} />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card title="Tổng sản phẩm bán ra">
-            <Statistic title="Sản phẩm" value={data.totalOrderQuantity} />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={8}>
-          <Card title="Tổng chi phí nhập hàng">
-            <Statistic
-              title="Chi phí nhập hàng"
-              value={data.totalImportCost}
-              precision={2}
-              prefix="$"
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card title="Lượng hàng nhập vào">
-            <Statistic title="Lượng hàng" value={data.totalImportQuantity} />
-          </Card>
-        </Col>
-        <Row gutter={16} style={{ marginTop: 16 }}>
-          <Col span={24}>
-            <Card title="Thông tin hàng tồn kho" className="flex">
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="Lượng hàng"
-                    value={`${data.remainQuantity} ~`}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic title="Giá trị" value={data.remainProductValue} />
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-      </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={12}>
-          <Card title="Doanh thu theo từng ngày trong tháng">
-            <ReactECharts option={lineChartOptions} />
-          </Card>
-        </Col>
-        <Col span={9}>
-          <Card title="Tỉ lệ đơn hàng bị hủy">
-            <Progress
-              type="circle"
-              percent={data.cancellationRate?.cancellationRate}
-              strokeColor={"blue"}
-            ></Progress>
-          </Card>
-        </Col>
-      </Row>
-      {(shopId === "-1" || shopId === "0") && (
-        <Row gutter={16}>
-          <Col span={12}>
-            <Card title="Top 5 cửa hàng doanh thu cao nhất">
-              {data.top5ShopsByRevenue.length > 0 ? (
-                <ReactECharts option={barChartOptions} />
-              ) : (
-                <p>No data available</p>
-              )}
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card title="Top 5 cửa hàng doanh thu thấp nhất">
-              {data.bottom5ShopsByRevenue.length > 0 ? (
-                <ReactECharts option={barChartOptions2} />
-              ) : (
-                <p>No data available</p>
-              )}
-            </Card>
-          </Col>
-        </Row>
-      )}
+    <div style={{ padding: 20 }}>
+      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
+        Quản Lý Phòng Trọ - Dashboard
+      </h2>
       <Row gutter={16}>
+        <Col span={6}>
+          <Card>
+            <Statistic title="Số Nhà" value={info.numberOfHouses} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic title="Số Phòng" value={info.numberOfRooms} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic title="Phòng Trống" value={info.availableRooms} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic title="Phòng Đã Thuê" value={info.rentedRooms} />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={16} style={{ marginTop: 20 }}>
         <Col span={12}>
-          <Table
-            columns={bestSellingProducts}
-            dataSource={data.top5SellingProductsByQuantity}
-            rowKey="prductId"
-            pagination={false}
-            title={() => "Top 5 Sản Phẩm Bán Chạy Nhất"}
-          />
+          <Card title="Theo Dõi Thanh Toán">
+            <Table
+              columns={columnsPayment}
+              dataSource={info.paymentTracking}
+              pagination={false}
+              rowKey="status"
+            />
+          </Card>
         </Col>
         <Col span={12}>
-          <Table
-            columns={leastSellingProducts}
-            dataSource={data.least5SellingProductsByQuantity}
-            rowKey="prductId"
-            pagination={false}
-            title={() => "Top 5 Sản Phẩm Ít Lượt Mua Nhất"}
-          />
+          <Card title="Theo Dõi Sự Cố">
+            <Table
+              columns={columnsIssue}
+              dataSource={info.issueTracking}
+              pagination={false}
+              rowKey="type"
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={16} style={{ marginTop: 20 }}>
+        <Col span={24}>
+          <Card title="Thống Kê Phòng Trọ Theo Tháng">
+            <ReactECharts option={barChartOption} style={{ height: 300 }} />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={16} style={{ marginTop: 20 }}>
+        <Col span={24}>
+          <Card title="Biểu Đồ Theo Dõi Số Lượng Phòng">
+            <ReactECharts option={lineChartOption} style={{ height: 300 }} />
+          </Card>
         </Col>
       </Row>
     </div>
   )
 }
 
-export default DashBoard
+export default ManagerDashBoard
