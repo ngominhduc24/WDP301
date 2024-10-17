@@ -8,18 +8,20 @@ const ROUTER = {
   TEST_PRINT: "/test-print",
 
   // ADMIN
-  DASHBOARD: "/admin/dashboard",
-  MANAGE_USER: "/admin/manage-user",
-  MANAGE_STORE: "/admin/manage-store",
-  MANAGE_PRODUCTS: "/admin/manage-products",
-  PROFILE: `/thong-tin-ca-nhan`,
+  ADMIN_DASHBOARD: "/admin/dashboard",
+  ADMIN_HOUSE: "/admin/house",
+  ADMIN_ROOM: "/admin/room",
+  ADMIN_REPORT: "/admin/report",
+  ADMIN_NEWS: "/admin/new",
+  ADMIN_BILLS: "/admin/bills",
+  ADMIN_USER: "/admin/user",
+  ADMIN_PROFILE: `/admin/personal`,
 
-  // USER
-
-  // STAFF
-  STAFF_MANAGE_ORDER: "/staff/order",
-  STAFF_DASHBOARD: "/staff/dashboard",
-  STAFF_PROFILE: `/staff/thong-tin-ca-nhan`,
+  // RENTER
+  RENTER_ROOM: "/renter/room",
+  RENTER_NEWS: "/renter/news",
+  RENTER_REPORT: "/renter/report",
+  RENTER_PROFILE: `/staff/thong-tin-ca-nhan`,
 
   // MANAGER
   MANAGER_DASHBOARD: "/manager/dashboard",
@@ -28,18 +30,8 @@ const ROUTER = {
   MANAGER_REPORT: "/manager/report",
   MANAGER_NEWS: "/manager/new",
   MANAGER_BILLS: "/manager/bills",
+  MANAGER_USER: "/manager/user",
   MANAGER_PROFILE: `/manager/personal`,
-  // WAREHOUSE MANAGER
-  WAREHOUSE_MANAGER_DASHBOARD: "/warehouse-manager/dashboard",
-  WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_SHOP:
-    "/warehouse-manager/manage-invoices/to-shop",
-  WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_WAREHOUSE:
-    "/warehouse-manager/manage-invoices/to-warehouse",
-  WAREHOUSE_MANAGER_MANAGE_WAREHOUSE: "/warehouse-manager/manage-warehouse",
-  WAREHOUSE_MANAGER_PROFILE: `/warehouse-manager-thong-tin-ca-nhan`,
-  WAREHOUSE_MANAGER_MANAGE_PRODUCT: "/warehouse-manager/manage-product",
-  WAREHOUSE_MANAGER_MANAGE_STORE: "/warehouse-manager/manage-store",
-  WAREHOUSE_MANAGER_REQUEST_TO: "/warehouse-manager/request-to",
 }
 export default ROUTER
 

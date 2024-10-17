@@ -59,20 +59,15 @@ const LoginPage = () => {
     })
   }
   const loginSuccess = data => {
-    console.log(data)
-
     handleSuccess()
     const userID = getStorage(STORAGE.USER_ID)
-    console.log("userid after success logged in:", userID)
-
     if (routerBeforeLogin) navigate(routerBeforeLogin)
-
     if (data) {
       if (data.accountType === "admin") {
         dispatch(setIsAdmin(true))
-        navigate(ROUTER.DASHBOARD)
-      } else if (data.accountType === "STAFF") {
-        navigate(ROUTER.STAFF_DASHBOARD)
+        navigate(ROUTER.ADMIN_DASHBOARD)
+      } else if (data.accountType === "renter") {
+        navigate(ROUTER.RENTER_ROOM)
       } else if (data.accountType === "host") {
         navigate(ROUTER.MANAGER_DASHBOARD)
       } else if (data.roaccountTypele === "WAREHOUSE MANAGER") {
@@ -94,9 +89,8 @@ const LoginPage = () => {
       const res = await AuthService.login({ ...values })
       // const decodedToken = jwtDecode(res?.token)
       console.log(res)
-      // console.log(decodedToken.payload)
       if (res) {
-        setStorage(STORAGE.TOKEN, res?.token)
+        setStorage(STORAGE.TOKEN, res?.accessToken)
         // setStorage(STORAGE.USER_ID, decodedToken.payload.id)
         setStorage(STORAGE.USER_INFO, res?.data)
         // const userInfo = await getInfo(decodedToken.payload.id)
@@ -136,12 +130,7 @@ const LoginPage = () => {
           <div style={{ maxWidth: isMobile ? "330px" : "1000px" }}>
             <Row className="d-flex-center">
               <Col className="content-wrap" span={24}>
-                <Row
-                  gutter={[16, 16]}
-                  justify="center"
-                  align="middle"
-                  className="border-none"
-                >
+                <Row gutter={[16, 16]} justify="center" align="middle">
                   <Col lg={10} md={12} sm={20} xs={20}>
                     <div className="d-flex flex-column justify-content-center h-100">
                       <div className="text-center mb-30">
@@ -237,3 +226,4 @@ const LoginPage = () => {
 }
 
 export default LoginPage
+

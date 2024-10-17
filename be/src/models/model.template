@@ -1,0 +1,6 @@
+import { Schema, Types, model } from "mongoose";
+
+const Models = new Schema({
+})
+
+export default model("Models", Models)

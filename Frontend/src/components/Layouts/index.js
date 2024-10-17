@@ -22,7 +22,7 @@ import BreadcrumbHome from "./BreadcrumbHome/BreadcrumbHome"
 import MenuItemBreadcrumb, {
   MenuItemAdmin,
   MenuItemManager,
-  MenuItemStaff,
+  MenuItemRenter,
   MenuItemUser,
 } from "./MenuItems"
 import ChangePasswordModal from "./component/ChangePassword/ChangePasswordModal"
@@ -41,7 +41,7 @@ import Anonymous from "./component/Anonymous/Anonymous"
 import { SubTableHeader } from "../TableCustom/styled"
 const { Header, Content } = Layout
 
-const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
+const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch()
@@ -143,24 +143,11 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
                 </div>
               </Menu.Item>
             )}
-            {role?.role === "WAREHOUSE MANAGER" && (
+            {role?.accountType === "renter" && (
               <Menu.Item
                 key="3"
                 onClick={() => {
-                  navigate(ROUTER.WAREHOUSE_MANAGER_PROFILE)
-                }}
-              >
-                <div className="btn-function strok-btn-function">
-                  <SvgIcon name="user-info" />
-                  <span className="fw-400">Thông tin cá nhân</span>
-                </div>
-              </Menu.Item>
-            )}
-            {role?.role === "STAFF" && (
-              <Menu.Item
-                key="3"
-                onClick={() => {
-                  navigate(ROUTER.STAFF_PROFILE)
+                  navigate(ROUTER.RENTER_PROFILE)
                 }}
               >
                 <div className="btn-function strok-btn-function">
@@ -210,8 +197,8 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
     } else if (!!isLogin && role?.accountType === "host") {
       setMenuAdmin(MenuItemManager())
       setMenuUser(MenuItemUser())
-    } else if (!!isLogin && role?.role === "STAFF") {
-      setMenuAdmin(MenuItemStaff())
+    } else if (!!isLogin && role?.accountType === "renter") {
+      setMenuAdmin(MenuItemRenter())
       setMenuUser(MenuItemUser())
     }
   }, [listTabs])
@@ -267,7 +254,7 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
                       >
                         <span
                           onClick={() => {
-                            navigate(ROUTER.DEFAULT)
+                            navigate(ROUTER.HOME)
                           }}
                           className={`fw-600 d-flex-center pointer h-100pe ${
                             !!isMobile ? "fs-14" : "fs-20"
@@ -393,7 +380,7 @@ const MainLayout = ({ children, isAdmin, isManager, isStaff }) => {
       <Layout>
         <Content className="site-layout-background ">
           <LayoutBackgroundCommon>
-            {isAdmin || isStaff || isManager ? (
+            {isAdmin || isRenter || isManager ? (
               <>
                 <LayoutAdmin
                   collapseMenu={collapseMenu}

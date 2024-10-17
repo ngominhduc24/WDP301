@@ -1,0 +1,8 @@
+import express from 'express'
+
+const xRoute = express.Router();
+
+xRoute.get("/",)
+
+
+export default xRoute

@@ -15,7 +15,7 @@ import Button from "src/components/MyButton/Button"
 import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
 import styled from "styled-components"
-import ManagerService from "src/services/ManagerService" // Service để gọi API lấy dữ liệu phòng
+import ManagerService from "src/services/ManagerService"
 
 const { Option } = Select
 const { TabPane } = Tabs
@@ -56,7 +56,6 @@ const ModalUpdateRoom = ({ onOk, open, roomId, ...props }) => {
     useState(false)
   const [newAmenity, setNewAmenity] = useState("")
 
-  // Lấy dữ liệu phòng từ API và đổ vào form khi roomId thay đổi
   useEffect(() => {
     if (roomId && open) {
       getRoomDetail()
@@ -72,7 +71,6 @@ const ModalUpdateRoom = ({ onOk, open, roomId, ...props }) => {
         return
       }
       const roomData = response?.room
-      // Set giá trị cho form và tiện ích
       form.setFieldsValue({
         roomName: roomData?.roomName,
         status: roomData?.status,
@@ -90,7 +88,6 @@ const ModalUpdateRoom = ({ onOk, open, roomId, ...props }) => {
     }
   }
 
-  // Hàm xử lý cập nhật phòng
   const onUpdate = async () => {
     try {
       setLoading(true)
@@ -146,7 +143,6 @@ const ModalUpdateRoom = ({ onOk, open, roomId, ...props }) => {
       <SpinCustom spinning={loading}>
         <StyledContainer>
           <Tabs defaultActiveKey="1" centered>
-            {/* Tab 1: Cập nhật phòng */}
             <TabPane tab="Cập Nhật Phòng" key="1">
               <Form form={form} layout="vertical" className="modal-content">
                 <Row gutter={[16]}>
@@ -274,14 +270,11 @@ const ModalUpdateRoom = ({ onOk, open, roomId, ...props }) => {
               </Form>
             </TabPane>
 
-            {/* Tab 2: Cập nhật danh sách tiện ích */}
             <TabPane tab="Cập Nhật Danh Sách Tiện Ích" key="2">
               <Row gutter={[16, 16]}>
                 <Col span={24}>
                   <Form.Item label="Add File">
-                    <Upload>
-                      {/* Chỗ này có thể dùng UploadOutlined icon nếu cần thiết */}
-                    </Upload>
+                    <Upload></Upload>
                   </Form.Item>
                 </Col>
                 <Col span={24} className="d-flex justify-content-center">
@@ -319,4 +312,3 @@ const ModalUpdateRoom = ({ onOk, open, roomId, ...props }) => {
 }
 
 export default ModalUpdateRoom
-

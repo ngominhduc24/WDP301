@@ -1,0 +1,8 @@
+import asyncHandler from "../utils/async-handler.js"
+import response from "../utils/response.js"
+
+const Controller = {
+
+}
+
+export default Controller

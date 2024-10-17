@@ -1,7 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import express, { json, urlencoded } from "express";
-import logger from "morgan";
 import cors from "cors";
 import { connect } from "mongoose";
 import cookieParser from "cookie-parser";
@@ -9,13 +8,13 @@ import session from "express-session";
 import passport from "passport";
 import indexRouter from "./routes/index.route.js";
 import { v2 as cloudinary } from "cloudinary";
+import socketConnect from "../config/socketIO.js";
 const { SERVER_PORT, MONGODB_URL, CLIENT_URL } = process.env;
-
 
 const app = express();
 // List of allowed client URLs (domains) you want to permit
 // const allowedOrigins = [CLIENT_URL, "http://rms.io.vn"];
-const allowedOrigins = [CLIENT_URL, "http://localhost:5000", "*"];
+const allowedOrigins = [CLIENT_URL, "http://localhost:5000", "*", "http://ngominhduc24.ddns.net", "http://ngominhduc24.ddns.net:5000"];
 
 // CORS middleware configurations
 const corsOptions = {
@@ -41,7 +40,6 @@ app.use(cors(corsOptions));
 // });
 app.use(cookieParser());
 app.use(json());
-app.use(logger("dev"));
 app.use(urlencoded({ extended: true }));
 cloudinary.config({
   cloud_name: "dtpujfoo8",
@@ -78,6 +76,7 @@ const startServer = async () => {
     const server = app.listen(SERVER_PORT || 5000, () => {
       console.log(`>>> Listening on port ${SERVER_PORT || 5000}`);
     });
+    socketConnect(server);
   } catch (err) {
     console.error("Error connecting to MongoDB:", err);
   }

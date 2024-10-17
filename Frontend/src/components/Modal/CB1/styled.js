@@ -3,14 +3,11 @@ import styled from "styled-components"
 
 export const ModalWrapper = styled.div`
   .textTitle {
-    margin-bottom: 3px;
+    margin-bottom: 16px;
     text-align: center;
     font-weight: 600;
-  }
-
-  .textValue {
-    margin-bottom: 32px;
-    text-align: center;
+    font-size: 16px;
+    color: #333;
   }
 
   .trashCan {
@@ -24,20 +21,19 @@ export const ModalWrapper = styled.div`
       height: 80px;
     }
   }
+
   .ant-modal-confirm-btns {
+    margin-top: 16px;
+    padding-bottom: 16px;
     justify-content: center;
-  }
-  .ant-modal-body {
-    background-color: red;
   }
 `
 
 export const ModalStyled = styled(Modal)`
-  background-color: red;
-  .ant-modal-confirm-btns {
-    justify-content: center;
-  }
   .ant-modal-confirm-body {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 `
