@@ -1,4 +1,4 @@
-import { Modal, Table, message } from "antd"
+import { Table, message } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
@@ -66,18 +66,6 @@ const ModalPriceConfiguration = ({
         }
       },
     })
-  }
-
-  const handleAddPrice = newPrice => {
-    const newKey = (dataSource.length + 1).toString()
-    const newPriceData = {
-      key: newKey,
-      feeType: newPrice.name,
-      price: `${newPrice.price.toLocaleString()} ₫`,
-      unit: newPrice.unit,
-      _id: newPrice._id,
-    }
-    setDataSource([...dataSource, newPriceData])
   }
 
   return (
@@ -165,4 +153,3 @@ const ModalPriceConfiguration = ({
 }
 
 export default ModalPriceConfiguration
-

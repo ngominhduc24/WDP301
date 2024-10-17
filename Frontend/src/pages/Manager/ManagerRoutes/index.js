@@ -1,11 +1,11 @@
 import { Button, Result } from "antd"
-import { useContext, useEffect, useState } from "react" // Ensure useState is imported here
+import { useContext, useEffect } from "react" // Ensure useState is imported here
 import { useSelector } from "react-redux"
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom"
 import MainLayout from "src/components/Layouts"
 import STORAGE, { getStorage } from "src/lib/storage"
 import { StoreContext } from "src/lib/store"
-import { hasPermission } from "src/lib/utils"
+// import { hasPermission } from "src/lib/utils"
 import ROUTER from "src/router"
 
 function ManagerRoutes() {
@@ -15,17 +15,17 @@ function ManagerRoutes() {
   const isLogin = getStorage(STORAGE.TOKEN)
   const role = getStorage(STORAGE.USER_INFO)
   const location = useLocation()
-  const [check, setCheck] = useState()
+  // const [check, setCheck] = useState()
 
   useEffect(() => {
     console.log("User info from Redux state:", userInfo)
-    setCheck(location?.key)
+    // setCheck(location?.key)
     if (!isLogin) {
       setRouterBeforeLogin(`${location.pathname}${location?.search}`)
     }
-  }, [isLogin, userInfo])
+  }, [isLogin, userInfo, location, setRouterBeforeLogin])
 
-  const userRole = userInfo?.role
+  // const userRole = userInfo?.role
 
   return !!isLogin ? (
     role.accountType === "host" ? (
@@ -54,4 +54,3 @@ function ManagerRoutes() {
 }
 
 export default ManagerRoutes
-

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Modal, Row, Col, Typography, Select } from "antd"
+import { Row, Col, Typography } from "antd"
 import SpinCustom from "src/components/Spin"
 import InsertUpdateReport from "../InsertUpdateReport"
 import Button from "src/components/MyButton/Button"
@@ -7,8 +7,8 @@ import CustomModal from "src/components/Modal/CustomModal"
 import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
 
-const { Title, Text } = Typography
-const { Option } = Select
+const { Text } = Typography
+// const { Option } = Select
 
 const ModalViewDetailReport = ({ open, onCancel, onOk, problemId }) => {
   const [problem, setProblem] = useState(null)
@@ -37,9 +37,9 @@ const ModalViewDetailReport = ({ open, onCancel, onOk, problemId }) => {
     }
   }, [open, problemId])
 
-  const handleUpdate = () => {
-    setIsModalOpen(true)
-  }
+  // const handleUpdate = () => {
+  //   setIsModalOpen(true)
+  // }
 
   const handleUpdateSuccess = async () => {
     setIsModalOpen(false)
@@ -119,4 +119,3 @@ const ModalViewDetailReport = ({ open, onCancel, onOk, problemId }) => {
 }
 
 export default ModalViewDetailReport
-

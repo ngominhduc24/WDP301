@@ -19,7 +19,7 @@ const updateProfile = (id, body) => {
   http.put(apiUpdateProfile(id), body)
 }
 
-const uploadFile = () => {
+const uploadFile = async () => {
   http.post(apiUploadFile, {
     headers: {
       "Content-Type": "multipart/form-data",

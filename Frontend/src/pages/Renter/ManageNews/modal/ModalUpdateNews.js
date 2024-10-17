@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Select, Drawer, Upload, Modal } from "antd"
+import { Col, Form, Input, Row, Drawer, Upload } from "antd"
 import { useEffect, useState } from "react"
 import Button from "src/components/MyButton/Button"
 import {
@@ -8,9 +8,9 @@ import {
 } from "@ant-design/icons"
 import Notice from "src/components/Notice"
 import axios from "axios"
-import STORAGE, { getStorage } from "src/lib/storage"
+// import STORAGE, { getStorage } from "src/lib/storage"
 import RenterService from "src/services/RenterService"
-const { Option } = Select
+// const { Option } = Select
 
 const uploadImageInstance = axios.create({
   baseURL: "https://api.cloudinary.com/v1_1/debiqwc2z/image/upload",
@@ -24,9 +24,9 @@ const ModalUpdateNews = ({ open, onCancel, onOk, selectedNode, houseId }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [fileList, setFileList] = useState([])
-  const [initialImages, setInitialImages] = useState([])
+  // const [initialImages, setInitialImages] = useState([])
 
-  const userInfo = getStorage(STORAGE.USER_INFO)
+  // const userInfo = getStorage(STORAGE.USER_INFO)
 
   const handleFileChange = ({ fileList }) => {
     setFileList(fileList)
@@ -99,7 +99,7 @@ const ModalUpdateNews = ({ open, onCancel, onOk, selectedNode, houseId }) => {
       }))
       setFileList(initialImages || [])
     }
-  }, [selectedNode])
+  }, [selectedNode, form])
 
   return (
     <Drawer
@@ -213,4 +213,3 @@ const ModalUpdateNews = ({ open, onCancel, onOk, selectedNode, houseId }) => {
 }
 
 export default ModalUpdateNews
-

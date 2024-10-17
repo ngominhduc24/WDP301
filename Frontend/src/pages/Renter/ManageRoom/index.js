@@ -11,7 +11,7 @@ import { Box, Grid, Avatar, Button as MuiButton } from "@mui/material"
 import { EditOutlined, DeleteOutlined, UserOutlined } from "@ant-design/icons"
 import { styled } from "@mui/system"
 import RenterService from "src/services/RenterService"
-import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+import STORAGE, { getStorage } from "src/lib/storage"
 import ModalInsertRenter from "./modal/ModalInsertRenter"
 import ModalUpdateRenter from "./modal/ModalUpdateRenter"
 import CB1 from "src/components/Modal/CB1"
@@ -26,18 +26,18 @@ const StyledBox = styled(Box)({
   marginBottom: "24px",
 })
 
-const TenantCard = styled(Box)({
-  border: "1px solid #e0e0e0",
-  borderRadius: "8px",
-  padding: "16px",
-  marginBottom: "16px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-})
+// const TenantCard = styled(Box)({
+//   border: "1px solid #e0e0e0",
+//   borderRadius: "8px",
+//   padding: "16px",
+//   marginBottom: "16px",
+//   display: "flex",
+//   justifyContent: "space-between",
+//   alignItems: "center",
+// })
 
 const ManageRoom = () => {
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
   const [room, setRoom] = useState(null)
   const userInfo = getStorage(STORAGE.USER_INFO)
   const [isInsertRenterVisible, setIsInsertRenterVisible] = useState(false)
@@ -54,7 +54,7 @@ const ManageRoom = () => {
 
   const getRoomsDetail = async id => {
     try {
-      setLoading(true)
+      // setLoading(true)
       const response = await RenterService.getRoomDetail(id)
       if (response?.data) {
         setRoom(response.data)
@@ -62,7 +62,7 @@ const ManageRoom = () => {
     } catch (error) {
       message.error("Không thể tải thông tin phòng!")
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   }
   const handleEditRenter = member => {
@@ -376,4 +376,3 @@ const ManageRoom = () => {
 }
 
 export default ManageRoom
-

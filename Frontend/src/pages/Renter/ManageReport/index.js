@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react"
-import { Col, Row, Select, Space } from "antd"
+import React, { useState, useEffect, useCallback } from "react"
+import { Col, Row, Space } from "antd"
 import SpinCustom from "src/components/Spin"
 import Notice from "src/components/Notice"
 import TableCustom from "src/components/TableCustom"
@@ -8,14 +8,14 @@ import ModalViewDetailReport from "./components/ModalViewReport"
 import SearchAndFilter from "./components/SearchAndFilter"
 import Button from "src/components/MyButton/Button"
 import RenterService from "src/services/RenterService"
-import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+import STORAGE, { getStorage } from "src/lib/storage"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import InsertReport from "./components/InsertReport"
 const ManageReport = () => {
   const userInfo = getStorage(STORAGE.USER_INFO)
-  const { Option } = Select
-  const [selectedHouse, setSelectedHouse] = useState(null)
+  // const { Option } = Select
+  // const [selectedHouse, setSelectedHouse] = useState(null)
   const [allProblems, setAllProblems] = useState([])
   const [filteredProblems, setFilteredProblems] = useState([])
   const [loading, setLoading] = useState(false)
@@ -32,47 +32,32 @@ const ManageReport = () => {
     Status: "all",
   })
 
-  useEffect(() => {
-    fetchHouse()
-  }, [])
-
-  useEffect(() => {
-    if (userInfo?.roomId) fetchProblems(userInfo?.roomId)
-  }, [userInfo?.roomId])
-
-  useEffect(() => {
-    applyFiltersAndSearch()
-  }, [pagination, allProblems])
-
-  const fetchHouse = async () => {
+  const fetchHouse = useCallback(async () => {
     try {
       setLoading(true)
       const response = await RenterService.getRoomDetail(userInfo?.roomId)
-      const housesData = response?.data?.houseId || []
-      if (housesData) {
-        setSelectedHouse(housesData._id)
-      }
+      console.log(response)
+
+      // const housesData = response?.data?.houseId || []
+      // if (housesData) {
+      //   setSelectedHouse(housesData._id)
+      // }
     } catch (error) {
       console.error("Error fetching houses:", error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [userInfo?.roomId])
 
-  const fetchProblems = async roomId => {
-    try {
-      setLoading(true)
-      const response = await RenterService.getRoomProblems(roomId)
-      setAllProblems(response.data.data || [])
-    } catch (error) {
-      console.error("Error fetching problems:", error)
-      Notice({ msg: "Không thể lấy danh sách vấn đề" })
-    } finally {
-      setLoading(false)
-    }
-  }
+  useEffect(() => {
+    fetchHouse()
+  }, [fetchHouse])
 
-  const applyFiltersAndSearch = () => {
+  useEffect(() => {
+    if (userInfo?.roomId) fetchProblems(userInfo?.roomId)
+  }, [userInfo?.roomId])
+
+  const applyFiltersAndSearch = useCallback(() => {
     const { TextSearch, Status } = pagination
 
     let filtered = allProblems.filter(problem =>
@@ -88,6 +73,23 @@ const ManageReport = () => {
     }
 
     setFilteredProblems(filtered)
+  }, [allProblems, pagination])
+
+  useEffect(() => {
+    applyFiltersAndSearch()
+  }, [pagination, allProblems, applyFiltersAndSearch])
+
+  const fetchProblems = async roomId => {
+    try {
+      setLoading(true)
+      const response = await RenterService.getRoomProblems(roomId)
+      setAllProblems(response.data.data || [])
+    } catch (error) {
+      console.error("Error fetching problems:", error)
+      Notice({ msg: "Không thể lấy danh sách vấn đề" })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleUpdate = problem => {
@@ -280,4 +282,3 @@ const ManageReport = () => {
 }
 
 export default ManageReport
-

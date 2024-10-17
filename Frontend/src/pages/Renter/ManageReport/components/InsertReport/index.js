@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Select, Input, Typography, Form } from "antd"
+import { Select, Input, Form } from "antd"
 import Button from "src/components/MyButton/Button"
 import CustomModal from "src/components/Modal/CustomModal"
 import Notice from "src/components/Notice"
@@ -109,4 +109,3 @@ const InsertReport = ({ open, onCancel, onOk, roomId }) => {
 }
 
 export default InsertReport
-

@@ -1,4 +1,3 @@
-import { Spin } from "antd"
 import React from "react"
 import { useRoutes } from "react-router-dom"
 import ROUTER from "./index"
@@ -317,4 +316,3 @@ const AppRouter = () => {
   return renderRouter
 }
 export default AppRouter
-

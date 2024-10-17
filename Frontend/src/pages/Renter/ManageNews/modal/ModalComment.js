@@ -1,36 +1,30 @@
-import React, { useState, useEffect } from "react"
-import { Button, Modal, Input, Avatar, Form, List, Spin } from "antd"
-import { MessageOutlined, SendOutlined, UserOutlined } from "@ant-design/icons"
-import styled from "styled-components"
+import React, { useState, useEffect, useCallback } from "react"
+import { Button, Input, Avatar, Form, List, Spin } from "antd"
+import { SendOutlined, UserOutlined } from "@ant-design/icons"
+// import styled from "styled-components"
 import CustomModal from "src/components/Modal/CustomModal"
 import RenterService from "src/services/RenterService"
 // Styled component cho nút bình luận
-const CommentButton = styled(Button)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background-color: #3f51b5;
-  color: white;
-  font-weight: bold;
-  height: 40px;
-  &:hover {
-    background-color: #2c3e90;
-  }
-`
+// const CommentButton = styled(Button)`
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   border-radius: 8px;
+//   background-color: #3f51b5;
+//   color: white;
+//   font-weight: bold;
+//   height: 40px;
+//   &:hover {
+//     background-color: #2c3e90;
+//   }
+// `
 
-const ModalComment = ({ open, onCancel, onSubmit, post }) => {
+const ModalComment = ({ open, onCancel, post }) => {
   const [form] = Form.useForm()
   const [comments, setComments] = useState([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (open) {
-      fetchComments()
-    }
-  }, [open])
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     setLoading(true)
     try {
       const response = await RenterService.getComment(post._id)
@@ -40,7 +34,13 @@ const ModalComment = ({ open, onCancel, onSubmit, post }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [post._id])
+
+  useEffect(() => {
+    if (open) {
+      fetchComments()
+    }
+  }, [open, fetchComments])
 
   const handleCommentSubmit = async () => {
     try {
@@ -154,4 +154,3 @@ const ModalComment = ({ open, onCancel, onSubmit, post }) => {
 }
 
 export default ModalComment
-

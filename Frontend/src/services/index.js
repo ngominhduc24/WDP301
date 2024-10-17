@@ -2,9 +2,7 @@ import axios from "axios"
 import notice from "src/components/Notice"
 import STORAGE, { deleteStorage, getStorage } from "src/lib/storage"
 import { getMsgClient } from "src/lib/stringsUtils"
-import { trimData } from "src/lib/utils"
 import ROUTER from "src/router"
-import Cookies from "js-cookie"
 
 /**
  * Parse error response
@@ -82,11 +80,9 @@ instance.interceptors.request.use(
   config => {
     // Gán baseURL cho config
     config.baseURL = process.env.REACT_APP_ROOT_API
-    console.log("Base URL:", config.baseURL) // Kiểm tra baseURL
 
     // Lấy token từ storage
     const token = getStorage(STORAGE.TOKEN)
-    console.log("Token:", token) // Thêm log để kiểm tra token
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`

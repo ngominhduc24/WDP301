@@ -15,7 +15,7 @@ function PrivateRoutes() {
   useEffect(() => {
     if (!isLogin)
       setRouterBeforeLogin(`${location.pathname}${location?.search}`)
-  }, [isLogin])
+  }, [isLogin, location, setRouterBeforeLogin])
   return !!isLogin ? (
     <MainLayout>
       <Outlet />

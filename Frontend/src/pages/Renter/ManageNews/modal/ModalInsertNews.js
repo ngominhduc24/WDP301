@@ -1,6 +1,6 @@
-import { Col, Form, Input, Row, Select, Drawer, Upload, Modal } from "antd"
-import { useEffect, useState } from "react"
-import CustomModal from "src/components/Modal/CustomModal"
+import { Col, Form, Input, Row, Drawer, Upload } from "antd"
+import { useState } from "react"
+// import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
 import {
   LeftCircleOutlined,
@@ -9,9 +9,9 @@ import {
 } from "@ant-design/icons"
 import Notice from "src/components/Notice"
 import axios from "axios"
-import STORAGE, { getStorage } from "src/lib/storage"
+// import STORAGE, { getStorage } from "src/lib/storage"
 import RenterService from "src/services/RenterService"
-const { Option } = Select
+// const { Option } = Select
 
 const uploadImageInstance = axios.create({
   baseURL: "https://api.cloudinary.com/v1_1/debiqwc2z/image/upload",
@@ -26,7 +26,7 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode, houseId }) => {
   const [loading, setLoading] = useState(false)
   const [fileList, setFileList] = useState([])
 
-  const userInfo = getStorage(STORAGE.USER_INFO)
+  // const userInfo = getStorage(STORAGE.USER_INFO)
 
   const handleFileChange = ({ fileList }) => {
     setFileList(fileList)
@@ -188,4 +188,3 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode, houseId }) => {
 }
 
 export default ModalInsertNews
-

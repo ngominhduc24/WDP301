@@ -1,16 +1,16 @@
 import { Col, Row } from "antd"
-import { useState } from "react"
+// import { useState } from "react"
 import { useSelector } from "react-redux"
 import CustomModal from "src/components/Modal/CustomModal"
 import SpinCustom from "src/components/Spin"
 import SvgIcon from "src/components/SvgIcon"
 import UploadCustom from "src/components/Upload"
-import { downloadFileBlob } from "src/lib/base64"
+// import { downloadFileBlob } from "src/lib/base64"
 import { ImportStyled } from "../styled"
 
 const ImportUser = ({ open, onCancel, onOk, department }) => {
   const { importLoading } = useSelector(state => state.common)
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
   // const getTemplateUpload = () => {
   //   setLoading(true)
   //   UserService.templateImportGuest()
@@ -29,7 +29,7 @@ const ImportUser = ({ open, onCancel, onOk, department }) => {
       onCancel={onCancel}
       footer={null}
     >
-      <SpinCustom spinning={loading}>
+      <SpinCustom spinning>
         <ImportStyled>
           <SpinCustom spinning={!!importLoading}>
             <div style={{ marginBottom: 10 }}>
@@ -85,4 +85,3 @@ const ImportUser = ({ open, onCancel, onOk, department }) => {
 }
 
 export default ImportUser
-

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import {
   Col,
   Row,
@@ -12,7 +12,7 @@ import {
 } from "antd"
 import Button from "src/components/MyButton/Button"
 import styled from "styled-components"
-import { UploadOutlined, UserOutlined } from "@ant-design/icons"
+import { UserOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import RenterService from "src/services/RenterService"
 
@@ -60,13 +60,7 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
   const [imageUrl, setImageUrl] = useState("")
   const [avatarFile, setAvatarFile] = useState(null)
 
-  useEffect(() => {
-    if (member && visible) {
-      fetchMemberDetail()
-    }
-  }, [member, visible])
-
-  const fetchMemberDetail = async () => {
+  const fetchMemberDetail = useCallback(async () => {
     try {
       setLoading(true)
       const response = await RenterService.getMemberDetail(roomId, member._id)
@@ -87,7 +81,12 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [form, member, roomId])
+  useEffect(() => {
+    if (member && visible) {
+      fetchMemberDetail()
+    }
+  }, [member, visible, fetchMemberDetail])
 
   const onContinue = async () => {
     try {
@@ -279,4 +278,3 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
 }
 
 export default ModalUpdateRenter
-

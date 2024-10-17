@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import {
   Row,
   Col,
@@ -8,7 +8,7 @@ import {
   Button,
   Space,
   Pagination,
-  Select,
+  // Select,
   Empty,
 } from "antd"
 import { EllipsisOutlined, MessageOutlined } from "@ant-design/icons"
@@ -22,9 +22,9 @@ import ModalComment from "./modal/ModalComment"
 import Notice from "src/components/Notice"
 import CB1 from "src/components/Modal/CB1"
 import RenterService from "src/services/RenterService"
-import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+import STORAGE, { getStorage } from "src/lib/storage"
 
-const { Option } = Select
+// const { Option } = Select
 
 const News = () => {
   const [notes, setNotes] = useState([])
@@ -42,25 +42,14 @@ const News = () => {
     pageSize: 5,
     currentPage: 1,
   })
-  useEffect(() => {
-    if (userInfo?.roomId) {
-      fetchHouse(userInfo?.roomId)
-    }
-  }, [userInfo?.roomId])
-  useEffect(() => {
-    if (selectedHouse) {
-      fetchNews(selectedHouse)
-    }
-  }, [selectedHouse])
 
-  const fetchHouse = async () => {
+  const fetchHouse = useCallback(async () => {
     try {
       setLoading(true)
       const userInfo = getStorage(STORAGE.USER_INFO)
       const response = await RenterService.getRoomDetail(userInfo?.roomId)
       const housesData = response?.data?.houseId || []
       if (housesData) {
-        console.log("hello")
         fetchNews(housesData._id)
         setSelectedHouse(housesData._id)
       }
@@ -69,7 +58,19 @@ const News = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (userInfo?.roomId) {
+      fetchHouse(userInfo?.roomId)
+    }
+  }, [userInfo?.roomId, fetchHouse])
+
+  useEffect(() => {
+    if (selectedHouse) {
+      fetchNews(selectedHouse)
+    }
+  }, [selectedHouse])
 
   const fetchNews = async houseId => {
     try {
@@ -362,4 +363,3 @@ const News = () => {
 }
 
 export default News
-

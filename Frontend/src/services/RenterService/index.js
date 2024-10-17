@@ -9,7 +9,6 @@ import {
   apiMemberDetail,
   apiGetComment,
   apiUpdateNew,
-  apiDeleteNew,
   apiGetNews,
   apiCreateNews,
   apiAddComment,
@@ -19,9 +18,7 @@ import {
   apiGetRoomProblems,
   apiInsertProblems,
 } from "./urls"
-import QueryString from "qs"
 import axios from "axios"
-const generateRequestId = () => Math.random().toString(36).substring(2, 15)
 // Room Detail
 const getRoomDetail = id => {
   return http.get(apiGetRoomDetail(id))
@@ -119,4 +116,3 @@ const RenterService = {
 }
 
 export default RenterService
-

@@ -1,21 +1,21 @@
 import { UserOutlined } from "@ant-design/icons"
-import { Anchor, Avatar, Col, Divider, Row, Space, Switch, Tooltip } from "antd"
+import { Avatar, Col, Divider, Row, Switch } from "antd"
 import { useEffect, useState } from "react"
-import { FloatActionWrapper } from "src/components/FloatAction/styles"
-import CB1 from "src/components/Modal/CB1"
+// import { FloatActionWrapper } from "src/components/FloatAction/styles"
+// import CB1 from "src/components/Modal/CB1"
 import Button from "src/components/MyButton/Button"
-import ButtonCircle from "src/components/MyButton/ButtonCircle"
+// import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
 import TableCustom from "src/components/Table/CustomTable"
 import Search from "./components/Search"
-import TreeAnchor from "./components/TreeAnchor"
-import ImportUser from "./modal/ImportUser"
+// import TreeAnchor from "./components/TreeAnchor"
+// import ImportUser from "./modal/ImportUser"
 import ModalInsertUpdate from "./modal/InsertUpdate"
 import UserDetail from "./modal/UserDetail"
 import { ListUserStyled } from "./styled"
-import { getStorage } from "src/lib/storage"
-import STORAGE from "src/lib/storage"
+// import { getStorage } from "src/lib/storage"
+// import STORAGE from "src/lib/storage"
 
 const ManageUser = () => {
   const [managers, setManagers] = useState([])
@@ -28,9 +28,9 @@ const ManageUser = () => {
 
   const [loading, setLoading] = useState(false)
   const [openInsertUpdate, setOpenInsertUpdate] = useState(false)
-  const [openImportUser, setOpenImportUser] = useState(false)
-  const [detailInfo, setDetailInfo] = useState()
-  const [selectedNode, setSelectedNote] = useState()
+  // const [openImportUser, setOpenImportUser] = useState(false)
+  // const [detailInfo, setDetailInfo] = useState()
+  // const [selectedNode, setSelectedNote] = useState()
   const [openModalUserDetail, setOpenModalUserDetail] = useState(false)
 
   const columns = [
@@ -187,7 +187,7 @@ const ManageUser = () => {
       {openInsertUpdate && (
         <ModalInsertUpdate
           open={openInsertUpdate}
-          detailInfo={detailInfo}
+          // detailInfo={detailInfo}
           onOk={mockGetAllManagers}
           onCancel={() => setOpenInsertUpdate(false)}
         />
@@ -205,4 +205,3 @@ const ManageUser = () => {
 }
 
 export default ManageUser
-

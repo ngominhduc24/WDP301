@@ -7,7 +7,7 @@ import useWindowSize from "src/lib/useWindowSize"
 import NotifyForm from "./components/NotifyForm"
 import io from "socket.io-client"
 
-const socket = io("https://sdn301.onrender.com") // replace with env config
+// const socket = io("https://sdn301.onrender.com") // replace with env config
 
 const Notification = props => {
   const isMobile = useWindowSize.isMobile() || false
@@ -26,16 +26,16 @@ const Notification = props => {
   // Handle socket connections and notifications
   useEffect(() => {
     const shopId = userInfo?.shopId || 0 // Replace with appropriate shopId from user info or state
-    socket.emit("joinShop", shopId)
+    // socket.emit("joinShop", shopId)
 
-    socket.on("notification", notification => {
-      // Add the new notification to the beginning of the list
-      setListNotify(prevList => [notification, ...prevList])
-      setNumberOfNewNotifies(prevCount => (prevCount || 0) + 1)
-    })
+    // socket.on("notification", notification => {
+    //   // Add the new notification to the beginning of the list
+    //   setListNotify(prevList => [notification, ...prevList])
+    //   setNumberOfNewNotifies(prevCount => (prevCount || 0) + 1)
+    // })
 
     return () => {
-      socket.off("notification")
+      // socket.off("notification")
     }
   }, [userInfo])
 

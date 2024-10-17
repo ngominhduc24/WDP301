@@ -54,7 +54,7 @@ export default function FlSelect(props) {
     } else {
       setIsFocus(false)
     }
-  }, [value])
+  }, [value, randomClass])
 
   return (
     <TreeSelectWrapper

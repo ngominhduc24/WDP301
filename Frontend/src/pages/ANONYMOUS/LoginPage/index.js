@@ -82,7 +82,6 @@ const LoginPage = () => {
   }
 
   const onLogin = async () => {
-    console.log("hello")
     try {
       setLoading(true)
       const values = await form.validateFields()
@@ -226,4 +225,3 @@ const LoginPage = () => {
 }
 
 export default LoginPage
-

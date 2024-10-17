@@ -1,40 +1,38 @@
 import { Col, Divider, Form, Row, Upload } from "antd"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import Button from "src/components/MyButton/Button"
 import { normFile } from "src/lib/utils"
-import { useDispatch, useSelector } from "react-redux"
+// import { useDispatch } from "react-redux"
 import { UserOutlined } from "@ant-design/icons"
 import SvgIcon from "src/components/SvgIcon"
 import { StyleMyAccount } from "./styled"
 import STORAGE, { getStorage } from "src/lib/storage"
-import Notice from "src/components/Notice"
 import LayoutCommon from "src/components/Common/Layout"
 import useWindowSize from "src/lib/useWindowSize"
 import UserService from "src/services/UserService"
 import moment from "moment/moment"
 import ModalInsertUpdateProfile from "./components/UpdatePersonProfile"
 const PersonProfile = () => {
-  const dispatch = useDispatch()
   const [modalUpdatePersonProfile, setModalUpdatePersonProfile] =
     useState(false)
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
   // const [user, setUser] = useState({})
   const [avatarUpload, setAvatarUpload] = useState("")
-  const [avatarUpdated, setAvatarUpdated] = useState(false)
-  const userID = getStorage(STORAGE.USER_ID)
   const user = getStorage(STORAGE.USER_INFO)
   console.log(user)
   const uploadImg = async file => {
     try {
-      setLoading(true)
+      // setLoading(true)
       const formData = new FormData()
       formData.append("image", file)
       const res = await UserService.uploadFile(formData)
+      console.log(res)
+
       setAvatarUpload(file)
     } catch {
       console.log("Upload file error")
-    } finally {
-      setLoading(false)
+      // } finally {
+      //   setLoading(false)
     }
   }
 
@@ -272,4 +270,3 @@ const PersonProfile = () => {
 }
 
 export default PersonProfile
-

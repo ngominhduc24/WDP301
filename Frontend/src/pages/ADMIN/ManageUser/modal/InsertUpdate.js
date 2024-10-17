@@ -10,20 +10,16 @@ import {
 } from "antd"
 import moment from "moment"
 import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
-import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
-import { GUIDE_EMPTY, SYSTEM_KEY } from "src/constants/constants"
 import {
   getRegexEmail,
   getRegexMobile,
   getRegexPassword,
-  getRegexUsername,
 } from "src/lib/stringsUtils"
-import { getListComboByKey, nest, normFile } from "src/lib/utils"
+import { normFile } from "src/lib/utils"
 // import Department from "src/services/DepartmentService"
 // import FileService from "src/services/FileService"
 // import PositionService from "src/services/PositionService"

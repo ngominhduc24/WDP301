@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import {
   Col,
   Row,
@@ -12,7 +12,7 @@ import {
 } from "antd"
 import Button from "src/components/MyButton/Button"
 import styled from "styled-components"
-import { UploadOutlined, UserOutlined } from "@ant-design/icons"
+import { UserOutlined } from "@ant-design/icons"
 import ManagerService from "src/services/ManagerService"
 
 const { Option } = Select

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Card, Col, Row, Statistic, Table, message } from "antd"
 import ReactECharts from "echarts-for-react"
-import Cookies from "js-cookie"
+// import Cookies from "js-cookie"
 import ManagerService from "src/services/ManagerService"
 
 const columnsPayment = [
@@ -21,34 +21,38 @@ const ManagerDashBoard = () => {
   const [billData, setBillData] = useState([])
   const [issueData, setIssueData] = useState([])
   const [loading, setLoading] = useState(false)
-  const [month, setMonth] = useState("10-2024")
+  // const [month, setMonth] = useState("10-2024")
+  const month = useMemo(() => "10-2024", [])
 
   useEffect(() => {
-    fetchData()
-  }, [month])
-
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-      const [generalResponse, revenueResponse, billResponse, problemsResponse] =
-        await Promise.all([
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const [
+          generalResponse,
+          revenueResponse,
+          billResponse,
+          problemsResponse,
+        ] = await Promise.all([
           ManagerService.getGeneralStatistic(),
           ManagerService.getRevenue(),
           ManagerService.getBillStatistic(month),
           ManagerService.getProblems(),
         ])
 
-      setGeneralInfo(generalResponse?.data || {})
-      setRevenueData(revenueResponse?.data || {})
-      setBillData(formatBillData(billResponse?.data))
-      setIssueData(formatIssueData(problemsResponse?.data))
-    } catch (error) {
-      message.error("Lỗi khi tải dữ liệu từ API")
-      console.error("API Error: ", error)
-    } finally {
-      setLoading(false)
+        setGeneralInfo(generalResponse?.data || {})
+        setRevenueData(revenueResponse?.data || {})
+        setBillData(formatBillData(billResponse?.data))
+        setIssueData(formatIssueData(problemsResponse?.data))
+      } catch (error) {
+        message.error("Lỗi khi tải dữ liệu từ API")
+        console.error("API Error: ", error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+    fetchData()
+  }, [month])
 
   const formatBillData = data => {
     if (!data) return []
@@ -186,4 +190,3 @@ const ManagerDashBoard = () => {
 }
 
 export default ManagerDashBoard
-

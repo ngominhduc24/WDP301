@@ -1,4 +1,3 @@
-const CA_NHAN = "ca_nhan"
 const ROUTER = {
   SVG_VIEWER: "/svg-viewer",
   HOME: "/dashboard",
@@ -34,4 +33,3 @@ const ROUTER = {
   MANAGER_PROFILE: `/manager/personal`,
 }
 export default ROUTER
-
