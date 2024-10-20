@@ -2,9 +2,6 @@ import AccountService from "../services/Account.service.js";
 import asyncHandler from "../utils/async-handler.js";
 
 const AccountController = {
-  createAccount: asyncHandler(async (req, res) => {
-    await AccountService.createAccount(req, res);
-  }),
   getProfile: asyncHandler(async (req, res) => {
     await AccountService.getProfile(req, res);
   }),
