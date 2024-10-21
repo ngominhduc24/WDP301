@@ -277,6 +277,7 @@ const ManagerService = {
   getRoomWithBill,
   getDetailBill,
   paymentByCash,
+  getIn4CCCD,
 }
 
 export default ManagerService
