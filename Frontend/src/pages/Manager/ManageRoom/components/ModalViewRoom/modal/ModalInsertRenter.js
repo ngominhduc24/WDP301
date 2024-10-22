@@ -13,7 +13,9 @@ import {
 import Button from "src/components/MyButton/Button"
 import styled from "styled-components"
 import { UploadOutlined, UserOutlined } from "@ant-design/icons"
+import axios from "axios"
 import ManagerService from "src/services/ManagerService"
+import moment from "moment"
 
 const { Option } = Select
 
@@ -53,11 +55,90 @@ const Styled = styled.div`
   }
 `
 
+// Upload CCCD Image Modal
+const UploadCCCDModal = ({ visible, onCancel, onUploadSuccess }) => {
+  const [imageFile, setImageFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
+
+  const uploadImageInstance = axios.create({
+    baseURL: "https://api.cloudinary.com/v1_1/debiqwc2z/image/upload",
+    timeout: 10000,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  })
+
+  const handleImageUpload = ({ file }) => {
+    setImageFile(file)
+  }
+
+  const handleUpload = async () => {
+    if (!imageFile) {
+      message.error("Vui lòng chọn ảnh CCCD!")
+      return
+    }
+
+    setUploading(true)
+
+    const formData = new FormData()
+    formData.append("file", imageFile)
+
+    try {
+      const response = await uploadImageInstance.post("/", formData)
+
+      if (response?.data?.errorCode === 0) {
+        const cccdData = response.data.data[0]
+        message.success("Upload thành công!")
+        onUploadSuccess(cccdData)
+        onCancel()
+      } else {
+        message.error("Có lỗi xảy ra khi upload CCCD!")
+      }
+    } catch (error) {
+      message.error("Upload thất bại, vui lòng thử lại!")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      onCancel={onCancel}
+      title="Upload CCCD"
+      footer={null}
+    >
+      <Upload
+        accept="image/*"
+        multiple={false}
+        maxCount={1}
+        beforeUpload={file => {
+          handleImageUpload({ file })
+          return false
+        }}
+        listType="picture-card"
+        showUploadList={false}
+      >
+        <Button icon={<UploadOutlined />}>Chọn Ảnh CCCD</Button>
+      </Upload>
+      <Button
+        onClick={handleUpload}
+        loading={uploading}
+        type="primary"
+        style={{ marginTop: 16 }}
+      >
+        Upload
+      </Button>
+    </Modal>
+  )
+}
+
 const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("")
   const [avatarFile, setAvatarFile] = useState(null)
+  const [cccdModalVisible, setCccdModalVisible] = useState(false)
 
   const onContinue = async () => {
     try {
@@ -108,6 +189,15 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
     setImageUrl("")
     setAvatarFile(null)
     onCancel()
+  }
+
+  const handleCCCDUploadSuccess = cccdData => {
+    form.setFieldsValue({
+      fullName: cccdData.name,
+      cccd: cccdData.id,
+      gender: cccdData.sex === "NAM" ? "male" : "female",
+      dob: cccdData.dob ? moment(cccdData.dob, "DD/MM/YYYY") : null,
+    })
   }
 
   return (
@@ -233,6 +323,13 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
           {/* Footer */}
           <div className="form-footer">
             <Button
+              onClick={() => setCccdModalVisible(true)}
+              btntype="secondary"
+              style={{ marginRight: 16 }}
+            >
+              Thêm CCCD Qua Ảnh
+            </Button>
+            <Button
               onClick={handleCancel}
               btntype="third"
               style={{ marginRight: 16 }}
@@ -245,8 +342,16 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
           </div>
         </Form>
       </Styled>
+
+      {/* Modal for CCCD Upload */}
+      <UploadCCCDModal
+        visible={cccdModalVisible}
+        onCancel={() => setCccdModalVisible(false)}
+        onUploadSuccess={handleCCCDUploadSuccess}
+      />
     </Modal>
   )
 }
 
 export default ModalInsertRenter
+
