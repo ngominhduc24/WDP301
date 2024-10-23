@@ -1,16 +1,12 @@
 import { Col, Divider, Image, Row } from "antd"
 import moment from "moment"
 import { useEffect, useState } from "react"
-import CB1 from "src/components/Modal/CB1"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
-import Notice from "src/components/Notice"
 import styled from "styled-components"
 import ModalInsertUpdate from "./InsertUpdate"
 import { FAILBACK } from "src/constants/constants"
-import AdminServices from "src/services/AdminService"
-import STORAGE, { getStorage } from "src/lib/storage"
-import ManageUser from ".."
+// import AdminServices from "src/services/AdminService"
 
 const StyledUserDetail = styled.div`
   .img-user {
@@ -37,26 +33,23 @@ const StyledUserDetail = styled.div`
   }
 `
 const UserDetail = ({ open, onCancel, onOk, data }) => {
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
   const [openInsert, setOpenInsert] = useState(false)
-  const [userInfo, setUserInfo] = useState({})
   // const UserID = getStorage(STORAGE.USER_ID)
   useEffect(() => {
-      // getUserDetail(userId)
-    
+    // getUserDetail(userId)
   }, [])
 
-  const getUserDetail = async (id) => {
-    try {
-      setLoading(true)
-      const res = await AdminServices.getManagerById(id)
-      setUserInfo(res)
-    } catch (error) {
-      console.log("error");
-    }finally{
-      setLoading(false)
-    }
-  }
+  // const getUserDetail = async id => {
+  //   try {
+  //     setLoading(true)
+  //     await AdminServices.getManagerById(id)
+  //   } catch (error) {
+  //     console.log("error")
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   // const getUserDetail = async () => {
   //   try {
@@ -92,23 +85,23 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
         )} */}
       </div>
       <div className="d-flex justify-content-flex-end">
-          <Button
-            loading={loading}
-            btntype="primary"
-            onClick={() => {
-              setOpenInsert(data)
-            }}
-          >
-            Sửa
-          </Button>
-          <Button
-            loading={loading}
-            onClick={() => {
-              onCancel()
-            }}
-          >
-            Đóng
-          </Button>
+        <Button
+          // loading={loading}
+          btntype="primary"
+          onClick={() => {
+            setOpenInsert(data)
+          }}
+        >
+          Sửa
+        </Button>
+        <Button
+          // loading={loading}
+          onClick={() => {
+            onCancel()
+          }}
+        >
+          Đóng
+        </Button>
       </div>
     </div>
   )
@@ -151,8 +144,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
             </Col>
             <Col span={24}>
               <div className="mb-12 text-center ">
-                <span className="fw-600 ">Nhóm quyền:</span>{" "}
-                {data?.role}
+                <span className="fw-600 ">Nhóm quyền:</span> {data?.role}
               </div>
             </Col>
             <Col span={24}>
@@ -163,24 +155,20 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
             <Row>
               <Col span={12}>
                 <div className="mb-12">
-                  <span className="fw-600 ">Họ tên:</span>{" "}
-                  {data?.fullname}
+                  <span className="fw-600 ">Họ tên:</span> {data?.fullname}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Trạng thái:</span>{" "}
-                  {!!data?.status
-                    ? "Đang hoạt động"
-                    : "Không hoạt động"}
+                  {!!data?.status ? "Đang hoạt động" : "Không hoạt động"}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
-                  <span className="fw-600 ">Số điện thoại:</span>{" "}
-                  {data?.phone}
+                  <span className="fw-600 ">Số điện thoại:</span> {data?.phone}
                 </div>
               </Col>
 
@@ -198,7 +186,6 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
                     : ""}
                 </div>
               </Col>
-
             </Row>
           </Col>
         </Row>
@@ -222,4 +209,3 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
 }
 
 export default UserDetail
-

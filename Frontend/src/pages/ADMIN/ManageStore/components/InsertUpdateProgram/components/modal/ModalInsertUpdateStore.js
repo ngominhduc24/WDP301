@@ -1,19 +1,9 @@
-import { Col, Form, Row, Select, TimePicker } from "antd"
-import FlDatePicker from "src/components/FloatingLabel/DatePicker"
+import { Col, Form, Row } from "antd"
 import CustomModal from "src/components/Modal/CustomModal"
-import { DisableBetweenDate, range } from "src/lib/dateFormatters"
-import dayjs from "dayjs"
-import TinyEditor from "src/components/TinyEditor"
-import { useEffect, useState } from "react"
 import Button from "src/components/MyButton/Button"
-
-const { Option } = Select
 
 const ModalInsertUpdateStore = ({ open, onOk, onCancel, documents }) => {
   const [form] = Form.useForm()
-  const [loading, setLoading] = useState(false)
-
-
 
   return (
     <CustomModal
@@ -25,7 +15,6 @@ const ModalInsertUpdateStore = ({ open, onOk, onCancel, documents }) => {
         <div className="d-flex-end">
           <Button
             btntype="primary"
-            loading={loading}
             // onClick={() => hanndeInsertUpdateContent()}
           >
             {!!open?.ContentID ? "Lưu" : "Thêm"}
@@ -49,18 +38,16 @@ const ModalInsertUpdateStore = ({ open, onOk, onCancel, documents }) => {
               rules={[
                 { required: true, message: "Thông tin không được bỏ trống" },
               ]}
-            >
-            </Form.Item>
+            ></Form.Item>
           </Col>
           <Col span={12}>
-          <Form.Item
+            <Form.Item
               name="location"
               label="Địa chỉ:"
               rules={[
                 { required: true, message: "Thông tin không được bỏ trống" },
               ]}
-            >
-            </Form.Item>
+            ></Form.Item>
           </Col>
           <Col span={24}>
             <Form.Item
@@ -69,8 +56,7 @@ const ModalInsertUpdateStore = ({ open, onOk, onCancel, documents }) => {
               rules={[
                 { required: true, message: "Bạn phải nhập số điện thoại" },
               ]}
-            >
-            </Form.Item>
+            ></Form.Item>
           </Col>
           <Col span={24}>
             <Form.Item
@@ -79,8 +65,7 @@ const ModalInsertUpdateStore = ({ open, onOk, onCancel, documents }) => {
               rules={[
                 { required: true, message: "Bạn phải nhập email của cửa hàng" },
               ]}
-            >
-            </Form.Item>
+            ></Form.Item>
           </Col>
         </Row>
       </Form>
@@ -89,4 +74,3 @@ const ModalInsertUpdateStore = ({ open, onOk, onCancel, documents }) => {
 }
 
 export default ModalInsertUpdateStore
-

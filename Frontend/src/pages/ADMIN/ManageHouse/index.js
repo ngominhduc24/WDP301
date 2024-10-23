@@ -1,9 +1,8 @@
 import { Col, Row, Space, Modal } from "antd"
-import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
+import { useCallback, useEffect, useState } from "react"
+// import { useSelector } from "react-redux"
 import Button from "src/components/MyButton/Button"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
-import Notice from "src/components/Notice"
 import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "./components/SearchAndFilter"
 import SpinCustom from "src/components/Spin"
@@ -11,6 +10,7 @@ import ModalInsertHouse from "./components/InsertHouse"
 import ModalUpdateHouse from "./components/UpdateHouse"
 import ModalViewHouse from "./components/ModalViewHouse"
 import ManagerService from "src/services/ManagerService"
+// import { get } from "lodash"
 
 const ManageHouse = () => {
   const [houses, setHouses] = useState([])
@@ -23,10 +23,10 @@ const ManageHouse = () => {
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
-  const { userInfo } = useSelector(state => state.appGlobal)
+  // const { userInfo } = useSelector(state => state.appGlobal)
   const [utilityMap, setUtilityMap] = useState({})
-  const [utilities, setUtilities] = useState([])
-  const [otherUtilities, setOtherUtilities] = useState([])
+  // const [utilities, setUtilities] = useState([])
+  // const [otherUtilities, setOtherUtilities] = useState([])
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -35,11 +35,7 @@ const ManageHouse = () => {
     Status: 0,
   })
 
-  useEffect(() => {
-    getHouses()
-  }, [])
-
-  const getHouses = async () => {
+  const getHouses = useCallback(async () => {
     try {
       setLoading(true)
       const [utilityResponse, otherUtilityResponse] = await Promise.all([
@@ -58,8 +54,8 @@ const ManageHouse = () => {
         {},
       )
 
-      setUtilities(utilitiesData)
-      setOtherUtilities(otherUtilitiesData)
+      // setUtilities(utilitiesData)
+      // setOtherUtilities(otherUtilitiesData)
       setUtilityMap(combinedMap)
 
       const houseResponse = await ManagerService.getAllHouses(
@@ -79,7 +75,11 @@ const ManageHouse = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [pagination])
+
+  useEffect(() => {
+    getHouses()
+  }, [getHouses])
 
   const filterHouses = searchTerm => {
     const filteredHouses = allHouses.filter(
@@ -351,4 +351,3 @@ const ManageHouse = () => {
 }
 
 export default ManageHouse
-

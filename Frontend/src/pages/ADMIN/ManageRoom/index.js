@@ -1,12 +1,8 @@
-import { Col, Row, Space, Tooltip, Modal, Select } from "antd"
+import { Modal, Select } from "antd"
 import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
 import Button from "src/components/MyButton/Button"
-import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
-import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "./components/SearchAndFilter"
-import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import ManagerService from "src/services/ManagerService"
 import Box from "@mui/material/Box"
@@ -23,7 +19,6 @@ import ModalViewRoom from "./components/ModalViewRoom"
 import ModalUpdateRoom from "./components/UpdateRoom"
 import ModalPriceConfiguration from "./components/ModalPriceConfiguration"
 import Accordion from "@mui/material/Accordion"
-import AccordionActions from "@mui/material/AccordionActions"
 import AccordionSummary from "@mui/material/AccordionSummary"
 import AccordionDetails from "@mui/material/AccordionDetails"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
@@ -37,7 +32,7 @@ const ManageRoom = () => {
   const [selectedHouse, setSelectedHouse] = useState(null)
   const [selectedFloor, setSelectedFloor] = useState(null)
   const [rooms, setRooms] = useState([])
-  const [total, setTotal] = useState(0)
+  // const [total, setTotal] = useState(0)
   const [expanded, setExpanded] = useState({})
   const [openInsertRoom, setOpenInsertRoom] = useState(false)
   const [openUpdateRoom, setOpenUpdateRoom] = useState(false)
@@ -47,8 +42,6 @@ const ManageRoom = () => {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
-  const [selectedImage, setSelectedImage] = useState(null)
-  const { userInfo } = useSelector(state => state.appGlobal)
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -74,7 +67,7 @@ const ManageRoom = () => {
     if (selectedHouse && selectedFloor !== null) {
       getRoomsByHouse(selectedHouse, selectedFloor)
     }
-  }, [selectedFloor])
+  }, [selectedFloor, selectedHouse])
 
   const getAllHouses = async () => {
     try {
@@ -286,11 +279,11 @@ const ManageRoom = () => {
     ))
   }
 
-  const calculateRoomRatio = () => {
-    const rentedRooms = rooms.filter(room => room.status !== "Empty").length
-    const availableRooms = rooms.filter(room => room.status === "Empty").length
-    return { rentedRooms, availableRooms }
-  }
+  // const calculateRoomRatio = () => {
+  //   const rentedRooms = rooms.filter(room => room.status !== "Empty").length
+  //   const availableRooms = rooms.filter(room => room.status === "Empty").length
+  //   return { rentedRooms, availableRooms }
+  // }
 
   const renderRoomRatioChart = () => {
     const filteredRooms = rooms.filter(room => room.floor === selectedFloor)
@@ -508,7 +501,7 @@ const ManageRoom = () => {
         footer={null}
         onCancel={() => setImageModalVisible(false)}
       >
-        <img alt="room" style={{ width: "100%" }} src={selectedImage} />
+        <img alt="room" style={{ width: "100%" }} src={null} />
       </Modal>
 
       {!!openInsertRoom && (
@@ -558,4 +551,3 @@ const ManageRoom = () => {
 }
 
 export default ManageRoom
-

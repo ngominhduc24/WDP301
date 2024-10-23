@@ -5,7 +5,6 @@ import CustomModal from "src/components/Modal/CustomModal"
 import SpinCustom from "src/components/Spin"
 import SvgIcon from "src/components/SvgIcon"
 import UploadCustom from "src/components/Upload"
-import { downloadFileBlob } from "src/lib/base64"
 import { ImportStyled } from "../styled"
 
 const ImportUser = ({ open, onCancel, onOk, department }) => {
@@ -85,4 +84,3 @@ const ImportUser = ({ open, onCancel, onOk, department }) => {
 }
 
 export default ImportUser
-

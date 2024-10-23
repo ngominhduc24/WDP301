@@ -22,7 +22,7 @@ import ModalComment from "./modal/ModalComment"
 import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
 import CB1 from "src/components/Modal/CB1"
-import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+import STORAGE, { getStorage } from "src/lib/storage"
 
 const { Option } = Select
 
@@ -373,4 +373,3 @@ const News = () => {
 }
 
 export default News
-

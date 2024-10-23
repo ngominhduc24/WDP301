@@ -1,13 +1,4 @@
-import {
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  Row,
-  Select,
-  TreeSelect,
-  Upload,
-} from "antd"
+import { Col, DatePicker, Form, Input, Row, Select, Upload } from "antd"
 import moment from "moment"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -30,10 +21,10 @@ import { ButtonUploadStyle } from "../styled"
 import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
 import AdminServices from "src/services/AdminService"
-import STORAGE, { getStorage } from "src/lib/storage"
+// import STORAGE, { getStorage } from "src/lib/storage"
 import UserService from "src/services/UserService"
 // import SelectAddress from "src/components/SelectAddress"
-const { Option } = Select
+// const { Option } = Select
 const Styled = styled.div`
   .ant-upload.ant-upload-select-picture-card {
     width: unset;
@@ -49,48 +40,47 @@ const Styled = styled.div`
 const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const token = getStorage(STORAGE.TOKEN)
-  const [avatarUpload, setAvatarUpload] = useState("")
+  // const token = getStorage(STORAGE.TOKEN)
+  // const [avatarUpload, setAvatarUpload] = useState("")
   useEffect(() => {
+    const getUserDetail = async () => {
+      try {
+        setLoading(true)
+        const res = await AdminServices.getUserDetail(detailInfo?._id)
+        if (res?.isError) {
+          return
+        }
+        form.setFieldsValue({
+          ...res,
+          dob:
+            res?.dob && moment(res.dob, "DD/MM/YYYY").isValid()
+              ? moment(res.dob, "DD/MM/YYYY")
+              : null,
+          image: res?.image
+            ? [
+                {
+                  uid: "-1",
+                  name: "image",
+                  status: "done",
+                  url: res?.image,
+                },
+              ]
+            : [],
+        })
+      } catch (error) {
+        console.log("error")
+      } finally {
+        setLoading(false)
+      }
+    }
     if (detailInfo && props?.open) getUserDetail()
-  }, [detailInfo, props?.open])
+  }, [detailInfo, props?.open, form])
 
   useEffect(() => {
     // getListSelect()
     // getListRole()
     // getListSelectSept()
   }, [])
-
-  const getUserDetail = async () => {
-    try {
-      setLoading(true)
-      const res = await AdminServices.getUserDetail(detailInfo?._id)
-      if (res?.isError) {
-        return
-      }
-      form.setFieldsValue({
-        ...res,
-        dob:
-          res?.dob && moment(res.dob, "DD/MM/YYYY").isValid()
-            ? moment(res.dob, "DD/MM/YYYY")
-            : null,
-        image: res?.image
-          ? [
-              {
-                uid: "-1",
-                name: "image",
-                status: "done",
-                url: res?.image,
-              },
-            ]
-          : [],
-      })
-    } catch (error) {
-      console.log("error")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const onContinue = async () => {
     try {
@@ -122,7 +112,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                     uid: "-1",
                     name: values?.image,
                     status: "done",
-                    url: res?.image,
+                    url: values?.image,
                   },
                 ]
               : [],
@@ -155,7 +145,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
           },
         ],
       })
-      setAvatarUpload(file)
+      // setAvatarUpload(file)
     } catch {
       console.log("upload file error")
     } finally {

@@ -2,6 +2,56 @@ import React, { useEffect, useState } from "react"
 import { Card, Col, Row, Statistic, Table } from "antd"
 import ReactECharts from "echarts-for-react"
 import Cookies from "js-cookie"
+import PropTypes from "prop-types"
+
+const StatisticCard = ({ title, value }) => (
+  <Col span={6}>
+    <Card>
+      <Statistic title={title} value={value} />
+    </Card>
+  </Col>
+)
+
+StatisticCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired,
+}
+
+const Dashboard = ({ info }) => {
+  const { numberOfHouses, numberOfRooms, availableRooms, rentedRooms } = info
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
+        Quản Lý Phòng Trọ - Dashboard
+      </h2>
+      <Row gutter={16}>
+        <StatisticCard title="Số Nhà" value={numberOfHouses} />
+        <StatisticCard title="Số Phòng" value={numberOfRooms} />
+        <StatisticCard title="Phòng Trống" value={availableRooms} />
+        <StatisticCard title="Phòng Đã Thuê" value={rentedRooms} />
+      </Row>
+    </div>
+  )
+}
+
+Dashboard.propTypes = {
+  info: PropTypes.shape({
+    numberOfHouses: PropTypes.number.isRequired,
+    numberOfRooms: PropTypes.number.isRequired,
+    availableRooms: PropTypes.number.isRequired,
+    rentedRooms: PropTypes.number.isRequired,
+  }).isRequired,
+}
+
+Dashboard.propTypes = {
+  info: PropTypes.shape({
+    numberOfHouses: PropTypes.number.isRequired,
+    numberOfRooms: PropTypes.number.isRequired,
+    availableRooms: PropTypes.number.isRequired,
+    rentedRooms: PropTypes.number.isRequired,
+  }).isRequired,
+}
 
 // Dữ liệu mẫu
 const dataFake = {

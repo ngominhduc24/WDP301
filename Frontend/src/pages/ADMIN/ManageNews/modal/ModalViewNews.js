@@ -1,23 +1,14 @@
 import { Col, Row, Drawer, Space } from "antd"
-import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
-import CustomModal from "src/components/Modal/CustomModal"
-import { SYSTEM_KEY } from "src/constants/constants"
-import { getListComboByKey } from "src/lib/utils"
+import { useState } from "react"
 import moment from "moment"
 import { LeftCircleOutlined } from "@ant-design/icons"
-import bg from "src/assets/images/modalLogin/ducdong.jpg"
-import Button from "src/components/MyButton/Button"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
-import SvgIcon from "src/components/SvgIcon"
-import CB1 from "src/components/Modal/CB1"
 import Notice from "src/components/Notice"
 import BookingNoteService from "src/services/BookingNoteService"
 import ModalInsertBookingNote from "./ModalInsertBookingNote"
 import { DEFAULT_PAGE_SIZE } from "src/constants/pageSizeOptions"
 
 const ModalViewNews = ({ open, onCancel, onOk }) => {
-  const { listSystemKey } = useSelector(state => state.appGlobal)
   const [openInsertBookingNote, setOpenInsertBookingNote] = useState(false)
   const [loading, setLoading] = useState(false)
   const [bookingNote, setBookingNote] = useState([])
