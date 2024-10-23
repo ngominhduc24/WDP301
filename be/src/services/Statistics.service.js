@@ -9,10 +9,11 @@ const statisticsService = {
     try {
       const currentUserId = getCurrentUser(req);
 
-      const houses = await HousesModel.find({
-        hostId: currentUserId,
-        deleted: false,
-      });
+      let query = { deleted: false };
+            if (req.user.accountType === 'host') {
+                query.hostId = currentUserId;
+            }
+      const houses = await HousesModel.find(query);
       const houseNumber = houses.length;
 
       let roomNumber = 0;
@@ -46,10 +47,14 @@ const statisticsService = {
     try {
       const currentUserId = getCurrentUser(req);
       const { month } = req.query;
-      const houses = await HousesModel.find({
-        hostId: currentUserId,
-        deleted: false,
-      });
+
+      let query = { deleted: false };
+        if (req.user.accountType === 'host') {
+            query.hostId = currentUserId;
+      }
+
+      const houses = await HousesModel.find(query);
+      
       let billIsPaid = 0;
       let totalBillIsPaid = 0;
       let billIsNotPaid = 0;
@@ -114,10 +119,13 @@ const statisticsService = {
     try {
       const currentUserId = getCurrentUser(req);
       const { month } = req.query;
-      const houses = await HousesModel.find({
-        hostId: currentUserId,
-        deleted: false,
-      });
+
+      let query = { deleted: false };
+        if (req.user.accountType === 'host') {
+            query.hostId = currentUserId;
+      }
+      const houses = await HousesModel.find(query);
+
       let numberProblemNone = 0;
       let numberProblemDoing = 0;
       let numberProblemDone = 0;
@@ -173,10 +181,12 @@ const statisticsService = {
   },
   statisticRevenue: async (req) => {
     const currentUserId = getCurrentUser(req);
-    const houses = await HousesModel.find({
-      hostId: currentUserId,
-      deleted: false,
-    });
+    
+    let query = { deleted: false };
+        if (req.user.accountType === 'host') {
+            query.hostId = currentUserId;
+      }
+      const houses = await HousesModel.find(query);
 
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
