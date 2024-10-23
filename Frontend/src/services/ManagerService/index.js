@@ -226,7 +226,10 @@ const getDetailProblem = houseId => {
 const getUser = (houseId, page = 1, limit = 10) => {
   return http.get(apiGetUser(houseId, page, limit))
 }
-
+// Get information CCCD
+const getIn4CCCD = () => {
+  return http.get("https://api.fpt.ai/vision/idr/vnm")
+}
 const ManagerService = {
   getAllHouses,
   getHouseDetail,
@@ -272,6 +275,7 @@ const ManagerService = {
   getRoomWithBill,
   getDetailBill,
   paymentByCash,
+  getIn4CCCD,
 }
 
 export default ManagerService
