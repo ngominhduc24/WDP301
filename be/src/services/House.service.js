@@ -51,18 +51,23 @@ const HouseService = {
   },
   getHouses: async (req) => {
     try {
-      const hostId = getCurrentUser(req);
       const { page, limit, option } = req.query;
       const pageNumber = parseInt(page) || 1;
       const limitPerPage = parseInt(limit) || 10;
       const skip = (pageNumber - 1) * limitPerPage;
 
-      const totalHouses = await HousesModel.countDocuments({});
+      let query = { deleted: false };
+            if (req.user.accountType === 'host') {
+                const hostId = getCurrentUser(req);  
+                query.hostId = hostId;  
+            } 
+
+      const totalHouses = await HousesModel.countDocuments(query);
       const totalPages = Math.ceil(totalHouses / limitPerPage);
       let data;
 
       if (String(option) === "all") {
-        data = await HousesModel.find({ hostId, deleted: false })
+        data = await HousesModel.find(query)
           .populate([
             { path: "utilities" },
             { path: "otherUtilities" },
@@ -75,7 +80,7 @@ const HouseService = {
           houses: data,
         };
       } else {
-        data = await HousesModel.find({ hostId, deleted: false })
+        data = await HousesModel.find(query)
           .populate([
             { path: "utilities" },
             { path: "otherUtilities" },
