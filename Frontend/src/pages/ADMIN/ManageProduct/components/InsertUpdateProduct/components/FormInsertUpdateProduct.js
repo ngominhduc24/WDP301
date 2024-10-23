@@ -10,30 +10,29 @@ import AdminServices from "src/services/AdminService"
 const { Option } = Select
 const { RangePicker } = DatePicker
 
-const FormInsertUpdateProduct = ({
-  form, onChange}) => {
-    const [loading, setLoading] = useState(false)
-    const [categories, setCategories] = useState([])
-    const getCategoryById = async() => {
-      try {
-        setLoading(true);
-        const categoryRes = await AdminServices.getAllCategories()
-        console.log("categoryRes: ", categoryRes);
-        if(categoryRes?.isError){
-          console.error("Error: ", categoryRes.message)
-          return;
-        }
-        setCategories(categoryRes);
-      } catch (error) {
-        console.log("error");
-      }finally{
-        setLoading(false);
+const FormInsertUpdateProduct = ({ form, onChange }) => {
+  const [loading, setLoading] = useState(false)
+  const [categories, setCategories] = useState([])
+  const getCategoryById = async () => {
+    try {
+      setLoading(true)
+      const categoryRes = await AdminServices.getAllCategories()
+      console.log("categoryRes: ", categoryRes)
+      if (categoryRes?.isError) {
+        console.error("Error: ", categoryRes.message)
+        return
       }
+      setCategories(categoryRes)
+    } catch (error) {
+      console.log("error")
+    } finally {
+      setLoading(false)
     }
+  }
 
-    useEffect(() => {
-      getCategoryById()
-    }, [])
+  useEffect(() => {
+    getCategoryById()
+  }, [])
   return (
     <Form
       form={form}
@@ -84,17 +83,17 @@ const FormInsertUpdateProduct = ({
             label="Thể loại"
             rules={[{ required: true, message: "Bạn phải chọn thể loại" }]}
           >
-           <Select placeholder="Chọn thể loại">
-           {categories.map(category => (
+            <Select placeholder="Chọn thể loại">
+              {categories.map(category => (
                 <Option key={category._id} value={category._id}>
                   {category.name}
                 </Option>
               ))}
-            </Select>  
+            </Select>
           </Form.Item>
         </Col>
 
-        {/* <Col span={12}>
+        <Col span={12}>
           <Form.Item
             name="status"
             label="Trạng thái"
@@ -105,11 +104,10 @@ const FormInsertUpdateProduct = ({
               <Option value={"inactive"}>Dừng hoạt động</Option>
             </Select>
           </Form.Item>
-        </Col> */}
+        </Col>
       </Row>
     </Form>
   )
 }
 
 export default FormInsertUpdateProduct
-

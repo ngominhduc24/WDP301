@@ -33,7 +33,7 @@ const ModalInsertUpdateAttendance = ({
         btntype="primary"
         className="ml-8 mt-12 mb-12"
         loading={loading}
-        // onClick={() => handleInsertUpdateAttendance()}
+        onClick={() => handleInsertUpdateAttendance()}
       >
         {open?.ContentID ? "Cập nhật" : "Thêm mới"}
       </Button>
@@ -99,4 +99,3 @@ const ModalInsertUpdateAttendance = ({
 }
 
 export default ModalInsertUpdateAttendance
-

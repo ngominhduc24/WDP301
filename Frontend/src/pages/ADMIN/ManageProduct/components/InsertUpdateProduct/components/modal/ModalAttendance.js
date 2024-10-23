@@ -115,21 +115,21 @@ const ModalAttendance = ({
         columns={column}
         textEmpty="Chưa có chương trình họp nào"
         dataSource={atendanceContents}
-        // pagination={{
-        //   hideOnSinglePage: atendanceContents.length <= 10,
-        //   current: pagination?.CurrentPage,
-        //   pageSize: pagination?.PageSize,
-        //   responsive: true,
-        //   total: total,
-        //   locale: { items_per_page: "" },
-        //   showSizeChanger: total > 10,
-        //   onChange: (CurrentPage, PageSize) =>
-        //     setPagination({
-        //       ...pagination,
-        //       CurrentPage,
-        //       PageSize,
-        //     }),
-        // }}
+        pagination={{
+          hideOnSinglePage: atendanceContents.length <= 10,
+          current: pagination?.CurrentPage,
+          pageSize: pagination?.PageSize,
+          responsive: true,
+          total: total,
+          locale: { items_per_page: "" },
+          showSizeChanger: total > 10,
+          onChange: (CurrentPage, PageSize) =>
+            setPagination({
+              ...pagination,
+              CurrentPage,
+              PageSize,
+            }),
+        }}
       />
 
       {!!modalInsertUpdateAttendance && (
@@ -146,4 +146,3 @@ const ModalAttendance = ({
 }
 
 export default ModalAttendance
-

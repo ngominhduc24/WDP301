@@ -11,20 +11,20 @@ import {
   getRegexPassword,
 } from "src/lib/stringsUtils"
 import { normFile } from "src/lib/utils"
-// import Department from "src/services/DepartmentService"
-// import FileService from "src/services/FileService"
-// import PositionService from "src/services/PositionService"
-// import RoleService from "src/services/RoleService"
-// import UserService from "src/services/UserService"
+import Department from "src/services/DepartmentService"
+import FileService from "src/services/FileService"
+import PositionService from "src/services/PositionService"
+import RoleService from "src/services/RoleService"
+import UserService from "src/services/UserService"
 import styled from "styled-components"
 import { ButtonUploadStyle } from "../styled"
 import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
 import AdminServices from "src/services/AdminService"
-// import STORAGE, { getStorage } from "src/lib/storage"
+import STORAGE, { getStorage } from "src/lib/storage"
 import UserService from "src/services/UserService"
-// import SelectAddress from "src/components/SelectAddress"
-// const { Option } = Select
+import SelectAddress from "src/components/SelectAddress"
+const { Option } = Select
 const Styled = styled.div`
   .ant-upload.ant-upload-select-picture-card {
     width: unset;
@@ -40,8 +40,8 @@ const Styled = styled.div`
 const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  // const token = getStorage(STORAGE.TOKEN)
-  // const [avatarUpload, setAvatarUpload] = useState("")
+  const token = getStorage(STORAGE.TOKEN)
+  const [avatarUpload, setAvatarUpload] = useState("")
   useEffect(() => {
     const getUserDetail = async () => {
       try {
@@ -77,9 +77,9 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   }, [detailInfo, props?.open, form])
 
   useEffect(() => {
-    // getListSelect()
-    // getListRole()
-    // getListSelectSept()
+    getListSelect()
+    getListRole()
+    getListSelectSept()
   }, [])
 
   const onContinue = async () => {
@@ -91,8 +91,8 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       if (values?.image) {
         const formData = new FormData()
         values?.image?.map(img => formData.append("image", img?.originFileObj))
-        // const resUpload = await FileService.uploadFile(formData)
-        // urlAvatar = resUpload?.Object
+        const resUpload = await FileService.uploadFile(formData)
+        urlAvatar = resUpload?.Object
         const uploadFile = await UserService.uploadFile(formData)
         urlAvatar = uploadFile?.image
       } else {
@@ -145,7 +145,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
           },
         ],
       })
-      // setAvatarUpload(file)
+      setAvatarUpload(file)
     } catch {
       console.log("upload file error")
     } finally {
@@ -153,31 +153,29 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     }
   }
 
-  // const changeAvatar = async () => {
-  //   try {
-  //     setLoading(true)
-  //     // setShowCancelButton(false)
-  //     const formData = new FormData();
-  //     formData.append("image", avatarUpload);
-  //     const res = await UserService.changeAvatar(detailInfo._id, formData);
-  //     if (res?.status === 200) {
-  //       setUser(prevUser => ({
-  //         ...prevUser,
-  //         image: res?.image
-  //       }));
-  //       Notice({ msg: "Cập nhật thành công!" })
-  //       setAvatarUpload("")
-  //     }else {
-  //       throw new Error('Failed to update avatar');
-  //     }
-
-  // }catch{
-  //     console.log("change ava error");
-  //   }
-  //    finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const changeAvatar = async () => {
+    try {
+      setLoading(true)
+      setShowCancelButton(false)
+      const formData = new FormData()
+      formData.append("image", avatarUpload)
+      const res = await UserService.changeAvatar(detailInfo._id, formData)
+      if (res?.status === 200) {
+        setUser(prevUser => ({
+          ...prevUser,
+          image: res?.image,
+        }))
+        Notice({ msg: "Cập nhật thành công!" })
+        setAvatarUpload("")
+      } else {
+        throw new Error("Failed to update avatar")
+      }
+    } catch {
+      console.log("change ava error")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const renderFooter = () => (
     <div className={!!detailInfo ? "d-flex-sb" : "d-flex-end"}>
@@ -368,10 +366,10 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                   label="Email"
                   name="email"
                   rules={[
-                    // {
-                    //   required: true,
-                    //   message: "Thông tin không được để trống",
-                    // },
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
                     {
                       pattern: getRegexEmail(),
                       message: "Email sai định dạng",
@@ -386,22 +384,22 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                 <Form.Item
                   label="Giới tính"
                   name="Sex"
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Thông tin không được để trống",
-                  //   },
-                  // ]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
+                  ]}
                 >
                   <Select placeholder="Chọn" allowClear>
-                    {/* {getListComboByKey(
+                    {getListComboByKey(
                       SYSTEM_KEY?.SEX_TYPE,
                       listSystemKey,
                     )?.map(i => (
                       <Option key={+i?.CodeValue} value={+i?.CodeValue}>
                         {i?.Description}
                       </Option>
-                    ))} */}
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -411,10 +409,10 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                   label="Ngày sinh"
                   name="dob"
                   rules={[
-                    // {
-                    //   required: true,
-                    //   message: "Thông tin không được để trống",
-                    // },
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
                     () => ({
                       validator(_, value) {
                         if (!!value) {
@@ -462,12 +460,12 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                 <Form.Item
                   label="Địa chỉ"
                   name="Address"
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Thông tin không được để trống",
-                  //   },
-                  // ]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
+                  ]}
                 >
                   <Input placeholder="Nhập" />
                 </Form.Item>
