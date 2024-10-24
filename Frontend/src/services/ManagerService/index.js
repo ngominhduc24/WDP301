@@ -230,7 +230,7 @@ const getUser = (houseId, page = 1, limit = 10) => {
 }
 // Get information CCCD
 const getIn4CCCD = () => {
-  return http.get("https://api.fpt.ai/vision/idr/vnm")
+  return http.post("https://api.fpt.ai/vision/idr/vnm")
 }
 const ManagerService = {
   getAllHouses,

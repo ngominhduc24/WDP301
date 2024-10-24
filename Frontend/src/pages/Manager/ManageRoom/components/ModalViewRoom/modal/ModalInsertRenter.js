@@ -54,22 +54,20 @@ const Styled = styled.div`
     height: unset;
   }
 `
-
-// Upload CCCD Image Modal
 const UploadCCCDModal = ({ visible, onCancel, onUploadSuccess }) => {
   const [imageFile, setImageFile] = useState(null)
   const [uploading, setUploading] = useState(false)
-
-  const uploadImageInstance = axios.create({
-    baseURL: "https://api.cloudinary.com/v1_1/debiqwc2z/image/upload",
-    timeout: 10000,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  })
+  const [previewUrl, setPreviewUrl] = useState(null)
 
   const handleImageUpload = ({ file }) => {
     setImageFile(file)
+
+    // Create a preview URL for the selected image
+    const reader = new FileReader()
+    reader.onload = e => {
+      setPreviewUrl(e.target.result) // Set the preview URL
+    }
+    reader.readAsDataURL(file) // Read the file content as a data URL
   }
 
   const handleUpload = async () => {
@@ -81,20 +79,31 @@ const UploadCCCDModal = ({ visible, onCancel, onUploadSuccess }) => {
     setUploading(true)
 
     const formData = new FormData()
-    formData.append("file", imageFile)
+    formData.append("image", imageFile)
 
     try {
-      const response = await uploadImageInstance.post("/", formData)
-
+      const response = await axios.post(
+        "https://api.fpt.ai/vision/idr/vnm",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "api-key": "6JtUDiGQtcwDugLPhl6z0lvys83S1A9b",
+          },
+        },
+      )
       if (response?.data?.errorCode === 0) {
         const cccdData = response.data.data[0]
-        message.success("Upload thành công!")
+        message.success("Upload và nhận diện thành công!")
         onUploadSuccess(cccdData)
         onCancel()
       } else {
-        message.error("Có lỗi xảy ra khi upload CCCD!")
+        message.error(
+          response?.data?.errorMessage || "Có lỗi xảy ra khi nhận diện CCCD!",
+        )
       }
     } catch (error) {
+      console.error("Error:", error)
       message.error("Upload thất bại, vui lòng thử lại!")
     } finally {
       setUploading(false)
@@ -121,6 +130,22 @@ const UploadCCCDModal = ({ visible, onCancel, onUploadSuccess }) => {
       >
         <Button icon={<UploadOutlined />}>Chọn Ảnh CCCD</Button>
       </Upload>
+
+      {previewUrl && (
+        <img
+          src={previewUrl}
+          alt="Selected CCCD"
+          style={{
+            width: "100%",
+            maxWidth: "300px",
+            height: "auto",
+            marginTop: "16px",
+            border: "2px solid #ddd",
+            borderRadius: "8px",
+          }}
+        />
+      )}
+
       <Button
         onClick={handleUpload}
         loading={uploading}
