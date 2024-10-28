@@ -22,6 +22,6 @@ AuthRoute.post(
   AuthController.register
 );
 AuthRoute.get("/logout", verifyToken, AuthController.logout);
-AuthRoute.post("/refresh-token", AuthController.refreshTokenHandler);
+AuthRoute.post("/refreshtoken", AuthController.refreshTokenHandler);
 
 export default AuthRoute;

@@ -64,7 +64,7 @@ const Account = new Schema(
     },
     status: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     refreshToken: {
       type: String,
