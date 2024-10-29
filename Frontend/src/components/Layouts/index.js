@@ -117,7 +117,7 @@ const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
                 </div>
               </Menu.Item>
             )}
-            {role?.role === "ADMIN" && (
+            {role?.accountType === "admin" && (
               <Menu.Item
                 key="3"
                 onClick={() => {
@@ -143,24 +143,11 @@ const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
                 </div>
               </Menu.Item>
             )}
-            {role?.role === "WAREHOUSE MANAGER" && (
+            {role?.accountType === "renter" && (
               <Menu.Item
                 key="3"
                 onClick={() => {
-                  navigate(ROUTER.WAREHOUSE_MANAGER_PROFILE)
-                }}
-              >
-                <div className="btn-function strok-btn-function">
-                  <SvgIcon name="user-info" />
-                  <span className="fw-400">Thông tin cá nhân</span>
-                </div>
-              </Menu.Item>
-            )}
-            {role?.role === "STAFF" && (
-              <Menu.Item
-                key="3"
-                onClick={() => {
-                  navigate(ROUTER.STAFF_PROFILE)
+                  navigate(ROUTER.RENTER_PROFILE)
                 }}
               >
                 <div className="btn-function strok-btn-function">
@@ -204,7 +191,7 @@ const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
   }, [location])
 
   useEffect(() => {
-    if (!!isLogin && role?.role === "ADMIN") {
+    if (!!isLogin && role?.accountType === "admin") {
       setMenuAdmin(MenuItemAdmin())
       setMenuUser(MenuItemUser())
     } else if (!!isLogin && role?.accountType === "host") {

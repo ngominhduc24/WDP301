@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Col, Form, Input, Row, Select, Drawer, Upload } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -13,12 +14,43 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [fileList, setFileList] = useState([])
+=======
+import { Col, Form, Input, Row, Select, Drawer, Upload, Modal } from "antd"
+import { useEffect, useState } from "react"
+import CustomModal from "src/components/Modal/CustomModal"
+import Button from "src/components/MyButton/Button"
+import {
+  LeftCircleOutlined,
+  UploadOutlined,
+  CloseOutlined,
+} from "@ant-design/icons"
+import Notice from "src/components/Notice"
+import axios from "axios"
+import STORAGE, { getStorage } from "src/lib/storage"
+import RenterService from "src/services/RenterService"
+const { Option } = Select
+
+const uploadImageInstance = axios.create({
+  baseURL: "https://api.cloudinary.com/v1_1/debiqwc2z/image/upload",
+  timeout: 10000,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+})
+
+const ModalInsertNews = ({ open, onCancel, onOk, selectedNode, houseId }) => {
+  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(false)
+  const [fileList, setFileList] = useState([])
+
+>>>>>>> hungmq
   const userInfo = getStorage(STORAGE.USER_INFO)
 
   const handleFileChange = ({ fileList }) => {
     setFileList(fileList)
   }
 
+<<<<<<< HEAD
   const handleInsertBookingNote = () => {
     form.validateFields().then(values => {
       const formData = new FormData()
@@ -34,6 +66,53 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
         onOk()
       }, 1000)
     })
+=======
+  const handleRemoveImage = file => {
+    const updatedFileList = fileList.filter(item => item.uid !== file.uid)
+    setFileList(updatedFileList)
+  }
+
+  const uploadImage = async file => {
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("upload_preset", "demo_api_image")
+    formData.append("folder", "rms")
+    const response = await uploadImageInstance.post("/", formData)
+    return response.data.secure_url
+  }
+
+  const handleInsertBookingNote = async () => {
+    try {
+      const values = await form.validateFields()
+      setLoading(true)
+
+      const imageUrls = await Promise.all(
+        fileList.map(async file => {
+          const imageUrl = await uploadImage(file.originFileObj)
+          return imageUrl
+        }),
+      )
+
+      const payload = {
+        houseId,
+        title: values.title,
+        content: values.BookingNote,
+        images: imageUrls,
+      }
+
+      await RenterService.createNews(payload)
+      Notice({ msg: "Đăng tin thành công" })
+
+      form.resetFields()
+      setFileList([])
+      setLoading(false)
+      onOk()
+      onCancel()
+    } catch (error) {
+      console.error("Error:", error)
+      setLoading(false)
+    }
+>>>>>>> hungmq
   }
 
   return (
@@ -62,6 +141,7 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
         <Row gutter={[16, 16]}>
           <Col span={24}>
             <Form.Item
+<<<<<<< HEAD
               label="Danh sách nhà"
               name="BookingID"
               rules={[
@@ -82,6 +162,19 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
           {/* Nhập ghi chú */}
           <Col span={24}>
             <Form.Item name="BookingNote" label="Ghi chú">
+=======
+              name="title"
+              label="Tiêu đề"
+              rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
+            >
+              <Input placeholder="Tiêu đề của bài viết" />
+            </Form.Item>
+            <Form.Item
+              name="BookingNote"
+              label="Ghi chú"
+              rules={[{ required: true, message: "Vui lòng nhập ghi chú" }]}
+            >
+>>>>>>> hungmq
               <Input.TextArea
                 style={{ height: "180px", overflow: "hidden auto" }}
                 placeholder="Thêm ghi chú cho bài viết..."
@@ -89,7 +182,10 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
             </Form.Item>
           </Col>
 
+<<<<<<< HEAD
           {/* Upload hình ảnh */}
+=======
+>>>>>>> hungmq
           <Col span={24}>
             <Form.Item label="Thêm ảnh vào bài viết">
               <Upload
@@ -99,6 +195,7 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
                 onChange={handleFileChange}
                 beforeUpload={() => false}
                 accept="image/*"
+<<<<<<< HEAD
               >
                 <Button icon={<UploadOutlined />}>Chọn tệp</Button>
               </Upload>
@@ -107,6 +204,46 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
         </Row>
 
         {/* Nút hành động */}
+=======
+                showUploadList={false}
+              >
+                <Button icon={<UploadOutlined />}>Chọn tệp</Button>
+              </Upload>
+              <div
+                style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}
+              >
+                {fileList.map((file, index) => (
+                  <div
+                    key={index}
+                    style={{ position: "relative", marginRight: "10px" }}
+                  >
+                    <img
+                      src={URL.createObjectURL(file.originFileObj)}
+                      alt="Selected"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <CloseOutlined
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        color: "red",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => handleRemoveImage(file)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </Form.Item>
+          </Col>
+        </Row>
+>>>>>>> hungmq
         <div className="d-flex-end mt-20">
           <Button
             btntype="primary"
@@ -125,3 +262,7 @@ const ModalInsertNews = ({ open, onCancel, onOk, selectedNode }) => {
 }
 
 export default ModalInsertNews
+<<<<<<< HEAD
+=======
+
+>>>>>>> hungmq

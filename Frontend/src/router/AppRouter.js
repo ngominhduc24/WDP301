@@ -7,10 +7,6 @@ import SpinCustom from "src/components/Spin"
 // ANONYMOUS
 const PublicRouters = React.lazy(() => import("src/pages/PublicRouters"))
 const SvgViewer = React.lazy(() => import("src/pages/SvgViewer"))
-
-const MeetingInvitation = React.lazy(() =>
-  import("src/pages/SvgViewer/MeetingInvitation"),
-)
 const NotFound = React.lazy(() => import("src/pages/NotFound"))
 const LoginPage = React.lazy(() => import("src/pages/ANONYMOUS/LoginPage"))
 
@@ -22,10 +18,18 @@ const ChangePassword = React.lazy(() =>
 const PersonProfile = React.lazy(() => import("src/pages/USER/PersonProfile"))
 // ADMIN
 const AdminRoutes = React.lazy(() => import("src/pages/ADMIN/AminRoutes"))
-const Dashboard = React.lazy(() => import("src/pages/ADMIN/DashBoard"))
-const ManageUser = React.lazy(() => import("src/pages/ADMIN/ManageUser"))
-const ManageStore = React.lazy(() => import("src/pages/ADMIN/ManageStore"))
-const ManageProduct = React.lazy(() => import("src/pages/ADMIN/ManageProduct"))
+const AdminDashBoard = React.lazy(() =>
+  import("src/pages/ADMIN/ManagerManageDashboard"),
+)
+const AdminManageHouses = React.lazy(() =>
+  import("src/pages/ADMIN/ManageHouse"),
+)
+const AdminManageRoom = React.lazy(() => import("src/pages/ADMIN/ManageRoom"))
+const AdminManageNews = React.lazy(() => import("src/pages/ADMIN/ManageNews"))
+const AdminManageReport = React.lazy(() =>
+  import("src/pages/ADMIN/ManageReport"),
+)
+const AdminUser = React.lazy(() => import("src/pages/ADMIN/ManageUser"))
 // MANAGER
 const ManagerRoutes = React.lazy(() =>
   import("src/pages/Manager/ManagerRoutes"),
@@ -45,11 +49,17 @@ const ManagerManageNews = React.lazy(() =>
 const ManagerManageReport = React.lazy(() =>
   import("src/pages/Manager/ManageReport"),
 )
+const ManageBill = React.lazy(() => import("src/pages/Manager/ManageBill"))
+const ManagerUser = React.lazy(() => import("src/pages/Manager/ManageUser"))
 // RENTER
 const RenterRoutes = React.lazy(() => import("src/pages/Renter/RenterRoutes"))
 const RenterRoom = React.lazy(() => import("src/pages/Renter/ManageRoom"))
 const RenterNews = React.lazy(() => import("src/pages/Renter/ManageNews"))
+<<<<<<< HEAD
 const RenterReport = React.lazy(() => import("src/pages/Renter/CreateReport"))
+=======
+const RenterReport = React.lazy(() => import("src/pages/Renter/ManageReport"))
+>>>>>>> hungmq
 
 function LazyLoadingComponent({ children }) {
   return (
@@ -84,34 +94,50 @@ const routes = [
     ),
     children: [
       {
-        path: ROUTER.DASHBOARD,
+        path: ROUTER.ADMIN_DASHBOARD,
         element: (
           <LazyLoadingComponent>
-            <Dashboard />
+            <AdminDashBoard />
           </LazyLoadingComponent>
         ),
       },
       {
-        path: ROUTER.MANAGE_USER,
+        path: ROUTER.ADMIN_HOUSE,
         element: (
           <LazyLoadingComponent>
-            <ManageUser />
+            <AdminManageHouses />
           </LazyLoadingComponent>
         ),
       },
       {
-        path: ROUTER.MANAGE_STORE,
+        path: ROUTER.ADMIN_ROOM,
         element: (
           <LazyLoadingComponent>
-            <ManageStore />
+            <AdminManageRoom />
           </LazyLoadingComponent>
         ),
       },
       {
-        path: ROUTER.MANAGE_PRODUCTS,
+        path: ROUTER.ADMIN_NEWS,
         element: (
           <LazyLoadingComponent>
-            <ManageProduct />
+            <AdminManageNews />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.ADMIN_REPORT,
+        element: (
+          <LazyLoadingComponent>
+            <AdminManageReport />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.ADMIN_USER,
+        element: (
+          <LazyLoadingComponent>
+            <AdminUser />
           </LazyLoadingComponent>
         ),
       },
@@ -194,6 +220,22 @@ const routes = [
         ),
       },
       {
+        path: ROUTER.MANAGER_BILLS,
+        element: (
+          <LazyLoadingComponent>
+            <ManageBill />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.MANAGER_USER,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerUser />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
         path: ROUTER.MANAGER_PROFILE,
         element: (
           <LazyLoadingComponent>
@@ -205,7 +247,6 @@ const routes = [
   },
 
   // RENTER
-
   {
     element: (
       <LazyLoadingComponent>
@@ -236,7 +277,11 @@ const routes = [
             <RenterReport />
           </LazyLoadingComponent>
         ),
+<<<<<<< HEAD
       }
+=======
+      },
+>>>>>>> hungmq
     ],
   },
 

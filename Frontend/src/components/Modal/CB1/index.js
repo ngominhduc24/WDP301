@@ -1,6 +1,6 @@
 import SvgIcon from "src/components/SvgIcon"
-
 import { ModalStyled, ModalWrapper } from "./styled"
+
 export default function CB1({
   width = 600,
   title,
@@ -19,19 +19,17 @@ export default function CB1({
     maskClosable: true,
     okButtonProps: {
       style: {
-        // fontWeight: 700,
-        padding: "16px, 16px, 16px, 16px",
+        padding: "8px 24px",
         borderRadius: 4,
-        height: 32,
+        height: 40,
         background: `#01638D`,
       },
     },
     cancelButtonProps: {
       style: {
-        // fontWeight: 700,
         borderRadius: 4,
-        padding: "16px, 16px, 16px, 16px",
-        height: 32,
+        padding: "8px 24px",
+        height: 40,
         color: `#000`,
         border: "1px solid #F1F3F5",
         background: `#F1F3F5`,
@@ -54,3 +52,4 @@ export default function CB1({
     ),
   })
 }
+

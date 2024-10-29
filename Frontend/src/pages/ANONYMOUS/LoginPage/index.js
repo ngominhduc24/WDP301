@@ -59,18 +59,13 @@ const LoginPage = () => {
     })
   }
   const loginSuccess = data => {
-    console.log(data)
-
     handleSuccess()
     const userID = getStorage(STORAGE.USER_ID)
-    console.log("userid after success logged in:", userID)
-
     if (routerBeforeLogin) navigate(routerBeforeLogin)
-
     if (data) {
       if (data.accountType === "admin") {
         dispatch(setIsAdmin(true))
-        navigate(ROUTER.DASHBOARD)
+        navigate(ROUTER.ADMIN_DASHBOARD)
       } else if (data.accountType === "renter") {
         navigate(ROUTER.RENTER_ROOM)
       } else if (data.accountType === "host") {
