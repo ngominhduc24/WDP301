@@ -17,15 +17,6 @@ const ROUTER = {
   ADMIN_USER: "/admin/user",
   ADMIN_PROFILE: `/admin/personal`,
 
-<<<<<<< HEAD
-  // USER
-
-  // RENTER
-  RENTER_ROOM: "/renter/room",
-  RENTER_REPORT: "/renter/report",
-  RENTER_NEWS: "/renter/news",
-  RENTER_PROFILE: `/renter/profile`,
-=======
   // RENTER
   RENTER_ROOM: "/renter/room",
   RENTER_NEWS: "/renter/news",

@@ -55,11 +55,7 @@ const ManagerUser = React.lazy(() => import("src/pages/Manager/ManageUser"))
 const RenterRoutes = React.lazy(() => import("src/pages/Renter/RenterRoutes"))
 const RenterRoom = React.lazy(() => import("src/pages/Renter/ManageRoom"))
 const RenterNews = React.lazy(() => import("src/pages/Renter/ManageNews"))
-<<<<<<< HEAD
-const RenterReport = React.lazy(() => import("src/pages/Renter/CreateReport"))
-=======
 const RenterReport = React.lazy(() => import("src/pages/Renter/ManageReport"))
->>>>>>> hungmq
 
 function LazyLoadingComponent({ children }) {
   return (
@@ -277,11 +273,7 @@ const routes = [
             <RenterReport />
           </LazyLoadingComponent>
         ),
-<<<<<<< HEAD
-      }
-=======
       },
->>>>>>> hungmq
     ],
   },
 
