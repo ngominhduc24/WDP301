@@ -22,6 +22,7 @@ const ROUTER = {
   RENTER_NEWS: "/renter/news",
   RENTER_REPORT: "/renter/report",
   RENTER_PROFILE: `/staff/thong-tin-ca-nhan`,
+>>>>>>> hungmq
 
   // MANAGER
   MANAGER_DASHBOARD: "/manager/dashboard",

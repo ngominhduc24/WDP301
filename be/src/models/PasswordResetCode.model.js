@@ -8,7 +8,7 @@ const PasswordResetCode = new Schema({
   expiresAt: {
     type: Date,
     default: new Date(Date.now()),
-    expires: "1h",
+    expires: "4h",
   },
 });
 
