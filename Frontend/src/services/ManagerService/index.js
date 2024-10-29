@@ -42,6 +42,8 @@ import {
   apiGetRoomWithBill,
   apiGetDetailBill,
   apiPaymentByCash,
+  apiCreateUser,
+  apiUpdateUser,
 } from "./urls"
 import QueryString from "qs"
 import axios from "axios"
@@ -228,6 +230,12 @@ const getDetailProblem = houseId => {
 const getUser = (houseId, page = 1, limit = 10) => {
   return http.get(apiGetUser(houseId, page, limit))
 }
+const updateUser = (id, body) => {
+  http.put(apiUpdateUser(id), body)
+}
+const createUser = body => {
+  http.post(apiCreateUser(body))
+}
 // Get information CCCD
 const getIn4CCCD = () => {
   return http.post("https://api.fpt.ai/vision/idr/vnm")
@@ -278,6 +286,8 @@ const ManagerService = {
   getDetailBill,
   paymentByCash,
   getIn4CCCD,
+  updateUser,
+  createUser,
 }
 
 export default ManagerService
