@@ -12,7 +12,8 @@ import UserDetail from "./modal/UserDetail"
 import { ListUserStyled } from "./styled"
 import STORAGE from "src/lib/storage"
 import ManagerService from "src/services/ManagerService"
-
+import ButtonCircle from "src/components/MyButton/ButtonCircle"
+import CB1 from "src/components/Modal/CB1"
 const { Option } = Select
 
 const ManageUser = () => {
@@ -32,6 +33,35 @@ const ManageUser = () => {
   const [houses, setHouses] = useState([])
   const [selectedHouse, setSelectedHouse] = useState(null)
 
+  const renderListButton = record => (
+    <Space>
+      <ButtonCircle
+        title="Cập nhật"
+        iconName="edit"
+        onClick={() => {
+          setOpenInsertUpdate(true)
+          setDetailInfo(record)
+        }}
+      />
+      <ButtonCircle
+        title="Reset mật khẩu"
+        iconName="reset-pass"
+        style={{ background: "#fff" }}
+        onClick={e => {
+          e.stopPropagation()
+          CB1({
+            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
+            icon: "warning-usb",
+            okText: "Đồng ý",
+            onOk: async close => {
+              // onReset(record?.UserID)
+              close()
+            },
+          })
+        }}
+      />
+    </Space>
+  )
   const columns = [
     {
       title: "STT",
@@ -89,26 +119,43 @@ const ManageUser = () => {
         />
       ),
     },
+    {
+      title: "Chức năng",
+      align: "center",
+      key: "Action",
+      width: 100,
+      render: (_, record) => <Space>{renderListButton(record)}</Space>,
+    },
   ]
-
-  useEffect(() => {
-    fetchAllUsers()
-  }, [pagination, selectedHouse])
 
   useEffect(() => {
     getAllHouses()
   }, [])
 
-  const toggleStatus = (userId, checked) => {
+  useEffect(() => {
+    if (selectedHouse) {
+      fetchAllUsers()
+    }
+  }, [pagination, selectedHouse])
+  const toggleStatus = async (userId, checked) => {
     const updatedStatus = checked
-    const updatedDataSource = managers.map(user =>
-      user._id === userId ? { ...user, status: updatedStatus } : user,
-    )
-    setManagers(updatedDataSource)
-    Notice({
-      isSuccess: true,
-      msg: "Cập nhật trạng thái thành công",
-    })
+    try {
+      await ManagerService.updateUser(userId, { status: updatedStatus })
+      const updatedDataSource = managers.map(user =>
+        user._id === userId ? { ...user, status: updatedStatus } : user,
+      )
+      setManagers(updatedDataSource)
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thành công",
+      })
+    } catch (error) {
+      console.error("Error updating user status:", error)
+      Notice({
+        isSuccess: false,
+        msg: "Cập nhật trạng thái thất bại",
+      })
+    }
   }
 
   const fetchAllUsers = async () => {
@@ -166,27 +213,30 @@ const ManageUser = () => {
       <Divider className="mv-16" />
       <div className="title-type-1 d-flex justify-content-space-between align-items-center pb-16 pt-0 mb-16">
         <div className="fs-24">Danh sách quản lý</div>
-        <div className="d-flex align-items-center">
-          <Select
-            value={selectedHouse}
-            style={{ width: 150 }}
-            onChange={value => setSelectedHouse(value)}
-          >
-            {houses.map(house => (
-              <Option key={house._id} value={house._id}>
-                {house.name}
-              </Option>
-            ))}
-          </Select>
-        </div>
+
         <Row gutter={[16, 16]}>
+          <Col>
+            <div className="d-flex">
+              <Select
+                value={selectedHouse}
+                style={{ width: 150 }}
+                onChange={value => setSelectedHouse(value)}
+              >
+                {houses.map(house => (
+                  <Option key={house._id} value={house._id}>
+                    {house.name}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+          </Col>
           <Col>
             <Button
               btntype="primary"
               className="btn-hover-shadow"
               onClick={() => setOpenInsertUpdate(true)}
             >
-              Thêm nhân viên
+              Thêm người dùng
             </Button>
           </Col>
         </Row>
