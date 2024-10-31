@@ -14,6 +14,7 @@ import STORAGE from "src/lib/storage"
 import ManagerService from "src/services/ManagerService"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import CB1 from "src/components/Modal/CB1"
+import UserService from "src/services/UserService"
 const { Option } = Select
 
 const ManageUser = () => {
@@ -48,13 +49,12 @@ const ManageUser = () => {
         iconName="reset-pass"
         style={{ background: "#fff" }}
         onClick={e => {
-          e.stopPropagation()
           CB1({
-            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
+            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.username} không?`,
             icon: "warning-usb",
             okText: "Đồng ý",
             onOk: async close => {
-              // onReset(record?.UserID)
+              await UserService.changePassword(record._id)
               close()
             },
           })
@@ -62,6 +62,7 @@ const ManageUser = () => {
       />
     </Space>
   )
+
   const columns = [
     {
       title: "STT",
@@ -137,6 +138,7 @@ const ManageUser = () => {
       fetchAllUsers()
     }
   }, [pagination, selectedHouse])
+
   const toggleStatus = async (userId, checked) => {
     const updatedStatus = checked
     try {
@@ -207,13 +209,17 @@ const ManageUser = () => {
     }
   }
 
+  const onRowClick = record => {
+    setDetailInfo(record)
+    setOpenModalUserDetail(true)
+  }
+
   return (
     <ListUserStyled>
       <Search setPagination={setPagination} pagination={pagination} />
       <Divider className="mv-16" />
       <div className="title-type-1 d-flex justify-content-space-between align-items-center pb-16 pt-0 mb-16">
         <div className="fs-24">Danh sách quản lý</div>
-
         <Row gutter={[16, 16]}>
           <Col>
             <div className="d-flex">
@@ -254,6 +260,9 @@ const ManageUser = () => {
             onChange: (CurrentPage, PageSize) =>
               setPagination({ ...pagination, CurrentPage, PageSize }),
           }}
+          onRow={record => ({
+            onClick: () => onRowClick(record),
+          })}
         />
       </SpinCustom>
 
@@ -270,7 +279,7 @@ const ManageUser = () => {
         <UserDetail
           open={openModalUserDetail}
           onCancel={() => setOpenModalUserDetail(false)}
-          data={openModalUserDetail}
+          data={detailInfo}
         />
       )}
     </ListUserStyled>

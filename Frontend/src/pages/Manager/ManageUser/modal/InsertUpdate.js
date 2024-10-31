@@ -1,13 +1,4 @@
-import {
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  Row,
-  Select,
-  TreeSelect,
-  Upload,
-} from "antd"
+import { Col, DatePicker, Form, Input, Row, Select, Upload } from "antd"
 import moment from "moment"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
@@ -24,19 +15,11 @@ import {
   getRegexUsername,
 } from "src/lib/stringsUtils"
 import { getListComboByKey, nest, normFile } from "src/lib/utils"
-// import Department from "src/services/DepartmentService"
-// import FileService from "src/services/FileService"
-// import PositionService from "src/services/PositionService"
-// import RoleService from "src/services/RoleService"
-// import UserService from "src/services/UserService"
 import styled from "styled-components"
 import { ButtonUploadStyle } from "../styled"
 import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
-import AdminServices from "src/services/AdminService"
-import STORAGE, { getStorage } from "src/lib/storage"
 import UserService from "src/services/UserService"
-// import SelectAddress from "src/components/SelectAddress"
 const { Option } = Select
 const Styled = styled.div`
   .ant-upload.ant-upload-select-picture-card {
@@ -53,145 +36,90 @@ const Styled = styled.div`
 const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const token = getStorage(STORAGE.TOKEN)
-  const [avatarUpload, setAvatarUpload] = useState("")
-  useEffect(() => {
-    if (detailInfo && props?.open) getUserDetail()
-  }, [detailInfo, props?.open])
+  const [avatarUpload, setAvatarUpload] = useState(detailInfo?.avatar || "")
 
   useEffect(() => {
-    // getListSelect()
-    // getListRole()
-    // getListSelectSept()
-  }, [])
-
-  const getUserDetail = async () => {
-    try {
-      setLoading(true)
-      const res = await AdminServices.getUserDetail(detailInfo?._id)
-      if (res?.isError) {
-        return
-      }
+    if (detailInfo) {
       form.setFieldsValue({
-        ...res,
-        dob:
-          res?.dob && moment(res.dob, "DD/MM/YYYY").isValid()
-            ? moment(res.dob, "DD/MM/YYYY")
-            : null,
-        image: res?.image
+        username: detailInfo.username,
+        email: detailInfo.email || "",
+        phone: detailInfo.phone || "",
+        Status: detailInfo.status ? "Active" : "Inactive",
+        dob: detailInfo.dob ? dayjs(detailInfo.dob, "DD/MM/YYYY") : null,
+        image: detailInfo.avatar
           ? [
               {
                 uid: "-1",
-                name: "image",
+                name: "Avatar",
                 status: "done",
-                url: res?.image,
+                url: detailInfo.avatar,
               },
             ]
           : [],
+        Address: detailInfo.address || "",
       })
-    } catch (error) {
-      console.log("error")
-    } finally {
-      setLoading(false)
     }
-  }
+  }, [detailInfo, form])
 
   const onContinue = async () => {
     try {
       setLoading(true)
-
       const values = await form.validateFields()
-      let urlAvatar = ""
-      if (values?.image) {
-        const formData = new FormData()
-        values?.image?.map(img => formData.append("image", img?.originFileObj))
-        // const resUpload = await FileService.uploadFile(formData)
-        // urlAvatar = resUpload?.Object
-        const uploadFile = await UserService.uploadFile(formData)
-        urlAvatar = uploadFile?.image
-      } else {
-        if (!!values?.image) urlAvatar = values?.image
-      }
-      const res = detailInfo
-        ? await AdminServices.updateStatusUsers(detailInfo?._id, {
-            ...values,
-            image: urlAvatar,
-          })
-        : await AdminServices.addnewUsers({
-            ...values,
-            dob: values.dob ? values.dob.format("DD/MM/YYYY") : null,
-            image: urlAvatar
-              ? [
-                  {
-                    uid: "-1",
-                    name: values?.image,
-                    status: "done",
-                    url: res?.image,
-                  },
-                ]
-              : [],
-          })
 
-      if (res?.isError) return
-      onOk && onOk()
-      Notice({
-        msg: `${detailInfo ? "Cập nhật" : "Thêm"} cán bộ thành công !`,
+      let avatarUrl = avatarUpload || detailInfo?.avatar || ""
+
+      if (values.image && values.image[0]?.originFileObj) {
+        const formData = new FormData()
+        formData.append("image", values.image[0]?.originFileObj)
+        const uploadResponse = await UserService.uploadFile(formData)
+        avatarUrl = uploadResponse?.image
+        await UserService.changeAvatar(detailInfo._id, { avatar: avatarUrl })
+      }
+
+      const updatedValues = {
+        ...values,
+        dob: values.dob ? values.dob.format("DD/MM/YYYY") : detailInfo?.dob,
+        image: avatarUrl,
+        status: values.Status === "Active",
+      }
+
+      Object.keys(updatedValues).forEach(key => {
+        if (!updatedValues[key] && key !== "status" && key !== "image") {
+          updatedValues[key] = detailInfo[key]
+        }
       })
-      props?.onCancel()
+
+      await UserService.updateProfile(detailInfo._id, updatedValues)
+      Notice({
+        msg: "Cập nhật nhân viên thành công!",
+      })
+      onOk && onOk()
+      props.onCancel()
+    } catch (error) {
+      console.error("Update error:", error)
+      Notice({
+        msg: "Cập nhật nhân viên thất bại!",
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  const uploadImg = async file => {
-    try {
-      setLoading(true)
-      const formData = new FormData()
-      formData.append("image", file)
-      const res = await UserService.uploadFile(formData)
-      form.setFieldValue({
+  const handleUploadChange = ({ file }) => {
+    if (file.status === "done" || file.status === "uploading") {
+      setAvatarUpload(URL.createObjectURL(file.originFileObj))
+      form.setFieldsValue({
         image: [
           {
             uid: "-1",
             name: file.name,
             status: "done",
-            url: res?.image,
+            url: URL.createObjectURL(file.originFileObj),
           },
         ],
       })
-      setAvatarUpload(file)
-    } catch {
-      console.log("upload file error")
-    } finally {
-      setLoading(false)
     }
   }
-
-  // const changeAvatar = async () => {
-  //   try {
-  //     setLoading(true)
-  //     // setShowCancelButton(false)
-  //     const formData = new FormData();
-  //     formData.append("image", avatarUpload);
-  //     const res = await UserService.changeAvatar(detailInfo._id, formData);
-  //     if (res?.status === 200) {
-  //       setUser(prevUser => ({
-  //         ...prevUser,
-  //         image: res?.image
-  //       }));
-  //       Notice({ msg: "Cập nhật thành công!" })
-  //       setAvatarUpload("")
-  //     }else {
-  //       throw new Error('Failed to update avatar');
-  //     }
-
-  // }catch{
-  //     console.log("change ava error");
-  //   }
-  //    finally {
-  //     setLoading(false)
-  //   }
-  // }
 
   const renderFooter = () => (
     <div className={!!detailInfo ? "d-flex-sb" : "d-flex-end"}>
@@ -209,6 +137,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       </Button>
     </div>
   )
+
   return (
     <CustomModal
       title={!!detailInfo ? "Cập nhật nhân viên" : "Thêm nhân viên"}
@@ -239,10 +168,9 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                     }),
                   ]}
                 >
-                  {form.getFieldValue("image") &&
-                  form.getFieldValue("image").length > 0 ? (
+                  {avatarUpload ? (
                     <img
-                      src={form.getFieldValue("image")[0].url}
+                      src={avatarUpload}
                       alt="avatar"
                       style={{ width: "30%" }}
                     />
@@ -251,15 +179,13 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                       accept="image/*"
                       multiple={false}
                       maxCount={1}
-                      beforeUpload={file => {
-                        uploadImg(file)
-                        return false
-                      }}
+                      beforeUpload={() => false}
+                      onChange={handleUploadChange}
                       listType="picture-card"
                     >
                       <Row className="align-items-center">
                         <ButtonUploadStyle>
-                          <Button className="account-button-upload ">
+                          <Button className="account-button-upload">
                             <Row className="account-background-upload d-flex align-items-center">
                               <SvgIcon name="add-media-video" />
                               <div className="account-text-upload ml-16">
@@ -277,193 +203,44 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                   )}
                 </Form.Item>
               </Col>
+
+              {/* Other form fields with their initial values */}
               <Col md={24} xs={24}>
-                <Form.Item
-                  label="Họ và tên"
-                  name="fullname"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Thông tin không được để trống",
-                    },
-                  ]}
-                >
+                <Form.Item label="Họ và tên" name="username">
                   <Input placeholder="Nhập tên" />
                 </Form.Item>
               </Col>
 
               <Col md={12} xs={24}>
-                <Form.Item
-                  label="Email"
-                  name="email"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Thông tin không được để trống",
-                    },
-                    {
-                      pattern: getRegexEmail(),
-                      message:
-                        "Tài khoản phải nhiều hơn 6 kí tự, bao gồm chữ số hoặc chữ cái hoặc kí tự _ và không chứa khoảng trắng",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Nhập tên" disabled={!!detailInfo} />
-                </Form.Item>
-              </Col>
-              {!!detailInfo?.UserID && (
-                <Col md={12} xs={24}>
-                  <Form.Item
-                    label="Trạng thái"
-                    name="Status"
-                    required
-                    rules={[
-                      {
-                        required: true,
-                        message: "Thông tin không được để trống",
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Chọn trạng thái"
-                      // options={}
-                    />
-                  </Form.Item>
-                </Col>
-              )}
-              {!detailInfo ? (
-                <>
-                  <Col md={12} xs={24}>
-                    <Form.Item
-                      label="Mật khẩu mặc định"
-                      required
-                      name="password"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Thông tin không được để trống",
-                        },
-                        {
-                          pattern: getRegexPassword(),
-                          message:
-                            "Mật khẩu có chứa ít nhất 8 ký tự, trong đó có ít nhất một số và bao gồm cả chữ thường và chữ hoa và ký tự đặc biệt, ví dụ @, #, ?, !.",
-                        },
-                      ]}
-                    >
-                      <Input placeholder="Nhập" />
-                    </Form.Item>
-                  </Col>
-                </>
-              ) : (
-                <></>
-              )}
-
-              <Col md={8} xs={24}>
-                <Form.Item
-                  label="Số điện thoại"
-                  name="phone"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Thông tin không được để trống",
-                    },
-                    {
-                      pattern: getRegexMobile(),
-                      message:
-                        "Số điện thoại là chuỗi từ 8 đến 15 kí tự chữ số",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Nhập" />
-                </Form.Item>
-              </Col>
-              <Col md={8} xs={24}>
-                <Form.Item
-                  label="Email"
-                  name="email"
-                  rules={[
-                    // {
-                    //   required: true,
-                    //   message: "Thông tin không được để trống",
-                    // },
-                    {
-                      pattern: getRegexEmail(),
-                      message: "Email sai định dạng",
-                    },
-                  ]}
-                >
+                <Form.Item label="Email" name="email">
                   <Input placeholder="Nhập email" />
                 </Form.Item>
               </Col>
 
-              <Col md={6} xs={24}>
-                <Form.Item
-                  label="Giới tính"
-                  name="Sex"
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Thông tin không được để trống",
-                  //   },
-                  // ]}
-                >
-                  <Select placeholder="Chọn" allowClear>
-                    {/* {getListComboByKey(
-                      SYSTEM_KEY?.SEX_TYPE,
-                      listSystemKey,
-                    )?.map(i => (
-                      <Option key={+i?.CodeValue} value={+i?.CodeValue}>
-                        {i?.Description}
-                      </Option>
-                    ))} */}
+              <Col md={12} xs={24}>
+                <Form.Item label="Trạng thái" name="Status">
+                  <Select placeholder="Chọn trạng thái">
+                    <Option value="Active">Active</Option>
+                    <Option value="Inactive">Inactive</Option>
                   </Select>
                 </Form.Item>
               </Col>
 
+              {!detailInfo && (
+                <Col md={12} xs={24}>
+                  <Form.Item label="Mật khẩu mặc định" name="password">
+                    <Input placeholder="Nhập mật khẩu" />
+                  </Form.Item>
+                </Col>
+              )}
+
+              <Col md={12} xs={24}>
+                <Form.Item label="Số điện thoại" name="phone">
+                  <Input placeholder="Nhập số điện thoại" />
+                </Form.Item>
+              </Col>
               <Col md={6} xs={24}>
-                <Form.Item
-                  label="Ngày sinh"
-                  name="dob"
-                  rules={[
-                    // {
-                    //   required: true,
-                    //   message: "Thông tin không được để trống",
-                    // },
-                    () => ({
-                      validator(_, value) {
-                        if (!!value) {
-                          const today = dayjs()
-                          const birthDate = value
-                          let age
-
-                          if (today?.format("MM") > birthDate?.format("MM")) {
-                            // Calculate the age of the user
-                            age = today.diff(birthDate, "years") - 1
-                          } else if (
-                            today?.format("MM") === birthDate?.format("MM") &&
-                            today?.format("DD") > birthDate?.format("DD")
-                          ) {
-                            age = today.diff(birthDate, "years") - 1
-                          } else {
-                            age = today.diff(birthDate, "years")
-                          }
-
-                          // Check if the age is 14 or more
-                          if (age < 14) {
-                            // The user is over 14 years old
-                            return Promise.reject(
-                              new Error("Ngày sinh chưa đủ 14 tuổi"),
-                            )
-                          } else {
-                            // The user is under 14 years old
-                            return Promise.resolve()
-                          }
-                        }
-                        return Promise.resolve()
-                      },
-                    }),
-                  ]}
-                >
+                <Form.Item label="Ngày sinh" name="dob">
                   <DatePicker
                     placeholder="Chọn"
                     format="DD/MM/YYYY"
@@ -473,17 +250,8 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
               </Col>
 
               <Col span={24}>
-                <Form.Item
-                  label="Địa chỉ"
-                  name="Address"
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Thông tin không được để trống",
-                  //   },
-                  // ]}
-                >
-                  <Input placeholder="Nhập" />
+                <Form.Item label="Địa chỉ" name="Address">
+                  <Input placeholder="Nhập địa chỉ" />
                 </Form.Item>
               </Col>
             </Row>
@@ -495,3 +263,4 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 }
 
 export default ModalInsertUpdate
+

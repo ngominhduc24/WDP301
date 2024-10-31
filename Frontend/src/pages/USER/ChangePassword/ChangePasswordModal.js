@@ -8,7 +8,7 @@ import { getRegexPassword } from "src/lib/stringsUtils"
 import ROUTER from "src/router"
 import UserService from "src/services/UserService"
 import styled from "styled-components"
-
+import SpinCustom from "src/components/Spin"
 const ModalChangePasswordStyle = styled.div`
   .sign-text {
     font-size: 12px;
@@ -160,3 +160,4 @@ const ChangePasswordModal = ({ onOk, onCancel, open }) => {
 }
 
 export default ChangePasswordModal
+

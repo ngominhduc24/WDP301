@@ -100,6 +100,7 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
     try {
       setLoading(true)
       const response = await ManagerService.getRoomDetail(roomId)
+      console.log(response.data)
       if (response?.data) {
         setRoom(response.data)
       }
@@ -304,6 +305,7 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
         visible={isInsertRenterVisible}
         onCancel={() => setIsInsertRenterVisible(false)}
         roomId={roomId}
+        room={room}
         onOk={() => getRoomsDetail(roomId)}
       />
 
@@ -312,6 +314,7 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
         onCancel={() => setIsUpdateRenterVisible(false)}
         member={selectedMember}
         roomId={roomId}
+        room={room}
         onOk={() => getRoomsDetail(roomId)}
       />
     </>

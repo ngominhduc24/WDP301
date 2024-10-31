@@ -62,12 +62,11 @@ const UploadCCCDModal = ({ visible, onCancel, onUploadSuccess }) => {
   const handleImageUpload = ({ file }) => {
     setImageFile(file)
 
-    // Create a preview URL for the selected image
     const reader = new FileReader()
     reader.onload = e => {
-      setPreviewUrl(e.target.result) // Set the preview URL
+      setPreviewUrl(e.target.result)
     }
-    reader.readAsDataURL(file) // Read the file content as a data URL
+    reader.readAsDataURL(file)
   }
 
   const handleUpload = async () => {
@@ -158,7 +157,7 @@ const UploadCCCDModal = ({ visible, onCancel, onUploadSuccess }) => {
   )
 }
 
-const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
+const ModalInsertRenter = ({ onOk, visible, onCancel, roomId, room }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("")
@@ -180,7 +179,9 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
       if (avatarFile) {
         formData.append("avatar", avatarFile)
       }
-
+      formData.append("roomId", roomId)
+      formData.append("roomName", room?.name)
+      formData.append("houseName", room?.houseId?.name)
       const response = await ManagerService.insertMember(roomId, formData)
       if (response?.statusCode === 201) {
         message.success("Thêm khách thuê thành công!")
@@ -339,7 +340,9 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
                 </Col>
                 <Col span={24}>
                   <Form.Item label="Ghi chú" name="note">
-                    <Input.TextArea placeholder="Nhập ghi chú" />
+                    <div>
+                      <Input.TextArea placeholder="Nhập ghi chú" />
+                    </div>
                   </Form.Item>
                 </Col>
               </Row>

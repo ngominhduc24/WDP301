@@ -40,75 +40,47 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
   const [loading, setLoading] = useState(false)
   const [openInsert, setOpenInsert] = useState(false)
   const [userInfo, setUserInfo] = useState({})
-  // const UserID = getStorage(STORAGE.USER_ID)
-  useEffect(() => {
-      // getUserDetail(userId)
-    
-  }, [])
 
-  const getUserDetail = async (id) => {
-    try {
-      setLoading(true)
-      const res = await AdminServices.getManagerById(id)
-      setUserInfo(res)
-    } catch (error) {
-      console.log("error");
-    }finally{
-      setLoading(false)
-    }
-  }
-
-  // const getUserDetail = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const res = await UserService.detailUser(open?.UserID)
-  //     if (res?.isError) return
-  //     setCustomerInfo(res?.Object)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
   const footer = (
     <div className="d-flex justify-content-space-between align-item-center">
-      <div>
-        {/* {!!listButtonShow?.IsUpdate && (
-          <Button
-            loading={loading}
-            btntype="primary"
-            onClick={() => {
-              CB1({
-                title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản này không?`,
-                icon: "warning-usb",
-                okText: "Đồng ý",
-                onOk: async close => {
-                  // onReset(customerInfo?.UserID)
-                  close()
-                },
-              })
-            }}
-          >
-            Reset mật khẩu
-          </Button>
-        )} */}
-      </div>
+      {/* <div>
+        <Button
+          loading={loading}
+          btntype="primary"
+          onClick={() => {
+            CB1({
+              title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản này không?`,
+              icon: "warning-usb",
+              okText: "Đồng ý",
+              onOk: async close => {
+                // onReset(customerInfo?.UserID)
+                close()
+              },
+            })
+          }}
+        >
+          Reset mật khẩu
+        </Button>
+      </div> */}
       <div className="d-flex justify-content-flex-end">
-          <Button
-            loading={loading}
-            btntype="primary"
-            onClick={() => {
-              setOpenInsert(data)
-            }}
-          >
-            Sửa
-          </Button>
-          <Button
-            loading={loading}
-            onClick={() => {
-              onCancel()
-            }}
-          >
-            Đóng
-          </Button>
+        <Button
+          className="mr-8"
+          loading={loading}
+          btntype="primary"
+          onClick={() => {
+            setOpenInsert(data)
+          }}
+        >
+          Sửa
+        </Button>
+        <Button
+          loading={loading}
+          onClick={() => {
+            onCancel()
+          }}
+        >
+          Đóng
+        </Button>
       </div>
     </div>
   )
@@ -133,7 +105,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
       footer={footer}
       open={!!open}
       onCancel={onCancel}
-      title="Chi tiết nhân viên"
+      title="Chi tiết người dùng"
     >
       <StyledUserDetail>
         <Row gutter={[20, 8]}>
@@ -151,8 +123,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
             </Col>
             <Col span={24}>
               <div className="mb-12 text-center ">
-                <span className="fw-600 ">Nhóm quyền:</span>{" "}
-                {data?.role}
+                <span className="fw-600 ">Vai trò:</span> {data?.accountType}
               </div>
             </Col>
             <Col span={24}>
@@ -163,24 +134,20 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
             <Row>
               <Col span={12}>
                 <div className="mb-12">
-                  <span className="fw-600 ">Họ tên:</span>{" "}
-                  {data?.fullname}
+                  <span className="fw-600 ">Tên:</span> {data?.username}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Trạng thái:</span>{" "}
-                  {!!data?.status
-                    ? "Đang hoạt động"
-                    : "Không hoạt động"}
+                  {!!data?.status ? "Đang hoạt động" : "Không hoạt động"}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
-                  <span className="fw-600 ">Số điện thoại:</span>{" "}
-                  {data?.phone}
+                  <span className="fw-600 ">Số điện thoại:</span> {data?.phone}
                 </div>
               </Col>
 
@@ -198,7 +165,6 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
                     : ""}
                 </div>
               </Col>
-
             </Row>
           </Col>
         </Row>

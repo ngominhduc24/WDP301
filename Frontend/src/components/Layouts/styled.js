@@ -129,7 +129,7 @@ export const LayoutStyled = styled.div`
     transition: all 0.3s;
     :hover,
     :focus {
-      background: #e9e9e9;
+      background: #0b3697;
     }
   }
   .logo {
@@ -705,3 +705,4 @@ export const HeaderStyled = styled.div`
   background-position: center;
   background-size: cover;
 `
+
