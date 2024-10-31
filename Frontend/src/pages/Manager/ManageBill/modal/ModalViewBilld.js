@@ -11,7 +11,10 @@ const ModalViewBill = ({ open, onCancel, billId }) => {
   }, [billId])
 
   const fetchBillDetail = async billId => {
-    console.log("hello")
+    if (!billId) {
+      return
+    }
+
     try {
       const response = await ManagerService.getDetailBill(billId)
       if (response?.statusCode === 200) {

@@ -105,6 +105,10 @@ const ManageBill = () => {
   }
 
   const openViewBillModal = billId => {
+    if (!billId) {
+      return
+    }
+    console.log("Selected Bill ID:", billId)
     setCurrentBillId(billId)
     setViewBill(true)
   }
