@@ -7,7 +7,7 @@ import useWindowSize from "src/lib/useWindowSize";
 import NotifyForm from "./components/NotifyForm";
 import io from 'socket.io-client';
 
-const socket = io('https://sdn301.onrender.com'); // replace with env config
+const socket = io('http://ngominhduc24.ddns.net'); // replace with env config
 
 const Notification = (props) => {
   const isMobile = useWindowSize.isMobile() || false;
