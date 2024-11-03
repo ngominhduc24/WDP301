@@ -54,7 +54,20 @@ const ManageUser = () => {
             icon: "warning-usb",
             okText: "Đồng ý",
             onOk: async close => {
-              await UserService.changePassword(record._id)
+              console.log(record)
+              try {
+                await UserService.changePassword({
+                  accountId: record._id,
+                  oldPassword: record.cccd,
+                  newPassword: "Rms@123456789",
+                })
+              } catch (error) {
+                console.error("Error resetting password:", error)
+                Notice({
+                  isSuccess: false,
+                  msg: "Reset mật khẩu thất bại!",
+                })
+              }
               close()
             },
           })
@@ -90,14 +103,14 @@ const ManageUser = () => {
       dataIndex: "phone",
       key: "phone",
       align: "center",
-      render: value => value || "N/A",
+      render: value => value || "",
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
       align: "center",
-      render: value => value || "N/A",
+      render: value => value || "",
     },
     {
       title: "Loại tài khoản",
@@ -173,10 +186,10 @@ const ManageUser = () => {
           response.data.map(user => ({
             ...user,
             status: user.status,
-            accountType: user.accountType || "N/A",
-            username: user.username || "N/A",
-            phone: user.phone || "N/A",
-            email: user.email || "N/A",
+            accountType: user.accountType || "",
+            username: user.username || "",
+            phone: user.phone || "",
+            email: user.email || "",
           })),
         )
         setTotal(response.pagination.totalAccounts)

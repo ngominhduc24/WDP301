@@ -20,15 +20,16 @@ const ModalCreateBill = ({ open, onCancel, onOk, roomId }) => {
   const [dateValue, setDateValue] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formValues, setFormValues] = useState({})
-  const [note, setNote] = useState("") // Tách state cho ghi chú
+  const [note, setNote] = useState("")
   const [totalValue, setTotalValue] = useState(0)
 
   useEffect(() => {
-    if (roomId) {
+    if (roomId && open) {
       fetchRoomData()
       fetchDebt()
+      resetForm()
     }
-  }, [roomId])
+  }, [roomId, open])
 
   const fetchRoomData = async () => {
     try {
@@ -55,6 +56,12 @@ const ModalCreateBill = ({ open, onCancel, onOk, roomId }) => {
     const formattedDate = `${now.getMonth() + 1}/${now.getFullYear()}`
     setDateValue(formattedDate)
   }, [])
+
+  const resetForm = () => {
+    setFormValues({})
+    setNote("")
+    setTotalValue(0)
+  }
 
   const handleInputChange = (index, field, value) => {
     const key = `${field}-${index}`
@@ -261,3 +268,4 @@ const ModalCreateBill = ({ open, onCancel, onOk, roomId }) => {
 }
 
 export default ModalCreateBill
+

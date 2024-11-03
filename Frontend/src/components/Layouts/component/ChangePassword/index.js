@@ -7,9 +7,8 @@ import { StyleChangePassword } from "./styled"
 import Notice from "src/components/Notice"
 import ROUTER from "src/router"
 import UserService from "src/services/UserService"
-import STORAGE, { getStorage, clearStorage } from "src/lib/storage" // Updated import to include clearStorage
+import STORAGE, { getStorage, clearStorage } from "src/lib/storage"
 
-// New API function for changing the password
 const ChangePassword = () => {
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
@@ -29,21 +28,24 @@ const ChangePassword = () => {
         return
       }
 
-      const res = await UserService.changePassword(userID, {
+      const res = await UserService.changePassword({
         oldPassword: values.Password,
         newPassword: values.NewPassword,
       })
-      console.log(res)
       if (res?.success === false) {
-        throw new Error(res.message || "Có lỗi xảy ra khi đổi mật khẩu!")
+        Notice({
+          msg: res.message,
+          isSuccess: false,
+        })
+        return
+      } else {
+        clearStorage()
+        Notice({
+          isSuccess: true,
+          msg: "Cập nhật mật khẩu thành công! Vui lòng đăng nhập lại.",
+        })
+        navigate(ROUTER.LOGIN)
       }
-
-      // clearStorage()
-      // Notice({
-      //   isSuccess: true,
-      //   msg: "Cập nhật mật khẩu thành công! Vui lòng đăng nhập lại.",
-      // })
-      // navigate(ROUTER.LOGIN)
     } catch (error) {
       const errorMessage = error.message || "Có lỗi xảy ra!"
       Notice({

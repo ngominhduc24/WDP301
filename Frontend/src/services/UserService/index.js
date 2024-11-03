@@ -11,8 +11,8 @@ import {
 //   await http.post(endpoint, { ...body })
 // }
 const getUserById = id => http.get(apiGetUserById(id))
-const changePassword = (id, body) => {
-  http.put(apiChangePassword(id), body)
+const changePassword = body => {
+  return http.post(apiChangePassword, body)
 }
 
 const updateProfile = (id, body) => {
@@ -41,3 +41,4 @@ const UserService = {
 }
 
 export default UserService
+

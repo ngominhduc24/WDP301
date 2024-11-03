@@ -6,7 +6,6 @@ const ModalViewBill = ({ open, onCancel, billId }) => {
   const [billDetail, setBillDetail] = useState(null)
 
   useEffect(() => {
-    console.log(billId)
     fetchBillDetail(billId)
   }, [billId])
 
@@ -135,3 +134,4 @@ const ModalViewBill = ({ open, onCancel, billId }) => {
 }
 
 export default ModalViewBill
+

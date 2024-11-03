@@ -45,10 +45,10 @@ export function parseBody(response) {
       return window.location.replace(ROUTER.HOME)
     }
     if (resData.success === false) {
-      notice({
-        msg: resData.message,
-      })
-      console.log(resData)
+      // notice({
+      //   msg: resData.message,
+      //   isSuccess: false,
+      // })
       return resData
     }
     if (resData.Status === -2) return resData
@@ -96,51 +96,50 @@ instance.interceptors.request.use(
 // Response interceptor
 instance.interceptors.response.use(
   response => {
-    console.log("Response data:", response)
     return parseBody(response)
   },
-  // error => {
-  //   // Lỗi kết nối hoặc không kết nối được tới API
-  //   if (error.code === "ECONNABORTED") {
-  //     notice({
-  //       msg: "Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ",
-  //       isSuccess: false,
-  //     })
-  //   } else if (+error?.response?.status >= 500) {
-  //     notice({
-  //       // msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
-  //       msg: error.response.data.error,
-  //       isSuccess: false,
-  //     })
-  //   } else if (
-  //     +error?.response?.status < 500 &&
-  //     +error?.response?.status !== 200
-  //   ) {
-  //     notice({
-  //       msg: `Hệ thống xảy ra lỗi. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ (SC${error?.response?.status})`,
-  //       isSuccess: false,
-  //     })
-  //   } else if (error.code === "ERR_NETWORK") {
-  //     notice({
-  //       msg: `Hệ thống đang bị gián đoạn, vui lòng kiểm tra lại đường truyền!`,
-  //       isSuccess: false,
-  //     })
-  //   } else if (typeof error.response === "undefined") {
-  //     notice({ msg: error.message, isSuccess: false })
-  //   } else if (error.response) {
-  //     notice({
-  //       msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
-  //       isSuccess: false,
-  //     })
-  //     return parseError(error.response.data)
-  //   } else {
-  //     notice({
-  //       msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
-  //       isSuccess: false,
-  //     })
-  //   }
-  //   return Promise.reject(error)
-  // },
+  error => {
+    // Lỗi kết nối hoặc không kết nối được tới API
+    if (error.code === "ECONNABORTED") {
+      notice({
+        msg: "Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ",
+        isSuccess: false,
+      })
+    } else if (+error?.response?.status >= 500) {
+      notice({
+        // msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
+        msg: error.response.data.error,
+        isSuccess: false,
+      })
+    } else if (
+      +error?.response?.status < 500 &&
+      +error?.response?.status !== 200
+    ) {
+      notice({
+        msg: `Hệ thống xảy ra lỗi. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ (SC${error?.response?.status})`,
+        isSuccess: false,
+      })
+    } else if (error.code === "ERR_NETWORK") {
+      notice({
+        msg: `Hệ thống đang bị gián đoạn, vui lòng kiểm tra lại đường truyền!`,
+        isSuccess: false,
+      })
+    } else if (typeof error.response === "undefined") {
+      notice({ msg: error.message, isSuccess: false })
+    } else if (error.response) {
+      notice({
+        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
+        isSuccess: false,
+      })
+      return parseError(error.response.data)
+    } else {
+      notice({
+        msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ`,
+        isSuccess: false,
+      })
+    }
+    return Promise.reject(error)
+  },
 )
 
 export default instance
