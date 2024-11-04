@@ -64,13 +64,6 @@ const ManageRoom = () => {
   }, [])
 
   useEffect(() => {
-    if (selectedHouse) {
-      getHouseByHouseId(selectedHouse)
-      getFloorByHouseId(selectedHouse)
-    }
-  }, [selectedHouse])
-
-  useEffect(() => {
     if (selectedHouse && selectedFloor !== null) {
       getRoomsByHouse(selectedHouse, selectedFloor)
     }
@@ -107,20 +100,31 @@ const ManageRoom = () => {
     }
   }
 
+  useEffect(() => {
+    if (selectedHouse) {
+      getHouseByHouseId(selectedHouse)
+      getFloorByHouseId(selectedHouse)
+    }
+  }, [selectedHouse])
+
   const getFloorByHouseId = async houseId => {
     try {
       setLoading(true)
       const response = await ManagerService.getHouseFloors(houseId)
-      if (response?.data) {
+      if (response?.data && response.data.length > 0) {
+        const firstFloor = response.data[0]
         setFloors(response.data)
-        setSelectedFloor(response.data[0] || null)
+        setSelectedFloor(firstFloor)
+        getRoomsByHouse(houseId, firstFloor)
       } else {
         setFloors([])
         setSelectedFloor(null)
+        setRooms([])
       }
     } catch (error) {
       setFloors([])
       setSelectedFloor(null)
+      setRooms([])
     } finally {
       setLoading(false)
     }
@@ -196,7 +200,7 @@ const ManageRoom = () => {
         <AccordionSummary
           expandIcon={<ExpandMoreIcon style={{ color: "#FFF" }} />}
           sx={{
-            background: room?.members?.length === 0 ? "#183446" : "#1abc9c",
+            background: room?.members?.length === 0 ? "#183446" : "#bce3b3",
           }}
         >
           <Box
@@ -326,7 +330,7 @@ const ManageRoom = () => {
         {
           name: "Tỷ Lệ Phòng",
           type: "pie",
-          radius: ["40%", "70%"], // Điều chỉnh bán kính của biểu đồ
+          radius: ["40%", "70%"],
           center: ["40%", "50%"],
           avoidLabelOverlap: false,
           label: {
@@ -422,6 +426,7 @@ const ManageRoom = () => {
           </p>
         </Box>
         <Box sx={{ display: "flex", padding: "20px" }}>
+          z
           <Box sx={{ width: "50%", alignItems: "center" }}>
             <TableContainer component={Paper}>
               <Table>
@@ -471,14 +476,7 @@ const ManageRoom = () => {
               display: "flex",
               justifyContent: "center",
             }}
-          >
-            <div>
-              <p className="fs-18 fw-bold d-flex justify-content-center">
-                Tỷ Lệ Đầy Phòng Theo Tầng
-              </p>
-              {renderRoomRatioChart()}
-            </div>
-          </Box>
+          ></Box>
         </Box>
       </Box>
 
@@ -529,6 +527,7 @@ const ManageRoom = () => {
           open={openViewRoom}
           onCancel={() => setOpenViewRoom(false)}
           roomId={selectedRoom?._id}
+          onOk={() => getRoomsByHouse(selectedHouse, selectedFloor)}
         />
       )}
       {!!openUpdateRoom && (

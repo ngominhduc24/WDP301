@@ -42,20 +42,20 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     if (detailInfo) {
       form.setFieldsValue({
         username: detailInfo.username,
-        email: detailInfo.email || "",
-        phone: detailInfo.phone || "",
+        email: detailInfo.email === "N/A" ? "" : detailInfo.email || "",
+        phone: detailInfo.phone === "N/A" ? "" : detailInfo.phone || "",
         Status: detailInfo.status ? "Active" : "Inactive",
         dob: detailInfo.dob ? dayjs(detailInfo.dob, "DD/MM/YYYY") : null,
-        image: detailInfo.avatar
-          ? [
-              {
-                uid: "-1",
-                name: "Avatar",
-                status: "done",
-                url: detailInfo.avatar,
-              },
-            ]
-          : [],
+        // image: detailInfo.avatar
+        //   ? [
+        //       {
+        //         uid: "-1",
+        //         name: "Avatar",
+        //         status: "done",
+        //         url: detailInfo.avatar,
+        //       },
+        //     ]
+        //   : [],
         Address: detailInfo.address || "",
       })
     }
@@ -79,15 +79,11 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       const updatedValues = {
         ...values,
         dob: values.dob ? values.dob.format("DD/MM/YYYY") : detailInfo?.dob,
-        image: avatarUrl,
+        // image: avatarUrl,
         status: values.Status === "Active",
       }
-
-      Object.keys(updatedValues).forEach(key => {
-        if (!updatedValues[key] && key !== "status" && key !== "image") {
-          updatedValues[key] = detailInfo[key]
-        }
-      })
+      if (!updatedValues.email) delete updatedValues.email
+      if (!updatedValues.phone) delete updatedValues.phone
 
       await UserService.updateProfile(detailInfo._id, updatedValues)
       Notice({

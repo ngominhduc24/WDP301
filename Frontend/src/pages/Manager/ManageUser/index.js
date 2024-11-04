@@ -28,6 +28,7 @@ const ManageUser = () => {
 
   const [loading, setLoading] = useState(false)
   const [openInsertUpdate, setOpenInsertUpdate] = useState(false)
+  const [openImportUser, setOpenImportUser] = useState(false)
   const [detailInfo, setDetailInfo] = useState()
   const [selectedNode, setSelectedNote] = useState()
   const [openModalUserDetail, setOpenModalUserDetail] = useState(false)
@@ -54,7 +55,19 @@ const ManageUser = () => {
             icon: "warning-usb",
             okText: "Đồng ý",
             onOk: async close => {
-              await UserService.changePassword(record._id)
+              try {
+                await UserService.changePassword({
+                  accountId: record._id,
+                  oldPassword: record.cccd,
+                  newPassword: "Rms@123456789",
+                })
+              } catch (error) {
+                console.error("Error resetting password:", error)
+                Notice({
+                  isSuccess: false,
+                  msg: "Reset mật khẩu thất bại!",
+                })
+              }
               close()
             },
           })
@@ -90,14 +103,14 @@ const ManageUser = () => {
       dataIndex: "phone",
       key: "phone",
       align: "center",
-      render: value => value || "N/A",
+      render: value => value || "",
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
       align: "center",
-      render: value => value || "N/A",
+      render: value => value || "",
     },
     {
       title: "Loại tài khoản",
@@ -173,10 +186,10 @@ const ManageUser = () => {
           response.data.map(user => ({
             ...user,
             status: user.status,
-            accountType: user.accountType || "N/A",
-            username: user.username || "N/A",
-            phone: user.phone || "N/A",
-            email: user.email || "N/A",
+            accountType: user.accountType || "",
+            username: user.username || "",
+            phone: user.phone || "",
+            email: user.email || "",
           })),
         )
         setTotal(response.pagination.totalAccounts)
@@ -240,7 +253,7 @@ const ManageUser = () => {
             <Button
               btntype="primary"
               className="btn-hover-shadow"
-              onClick={() => setOpenInsertUpdate(true)}
+              onClick={() => setOpenImportUser(true)}
             >
               Thêm người dùng
             </Button>
@@ -265,6 +278,18 @@ const ManageUser = () => {
           })}
         />
       </SpinCustom>
+
+      {openImportUser && (
+        <ImportUser
+          open={openImportUser}
+          onOk={() => {
+            fetchAllUsers()
+            setOpenImportUser(false)
+          }}
+          onCancel={() => setOpenImportUser(false)}
+          department={{ DepartmentName: "Department" }}
+        />
+      )}
 
       {openInsertUpdate && (
         <ModalInsertUpdate

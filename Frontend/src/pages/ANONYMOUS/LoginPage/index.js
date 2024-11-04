@@ -82,13 +82,11 @@ const LoginPage = () => {
   }
 
   const onLogin = async () => {
-    console.log("hello")
     try {
       setLoading(true)
       const values = await form.validateFields()
       const res = await AuthService.login({ ...values })
       // const decodedToken = jwtDecode(res?.token)
-      console.log(res)
       if (res) {
         setStorage(STORAGE.TOKEN, res?.accessToken)
         // setStorage(STORAGE.USER_ID, decodedToken.payload.id)
@@ -114,7 +112,6 @@ const LoginPage = () => {
   const getInfo = async id => {
     try {
       const res = await UserService.getUserById(id)
-      console.log("res", res)
       setStorage(STORAGE.USER_INFO, res)
       if (res?.isError) return
       return res

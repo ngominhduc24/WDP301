@@ -84,7 +84,6 @@ const ModalUpdateNews = ({ open, onCancel, onOk, selectedNode, houseId }) => {
   }
 
   useEffect(() => {
-    console.log(selectedNode)
     if (selectedNode) {
       form.setFieldsValue({
         title: selectedNode?.title || "",

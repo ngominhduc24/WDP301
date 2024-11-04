@@ -60,7 +60,6 @@ const News = () => {
       const response = await RenterService.getRoomDetail(userInfo?.roomId)
       const housesData = response?.data?.houseId || []
       if (housesData) {
-        console.log("hello")
         fetchNews(housesData._id)
         setSelectedHouse(housesData._id)
       }

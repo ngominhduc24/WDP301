@@ -1,21 +1,21 @@
 import { UserOutlined } from "@ant-design/icons"
-import { Anchor, Avatar, Col, Divider, Row, Space, Switch, Tooltip } from "antd"
+import { Avatar, Col, Divider, Row, Select, Space, Switch, Tooltip } from "antd"
 import { useEffect, useState } from "react"
-import { FloatActionWrapper } from "src/components/FloatAction/styles"
-import CB1 from "src/components/Modal/CB1"
 import Button from "src/components/MyButton/Button"
-import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
 import TableCustom from "src/components/Table/CustomTable"
 import Search from "./components/Search"
-import TreeAnchor from "./components/TreeAnchor"
 import ImportUser from "./modal/ImportUser"
 import ModalInsertUpdate from "./modal/InsertUpdate"
 import UserDetail from "./modal/UserDetail"
 import { ListUserStyled } from "./styled"
-import { getStorage } from "src/lib/storage"
 import STORAGE from "src/lib/storage"
+import ManagerService from "src/services/ManagerService"
+import ButtonCircle from "src/components/MyButton/ButtonCircle"
+import CB1 from "src/components/Modal/CB1"
+import UserService from "src/services/UserService"
+const { Option } = Select
 
 const ManageUser = () => {
   const [managers, setManagers] = useState([])
@@ -32,6 +32,49 @@ const ManageUser = () => {
   const [detailInfo, setDetailInfo] = useState()
   const [selectedNode, setSelectedNote] = useState()
   const [openModalUserDetail, setOpenModalUserDetail] = useState(false)
+  const [houses, setHouses] = useState([])
+  const [selectedHouse, setSelectedHouse] = useState(null)
+
+  const renderListButton = record => (
+    <Space>
+      <ButtonCircle
+        title="Cập nhật"
+        iconName="edit"
+        onClick={() => {
+          setOpenInsertUpdate(true)
+          setDetailInfo(record)
+        }}
+      />
+      <ButtonCircle
+        title="Reset mật khẩu"
+        iconName="reset-pass"
+        style={{ background: "#fff" }}
+        onClick={e => {
+          CB1({
+            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.username} không?`,
+            icon: "warning-usb",
+            okText: "Đồng ý",
+            onOk: async close => {
+              try {
+                await UserService.changePassword({
+                  accountId: record._id,
+                  oldPassword: record.cccd,
+                  newPassword: "Rms@123456789",
+                })
+              } catch (error) {
+                console.error("Error resetting password:", error)
+                Notice({
+                  isSuccess: false,
+                  msg: "Reset mật khẩu thất bại!",
+                })
+              }
+              close()
+            },
+          })
+        }}
+      />
+    </Space>
+  )
 
   const columns = [
     {
@@ -43,16 +86,16 @@ const ManageUser = () => {
     },
     {
       title: "Ảnh",
-      dataIndex: "image",
-      key: "image",
+      dataIndex: "avatar",
+      key: "avatar",
       render: value => <Avatar src={value} icon={<UserOutlined />} size={40} />,
       width: 60,
       align: "center",
     },
     {
-      title: "Họ tên",
-      dataIndex: "fullname",
-      key: "fullname",
+      title: "Tên tài khoản",
+      dataIndex: "username",
+      key: "username",
       align: "center",
     },
     {
@@ -60,29 +103,19 @@ const ManageUser = () => {
       dataIndex: "phone",
       key: "phone",
       align: "center",
+      render: value => value || "",
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
       align: "center",
+      render: value => value || "",
     },
     {
-      title: "Ngày sinh",
-      dataIndex: "dob",
-      key: "dob",
-      align: "center",
-    },
-    {
-      title: "Lương",
-      dataIndex: "salary",
-      key: "salary",
-      align: "center",
-    },
-    {
-      title: "Nhóm quyền",
-      dataIndex: "role",
-      key: "role",
+      title: "Loại tài khoản",
+      dataIndex: "accountType",
+      key: "accountType",
       align: "center",
     },
     {
@@ -92,7 +125,7 @@ const ManageUser = () => {
       align: "center",
       render: (_, record) => (
         <Switch
-          checked={record.status === "active"}
+          checked={record.status}
           onChange={(checked, e) => {
             e.stopPropagation()
             toggleStatus(record._id, checked)
@@ -100,54 +133,98 @@ const ManageUser = () => {
         />
       ),
     },
+    {
+      title: "Chức năng",
+      align: "center",
+      key: "Action",
+      width: 100,
+      render: (_, record) => <Space>{renderListButton(record)}</Space>,
+    },
   ]
 
   useEffect(() => {
-    mockGetAllManagers() // Commented actual API call and used mockup data
-  }, [pagination])
+    getAllHouses()
+  }, [])
 
-  const toggleStatus = (userId, checked) => {
-    const updatedStatus = checked ? "active" : "inactive"
-    const updatedDataSource = managers.map(user =>
-      user._id === userId ? { ...user, status: updatedStatus } : user,
-    )
-    setManagers(updatedDataSource)
-    Notice({
-      isSuccess: true,
-      msg: "Cập nhật trạng thái thành công",
-    })
+  useEffect(() => {
+    if (selectedHouse) {
+      fetchAllUsers()
+    }
+  }, [pagination, selectedHouse])
+
+  const toggleStatus = async (userId, checked) => {
+    const updatedStatus = checked
+    try {
+      await ManagerService.updateUser(userId, { status: updatedStatus })
+      const updatedDataSource = managers.map(user =>
+        user._id === userId ? { ...user, status: updatedStatus } : user,
+      )
+      setManagers(updatedDataSource)
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thành công",
+      })
+    } catch (error) {
+      console.error("Error updating user status:", error)
+      Notice({
+        isSuccess: false,
+        msg: "Cập nhật trạng thái thất bại",
+      })
+    }
   }
 
-  // Mockup data function
-  const mockGetAllManagers = () => {
+  const fetchAllUsers = async () => {
     setLoading(true)
-    const fakeData = [
-      {
-        _id: "1",
-        fullname: "Nguyễn Văn A",
-        phone: "0123456789",
-        email: "nguyenvana@gmail.com",
-        dob: "01/01/1990",
-        salary: "15,000,000 VND",
-        role: "Admin",
-        status: "active",
-        image: "",
-      },
-      {
-        _id: "2",
-        fullname: "Trần Thị B",
-        phone: "0987654321",
-        email: "tranthib@gmail.com",
-        dob: "02/02/1985",
-        salary: "12,000,000 VND",
-        role: "Manager",
-        status: "inactive",
-        image: "",
-      },
-    ]
-    setManagers(fakeData)
-    setTotal(fakeData.length)
-    setLoading(false)
+    try {
+      const response = await ManagerService.getUser(
+        selectedHouse,
+        pagination.CurrentPage,
+        pagination.PageSize,
+      )
+      if (response?.data) {
+        setManagers(
+          response.data.map(user => ({
+            ...user,
+            status: user.status,
+            accountType: user.accountType || "",
+            username: user.username || "",
+            phone: user.phone || "",
+            email: user.email || "",
+          })),
+        )
+        setTotal(response.pagination.totalAccounts)
+      } else {
+        setManagers([])
+        setTotal(0)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getAllHouses = async () => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getAllHouses()
+      const housesData = response?.data?.houses || []
+      if (housesData.length > 0) {
+        setHouses(housesData)
+        setSelectedHouse(housesData[0]?._id)
+      } else {
+        setHouses([])
+      }
+    } catch (error) {
+      setHouses([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onRowClick = record => {
+    setDetailInfo(record)
+    setOpenModalUserDetail(true)
   }
 
   return (
@@ -158,12 +235,27 @@ const ManageUser = () => {
         <div className="fs-24">Danh sách quản lý</div>
         <Row gutter={[16, 16]}>
           <Col>
+            <div className="d-flex">
+              <Select
+                value={selectedHouse}
+                style={{ width: 150 }}
+                onChange={value => setSelectedHouse(value)}
+              >
+                {houses.map(house => (
+                  <Option key={house._id} value={house._id}>
+                    {house.name}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+          </Col>
+          <Col>
             <Button
               btntype="primary"
               className="btn-hover-shadow"
-              onClick={() => setOpenInsertUpdate(true)}
+              onClick={() => setOpenImportUser(true)}
             >
-              Thêm nhân viên
+              Thêm người dùng
             </Button>
           </Col>
         </Row>
@@ -181,14 +273,29 @@ const ManageUser = () => {
             onChange: (CurrentPage, PageSize) =>
               setPagination({ ...pagination, CurrentPage, PageSize }),
           }}
+          onRow={record => ({
+            onClick: () => onRowClick(record),
+          })}
         />
       </SpinCustom>
+
+      {openImportUser && (
+        <ImportUser
+          open={openImportUser}
+          onOk={() => {
+            fetchAllUsers()
+            setOpenImportUser(false)
+          }}
+          onCancel={() => setOpenImportUser(false)}
+          department={{ DepartmentName: "Department" }}
+        />
+      )}
 
       {openInsertUpdate && (
         <ModalInsertUpdate
           open={openInsertUpdate}
           detailInfo={detailInfo}
-          onOk={mockGetAllManagers}
+          onOk={fetchAllUsers}
           onCancel={() => setOpenInsertUpdate(false)}
         />
       )}
@@ -197,7 +304,7 @@ const ManageUser = () => {
         <UserDetail
           open={openModalUserDetail}
           onCancel={() => setOpenModalUserDetail(false)}
-          data={openModalUserDetail}
+          data={detailInfo}
         />
       )}
     </ListUserStyled>

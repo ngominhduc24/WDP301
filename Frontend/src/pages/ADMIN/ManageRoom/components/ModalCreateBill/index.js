@@ -5,25 +5,28 @@ import {
   Input,
   Button,
   Table,
-  message,
   Row,
   Col,
+  message,
 } from "antd"
 import ManagerService from "src/services/ManagerService"
 
 const { TextArea } = Input
-const ModalCreateBill = ({ open, onCancel, roomId }) => {
+
+const ModalCreateBill = ({ open, onCancel, onOK, roomId }) => {
   const [room, setRoom] = useState(null)
   const [debt, setDebt] = useState(0)
   const [priceList, setPriceList] = useState([])
   const [dateValue, setDateValue] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formValues, setFormValues] = useState({})
+  const [note, setNote] = useState("")
   const [totalValue, setTotalValue] = useState(0)
 
   useEffect(() => {
     if (roomId) {
       fetchRoomData()
+      fetchDebt()
     }
   }, [roomId])
 
@@ -33,11 +36,17 @@ const ModalCreateBill = ({ open, onCancel, roomId }) => {
       const roomData = roomResponse?.data
       setRoom(roomData)
       setPriceList(roomData?.houseId?.priceList || [])
+    } catch (error) {
+      console.error("Error fetching room data:", error)
+    }
+  }
 
+  const fetchDebt = async () => {
+    try {
       const debtResponse = await ManagerService.getDebt(roomId)
       setDebt(debtResponse?.data?.data?.debt || 0)
     } catch (error) {
-      console.error("Error fetching room data:", error)
+      console.error("Error fetching debt:", error)
     }
   }
 
@@ -48,48 +57,45 @@ const ModalCreateBill = ({ open, onCancel, roomId }) => {
   }, [])
 
   const handleInputChange = (index, field, value) => {
-    const newFormValues = { ...formValues }
-    newFormValues[`${field}-${index}`] = value
-    setFormValues(newFormValues)
+    const key = `${field}-${index}`
+    setFormValues(prev => ({
+      ...prev,
+      [key]: value,
+    }))
   }
 
-  // Xử lý khi nhấn "Lưu" để thêm hóa đơn
-  // const handleAddBill = async () => {
-  //   try {
-  //     setIsSubmitting(true)
+  const handleAddBill = async () => {
+    try {
+      setIsSubmitting(true)
 
-  //     // Tạo payload với danh sách loại phí và các thông tin cần thiết
-  //     const priceListToAdd = priceList.map((priceItem, index) => ({
-  //       base: priceItem.base,
-  //       unitPrice: priceItem.price,
-  //       startUnit: parseFloat(formValues[`startUnit-${index}`]) || 0,
-  //       endUnit: parseFloat(formValues[`endUnit-${index}`]) || 0,
-  //     }))
+      const priceListToAdd = priceList.map((priceItem, index) => ({
+        base: priceItem.base,
+        unitPrice: priceItem.price,
+        startUnit: parseFloat(formValues[`startUnit-${index}`]) || 0,
+        endUnit: parseFloat(formValues[`endUnit-${index}`]) || 0,
+      }))
 
-  //     const payload = {
-  //       priceList: priceListToAdd,
-  //       note: formValues.note || "",
-  //     }
+      const payload = {
+        priceList: priceListToAdd,
+        note: note,
+      }
 
-  //     // Gọi API addBill với roomId và payload
-  //     const response = await ManagerService.addBill(roomId, payload)
-  //     if (response?.data?.statusCode === 201) {
-  //       onCancel(
-  //         "added",
-  //         response?.data?.data?.bill,
-  //         response?.data?.data?.bill?.roomId,
-  //       )
-  //     } else {
-  //       console.error("Error adding bill:", response?.data?.message)
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error)
-  //   } finally {
-  //     setIsSubmitting(false)
-  //   }
-  // }
+      const response = await ManagerService.addBill(roomId, payload)
+      if (response?.statusCode === 201) {
+        message.success("Thêm hóa đơn thành công!")
+        onOK()
+        onCancel()
+      } else {
+        message.error("Thêm hóa đơn thất bại!")
+      }
+    } catch (error) {
+      console.error("Error adding bill:", error)
+      message.error("Đã xảy ra lỗi!")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
-  // Tính tổng tiền hóa đơn
   const handleTotal = () => {
     const total = priceList.reduce((acc, item, index) => {
       if (item.base.unit === "đồng/người") {
@@ -106,7 +112,6 @@ const ModalCreateBill = ({ open, onCancel, roomId }) => {
     setTotalValue(finalTotal)
   }
 
-  // Tính thành tiền của từng loại phí
   const handleCalculateTotal = (index, unitPrice) => {
     const startUnit = parseFloat(formValues[`startUnit-${index}`]) || 0
     const endUnit = parseFloat(formValues[`endUnit-${index}`]) || 0
@@ -138,9 +143,7 @@ const ModalCreateBill = ({ open, onCancel, roomId }) => {
           value={formValues[`startUnit-${index}`] || ""}
           onChange={e => handleInputChange(index, "startUnit", e.target.value)}
           onBlur={() => handleCalculateTotal(index, record.price)}
-          disabled={
-            !(record.unit === "đồng/khối" || record.unit === "đồng/kWh")
-          }
+          disabled={record.unit !== "đồng/khối" && record.unit !== "đồng/kWh"}
         />
       ),
     },
@@ -201,22 +204,17 @@ const ModalCreateBill = ({ open, onCancel, roomId }) => {
       width="70vw"
       footer={
         <div className="d-flex justify-content-end">
-          <Button btntype="third" onClick={onCancel}>
-            Đóng
-          </Button>
-          <Button
-            type="primary"
-            onClick={handleTotal}
-            style={{ marginLeft: "8px" }}
-          >
+          <Button onClick={onCancel}>Đóng</Button>
+          <Button onClick={handleTotal} style={{ marginLeft: "8px" }}>
             Tính tổng
           </Button>
           <Button
             type="primary"
-            disabled={isSubmitting}
+            onClick={handleAddBill}
+            loading={isSubmitting}
             style={{ marginLeft: "8px" }}
           >
-            {isSubmitting ? "Đang lưu..." : "Lưu"}
+            Lưu
           </Button>
         </div>
       }
@@ -227,9 +225,7 @@ const ModalCreateBill = ({ open, onCancel, roomId }) => {
           <Input value={dateValue} disabled style={{ marginBottom: "16px" }} />
         </Col>
       </Row>
-      <Typography.Title level={5}>
-        Phòng {room?.name}, {room?.houseId?.name}
-      </Typography.Title>
+
       <Table
         columns={columns}
         dataSource={dataSource}
@@ -259,13 +255,10 @@ const ModalCreateBill = ({ open, onCancel, roomId }) => {
       <Typography.Text strong style={{ marginTop: "16px", display: "block" }}>
         Nhập ghi chú
       </Typography.Text>
-      <TextArea
-        rows={3}
-        value={formValues.note || ""}
-        onChange={e => handleInputChange(0, "note", e.target.value)}
-      />
+      <TextArea rows={3} value={note} onChange={e => setNote(e.target.value)} />
     </Modal>
   )
 }
 
 export default ModalCreateBill
+

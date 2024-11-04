@@ -13,7 +13,9 @@ import {
 import Button from "src/components/MyButton/Button"
 import styled from "styled-components"
 import { UploadOutlined, UserOutlined } from "@ant-design/icons"
+import axios from "axios"
 import ManagerService from "src/services/ManagerService"
+import moment from "moment"
 
 const { Option } = Select
 
@@ -52,12 +54,115 @@ const Styled = styled.div`
     height: unset;
   }
 `
+const UploadCCCDModal = ({ visible, onCancel, onUploadSuccess }) => {
+  const [imageFile, setImageFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(null)
 
-const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
+  const handleImageUpload = ({ file }) => {
+    setImageFile(file)
+
+    const reader = new FileReader()
+    reader.onload = e => {
+      setPreviewUrl(e.target.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleUpload = async () => {
+    if (!imageFile) {
+      message.error("Vui lòng chọn ảnh CCCD!")
+      return
+    }
+
+    setUploading(true)
+
+    const formData = new FormData()
+    formData.append("image", imageFile)
+
+    try {
+      const response = await axios.post(
+        "https://api.fpt.ai/vision/idr/vnm",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "api-key": "6JtUDiGQtcwDugLPhl6z0lvys83S1A9b",
+          },
+        },
+      )
+      if (response?.data?.errorCode === 0) {
+        const cccdData = response.data.data[0]
+        message.success("Upload và nhận diện thành công!")
+        onUploadSuccess(cccdData)
+        onCancel()
+      } else {
+        message.error(
+          response?.data?.errorMessage || "Có lỗi xảy ra khi nhận diện CCCD!",
+        )
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      message.error("Upload thất bại, vui lòng thử lại!")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      onCancel={onCancel}
+      title="Upload CCCD"
+      footer={null}
+    >
+      <Upload
+        accept="image/*"
+        multiple={false}
+        maxCount={1}
+        beforeUpload={file => {
+          handleImageUpload({ file })
+          return false
+        }}
+        listType="picture-card"
+        showUploadList={false}
+      >
+        <Button icon={<UploadOutlined />}>Chọn Ảnh CCCD</Button>
+      </Upload>
+
+      {previewUrl && (
+        <img
+          src={previewUrl}
+          alt="Selected CCCD"
+          style={{
+            width: "100%",
+            maxWidth: "300px",
+            height: "auto",
+            marginTop: "16px",
+            border: "2px solid #ddd",
+            borderRadius: "8px",
+          }}
+        />
+      )}
+
+      <Button
+        onClick={handleUpload}
+        loading={uploading}
+        type="primary"
+        style={{ marginTop: 16 }}
+      >
+        Upload
+      </Button>
+    </Modal>
+  )
+}
+
+const ModalInsertRenter = ({ onOk, visible, onCancel, roomId, room }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("")
   const [avatarFile, setAvatarFile] = useState(null)
+  const [cccdModalVisible, setCccdModalVisible] = useState(false)
 
   const onContinue = async () => {
     try {
@@ -74,7 +179,9 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
       if (avatarFile) {
         formData.append("avatar", avatarFile)
       }
-
+      formData.append("roomId", roomId)
+      formData.append("roomName", room?.name)
+      formData.append("houseName", room?.houseId?.name)
       const response = await ManagerService.insertMember(roomId, formData)
       if (response?.statusCode === 201) {
         message.success("Thêm khách thuê thành công!")
@@ -108,6 +215,15 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
     setImageUrl("")
     setAvatarFile(null)
     onCancel()
+  }
+
+  const handleCCCDUploadSuccess = cccdData => {
+    form.setFieldsValue({
+      fullName: cccdData.name,
+      cccd: cccdData.id,
+      gender: cccdData.sex === "NAM" ? "male" : "female",
+      dob: cccdData.dob ? moment(cccdData.dob, "DD/MM/YYYY") : null,
+    })
   }
 
   return (
@@ -224,7 +340,9 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
                 </Col>
                 <Col span={24}>
                   <Form.Item label="Ghi chú" name="note">
-                    <Input.TextArea placeholder="Nhập ghi chú" />
+                    <div>
+                      <Input.TextArea placeholder="Nhập ghi chú" />
+                    </div>
                   </Form.Item>
                 </Col>
               </Row>
@@ -232,6 +350,13 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
           </div>
           {/* Footer */}
           <div className="form-footer">
+            <Button
+              onClick={() => setCccdModalVisible(true)}
+              btntype="secondary"
+              style={{ marginRight: 16 }}
+            >
+              Thêm CCCD Qua Ảnh
+            </Button>
             <Button
               onClick={handleCancel}
               btntype="third"
@@ -245,8 +370,16 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId }) => {
           </div>
         </Form>
       </Styled>
+
+      {/* Modal for CCCD Upload */}
+      <UploadCCCDModal
+        visible={cccdModalVisible}
+        onCancel={() => setCccdModalVisible(false)}
+        onUploadSuccess={handleCCCDUploadSuccess}
+      />
     </Modal>
   )
 }
 
 export default ModalInsertRenter
+
