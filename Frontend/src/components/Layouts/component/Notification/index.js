@@ -5,9 +5,9 @@ import SvgIcon from "src/components/SvgIcon";
 import STORAGE, { getStorage } from "src/lib/storage";
 import useWindowSize from "src/lib/useWindowSize";
 import NotifyForm from "./components/NotifyForm";
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
-const socket = io('http://ngominhduc24.ddns.net'); // replace with env config
+// const socket = io('http://ngominhduc24.ddns.net'); // replace with env config
 
 const Notification = (props) => {
   const isMobile = useWindowSize.isMobile() || false;
