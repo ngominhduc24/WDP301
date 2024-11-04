@@ -31,7 +31,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
   const [selectedWard, setSelectedWard] = useState("")
 
   useEffect(() => {
-    console.log(houseData)
     if (open) {
       fetchAllUtilities()
       if (houseData) {

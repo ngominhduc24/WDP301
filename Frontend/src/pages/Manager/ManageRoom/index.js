@@ -200,7 +200,7 @@ const ManageRoom = () => {
         <AccordionSummary
           expandIcon={<ExpandMoreIcon style={{ color: "#FFF" }} />}
           sx={{
-            background: room?.members?.length === 0 ? "#183446" : "#1abc9c",
+            background: room?.members?.length === 0 ? "#183446" : "#bce3b3",
           }}
         >
           <Box
@@ -426,6 +426,7 @@ const ManageRoom = () => {
           </p>
         </Box>
         <Box sx={{ display: "flex", padding: "20px" }}>
+          z
           <Box sx={{ width: "50%", alignItems: "center" }}>
             <TableContainer component={Paper}>
               <Table>
@@ -475,14 +476,7 @@ const ManageRoom = () => {
               display: "flex",
               justifyContent: "center",
             }}
-          >
-            <div>
-              <p className="fs-18 fw-bold d-flex justify-content-center">
-                Tỷ Lệ Đầy Phòng Theo Tầng
-              </p>
-              {renderRoomRatioChart()}
-            </div>
-          </Box>
+          ></Box>
         </Box>
       </Box>
 

@@ -28,6 +28,7 @@ const ManageUser = () => {
 
   const [loading, setLoading] = useState(false)
   const [openInsertUpdate, setOpenInsertUpdate] = useState(false)
+  const [openImportUser, setOpenImportUser] = useState(false)
   const [detailInfo, setDetailInfo] = useState()
   const [selectedNode, setSelectedNote] = useState()
   const [openModalUserDetail, setOpenModalUserDetail] = useState(false)
@@ -54,7 +55,6 @@ const ManageUser = () => {
             icon: "warning-usb",
             okText: "Đồng ý",
             onOk: async close => {
-              console.log(record)
               try {
                 await UserService.changePassword({
                   accountId: record._id,
@@ -253,7 +253,7 @@ const ManageUser = () => {
             <Button
               btntype="primary"
               className="btn-hover-shadow"
-              onClick={() => setOpenInsertUpdate(true)}
+              onClick={() => setOpenImportUser(true)}
             >
               Thêm người dùng
             </Button>
@@ -278,6 +278,18 @@ const ManageUser = () => {
           })}
         />
       </SpinCustom>
+
+      {openImportUser && (
+        <ImportUser
+          open={openImportUser}
+          onOk={() => {
+            fetchAllUsers()
+            setOpenImportUser(false)
+          }}
+          onCancel={() => setOpenImportUser(false)}
+          department={{ DepartmentName: "Department" }}
+        />
+      )}
 
       {openInsertUpdate && (
         <ModalInsertUpdate

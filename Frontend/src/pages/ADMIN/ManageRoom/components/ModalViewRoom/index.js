@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react"
-import { Col, Row, Modal, Tabs, Card, Avatar, message } from "antd"
+import {
+  Col,
+  Row,
+  Modal,
+  Tabs,
+  Card,
+  Avatar,
+  message,
+  Table,
+  Typography,
+} from "antd"
 import Button from "src/components/MyButton/Button"
 import styled from "styled-components"
 import { EditOutlined, DeleteOutlined, UserOutlined } from "@ant-design/icons"
@@ -78,13 +88,13 @@ const TenantCard = styled(Card)`
   }
 `
 
-const ModalViewRoom = ({ open, onCancel, roomId }) => {
+const ModalViewRoom = ({ open, onCancel, roomId, onOk }) => {
   const [loading, setLoading] = useState(false)
   const [room, setRoom] = useState(null)
   const [isInsertRenterVisible, setIsInsertRenterVisible] = useState(false)
   const [isUpdateRenterVisible, setIsUpdateRenterVisible] = useState(false)
   const [selectedMember, setSelectedMember] = useState(null)
-
+  const [bills, setBills] = useState([])
   const calculateColumnSpan = numberOfMembers => {
     if (numberOfMembers === 1) return 24
     if (numberOfMembers === 2) return 12
@@ -94,6 +104,7 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
 
   useEffect(() => {
     getRoomsDetail(roomId)
+    getBillDetails(roomId)
   }, [roomId])
 
   const getRoomsDetail = async roomId => {
@@ -105,6 +116,20 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
       }
     } catch (error) {
       setRoom(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getBillDetails = async roomId => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.getBillDetail(roomId)
+      if (response?.data) {
+        setBills(response.data)
+      }
+    } catch (error) {
+      setBills([])
     } finally {
       setLoading(false)
     }
@@ -131,12 +156,9 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
       cancelText: "Hủy",
       onOk: async close => {
         try {
-          const payload = { memberId: member._id }
-
+          const payload = { memberId: member._id, cccd: member.cccd }
           await ManagerService.deleteMember(roomId, payload)
-
           message.success("Xóa khách thuê thành công!")
-
           getRoomsDetail(roomId)
         } catch (error) {
           message.error("Xóa khách thuê thất bại!")
@@ -146,11 +168,39 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
     })
   }
 
+  const billColumns = [
+    {
+      title: "Tên Chi Phí",
+      dataIndex: ["base", "name"],
+    },
+    {
+      title: "Đơn Giá",
+      dataIndex: "unitPrice",
+      render: price => `${price.toLocaleString()} ₫`,
+    },
+    {
+      title: "Số Lượng",
+      dataIndex: "totalUnit",
+      render: (_, record) =>
+        `${record.startUnit} - ${
+          record.endUnit
+        } (${record.totalUnit.toLocaleString()} ₫)`,
+    },
+    {
+      title: "Thành Tiền",
+      dataIndex: "totalUnit",
+      render: total => `${total.toLocaleString()} ₫`,
+    },
+  ]
+
   return (
     <>
       <Modal
         open={open}
-        onCancel={onCancel}
+        onCancel={() => {
+          onCancel()
+          onOk()
+        }}
         title="Chi Tiết Phòng"
         width="70vw"
         footer={
@@ -158,7 +208,10 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
             <Button
               btntype="third"
               className="ml-8 mt-12 mb-12"
-              onClick={onCancel}
+              onClick={() => {
+                onCancel()
+                onOk()
+              }}
             >
               Đóng
             </Button>
@@ -206,7 +259,7 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
                   <div className="detail-row">
                     <div className="label">Tình trạng:</div>
                     <div className="value">
-                      {room?.status === "Empty"
+                      {room?.members.length === 0
                         ? "Chưa có khách thuê"
                         : "Đang thuê"}
                     </div>
@@ -283,28 +336,111 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
 
           <TabPane tab="Thông Tin Hóa Đơn" key="3">
             <DetailsContainer>
-              <Row gutter={[24, 24]}>
-                <Col span={24}>
-                  <div className="detail-row">
-                    <div className="label">Phòng:</div>
-                    <div className="value">{room?.name || "N/A"}</div>
+              {bills.length > 0 ? (
+                bills.map((billDetail, index) => (
+                  <div key={billDetail._id} style={{ marginBottom: "20px" }}>
+                    <Row justify="space-between" align="middle">
+                      <Typography.Title level={5}>
+                        Hóa Đơn Tháng{" "}
+                        {new Date(billDetail.createdAt).getMonth() + 1}/
+                        {new Date(billDetail.createdAt).getFullYear()}
+                      </Typography.Title>
+                      <Typography.Text
+                        type={billDetail.isPaid ? "success" : "danger"}
+                      >
+                        {billDetail.isPaid
+                          ? "Đã thanh toán"
+                          : "Chưa thanh toán"}
+                        . Tổng tiền:{" "}
+                        {billDetail.total
+                          ? `${billDetail.total.toLocaleString()} ₫`
+                          : ""}
+                      </Typography.Text>
+                    </Row>
+
+                    <Table
+                      dataSource={billDetail.priceList}
+                      columns={billColumns}
+                      pagination={false}
+                      bordered
+                      rowKey="_id"
+                      summary={() => (
+                        <>
+                          <Table.Summary.Row>
+                            <Table.Summary.Cell colSpan={3}>
+                              <Typography.Text strong>
+                                Tiền phòng
+                              </Typography.Text>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell>
+                              {billDetail.roomPrice
+                                ? `${billDetail.roomPrice.toLocaleString()} ₫`
+                                : ""}
+                            </Table.Summary.Cell>
+                          </Table.Summary.Row>
+                          <Table.Summary.Row>
+                            <Table.Summary.Cell colSpan={3}>
+                              <Typography.Text strong>Tiền Nợ</Typography.Text>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell>
+                              {billDetail.debt
+                                ? `${billDetail.debt.toLocaleString()} ₫`
+                                : ""}
+                            </Table.Summary.Cell>
+                          </Table.Summary.Row>
+                          <Table.Summary.Row>
+                            <Table.Summary.Cell colSpan={3}>
+                              <Typography.Text strong>Tổng</Typography.Text>
+                            </Table.Summary.Cell>
+                            <Table.Summary.Cell>
+                              {billDetail.total
+                                ? `${billDetail.total.toLocaleString()} ₫`
+                                : ""}
+                            </Table.Summary.Cell>
+                          </Table.Summary.Row>
+                        </>
+                      )}
+                    />
+
+                    {/* Payment Link */}
+                    {!billDetail.isPaid && billDetail.paymentLink && (
+                      <Row justify="start" style={{ marginTop: 16 }}>
+                        <Typography.Text strong>
+                          Link Thanh Toán:
+                        </Typography.Text>
+                        <Button
+                          type="link"
+                          onClick={() =>
+                            window.open(
+                              billDetail.paymentLink.checkoutUrl,
+                              "_blank",
+                            )
+                          }
+                          style={{ marginLeft: 8 }}
+                        >
+                          NHẤN VÀO ĐÂY
+                        </Button>
+                      </Row>
+                    )}
                   </div>
-                  <div className="detail-row">
-                    <div className="label">Thông tin hóa đơn:</div>
-                    <div className="value">...</div>
-                  </div>
-                </Col>
-              </Row>
+                ))
+              ) : (
+                <Typography.Text>Không có hóa đơn nào</Typography.Text>
+              )}
             </DetailsContainer>
           </TabPane>
         </Tabs>
       </Modal>
 
+      {/* Insert and update renter modals */}
       <ModalInsertRenter
         visible={isInsertRenterVisible}
         onCancel={() => setIsInsertRenterVisible(false)}
         roomId={roomId}
-        onOk={() => getRoomsDetail(roomId)}
+        room={room}
+        onOk={() => {
+          getRoomsDetail(roomId)
+        }}
       />
 
       <ModalUpdateRenter
@@ -312,7 +448,10 @@ const ModalViewRoom = ({ open, onCancel, roomId }) => {
         onCancel={() => setIsUpdateRenterVisible(false)}
         member={selectedMember}
         roomId={roomId}
-        onOk={() => getRoomsDetail(roomId)}
+        room={room}
+        onOk={() => {
+          getRoomsDetail(roomId)
+        }}
       />
     </>
   )

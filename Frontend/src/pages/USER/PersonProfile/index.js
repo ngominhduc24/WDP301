@@ -23,7 +23,6 @@ const PersonProfile = () => {
   const [avatarUpdated, setAvatarUpdated] = useState(false)
   const userID = getStorage(STORAGE.USER_ID)
   const user = getStorage(STORAGE.USER_INFO)
-  console.log(user)
   const uploadImg = async file => {
     try {
       setLoading(true)
@@ -177,7 +176,6 @@ const PersonProfile = () => {
                                   onClick={e => {
                                     e.stopPropagation()
                                     // changeAvatar()
-                                    console.log("Lưu ảnh")
                                   }}
                                 >
                                   Lưu ảnh
