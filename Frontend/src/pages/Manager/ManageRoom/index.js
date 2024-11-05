@@ -426,7 +426,6 @@ const ManageRoom = () => {
           </p>
         </Box>
         <Box sx={{ display: "flex", padding: "20px" }}>
-          z
           <Box sx={{ width: "50%", alignItems: "center" }}>
             <TableContainer component={Paper}>
               <Table>
@@ -550,6 +549,7 @@ const ManageRoom = () => {
           open={openModalCreateBill}
           onCancel={() => setOpenModalCreateBill(false)}
           roomId={selectedRoom?._id}
+          onOk={() => getRoomsByHouse(selectedHouse, selectedFloor)}
         />
       )}
     </SpinCustom>

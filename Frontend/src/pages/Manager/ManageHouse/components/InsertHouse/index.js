@@ -6,6 +6,9 @@ import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
 import styled from "styled-components"
 import ManagerService from "src/services/ManagerService"
+import provinces from "src/data/provinces.json"
+import districts from "src/data/districts.json"
+import wards from "src/data/wards.json"
 
 const { Option } = Select
 
@@ -32,7 +35,8 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
 
   const [selectedProvince, setSelectedProvince] = useState("")
   const [selectedDistrict, setSelectedDistrict] = useState("")
-  const [wards, setWards] = useState([])
+  const [filteredDistricts, setFilteredDistricts] = useState([])
+  const [filteredWards, setFilteredWards] = useState([])
 
   useEffect(() => {
     fetchAllUtilities()
@@ -53,6 +57,22 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleProvinceChange = value => {
+    setSelectedProvince(value)
+    const filtered = districts.filter(
+      district => district.province_code === value,
+    )
+    setFilteredDistricts(filtered)
+    setSelectedDistrict("") // Reset district when province changes
+    setFilteredWards([]) // Reset wards when province changes
+  }
+
+  const handleDistrictChange = value => {
+    setSelectedDistrict(value)
+    const filtered = wards.filter(ward => ward.district_code === value)
+    setFilteredWards(filtered)
   }
 
   const handleAmenityChange = id => {
@@ -179,10 +199,13 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                 >
                   <Select
                     placeholder="Chọn Tỉnh/Thành Phố"
-                    onChange={setSelectedProvince}
+                    onChange={handleProvinceChange}
                   >
-                    <Option value="Hà Nội">Hà Nội</Option>
-                    <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+                    {provinces.map(province => (
+                      <Option key={province.code} value={province.code}>
+                        {province.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -200,10 +223,14 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                 >
                   <Select
                     placeholder="Chọn Quận/Huyện"
-                    onChange={setSelectedDistrict}
+                    disabled={!selectedProvince}
+                    onChange={handleDistrictChange}
                   >
-                    <Option value="Quận 1">Quận 1</Option>
-                    <Option value="Quận 2">Quận 2</Option>
+                    {filteredDistricts.map(district => (
+                      <Option key={district.code} value={district.code}>
+                        {district.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -219,9 +246,15 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn Phường/Xã">
-                    <Option value="Phường 1">Phường 1</Option>
-                    <Option value="Phường 2">Phường 2</Option>
+                  <Select
+                    placeholder="Chọn Phường/Xã"
+                    disabled={!selectedDistrict}
+                  >
+                    {filteredWards.map(ward => (
+                      <Option key={ward.code} value={ward.code}>
+                        {ward.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
