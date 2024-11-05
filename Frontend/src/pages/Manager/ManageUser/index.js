@@ -99,6 +99,12 @@ const ManageUser = () => {
       align: "center",
     },
     {
+      title: "Họ và tên",
+      dataIndex: "name",
+      key: "name",
+      align: "center",
+    },
+    {
       title: "Số điện thoại",
       dataIndex: "phone",
       key: "phone",

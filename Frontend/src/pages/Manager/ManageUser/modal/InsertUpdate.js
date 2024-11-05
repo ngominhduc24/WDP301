@@ -39,12 +39,14 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   const [avatarUpload, setAvatarUpload] = useState(detailInfo?.avatar || "")
 
   useEffect(() => {
+    console.log(detailInfo)
     if (detailInfo) {
       form.setFieldsValue({
-        username: detailInfo.username,
+        // username: detailInfo.username,
+        name: detailInfo.name,
         email: detailInfo.email === "N/A" ? "" : detailInfo.email || "",
         phone: detailInfo.phone === "N/A" ? "" : detailInfo.phone || "",
-        Status: detailInfo.status ? "Active" : "Inactive",
+        // Status: detailInfo.status ? "Active" : "Inactive",
         dob: detailInfo.dob ? dayjs(detailInfo.dob, "DD/MM/YYYY") : null,
         // image: detailInfo.avatar
         //   ? [
@@ -56,7 +58,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
         //       },
         //     ]
         //   : [],
-        Address: detailInfo.address || "",
+        address: detailInfo.address || "",
       })
     }
   }, [detailInfo, form])
@@ -66,21 +68,21 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       setLoading(true)
       const values = await form.validateFields()
 
-      let avatarUrl = avatarUpload || detailInfo?.avatar || ""
+      // let avatarUrl = avatarUpload || detailInfo?.avatar || ""
 
-      if (values.image && values.image[0]?.originFileObj) {
-        const formData = new FormData()
-        formData.append("image", values.image[0]?.originFileObj)
-        const uploadResponse = await UserService.uploadFile(formData)
-        avatarUrl = uploadResponse?.image
-        await UserService.changeAvatar(detailInfo._id, { avatar: avatarUrl })
-      }
+      // if (values.image && values.image[0]?.originFileObj) {
+      //   const formData = new FormData()
+      //   formData.append("image", values.image[0]?.originFileObj)
+      //   const uploadResponse = await UserService.uploadFile(formData)
+      //   avatarUrl = uploadResponse?.image
+      //   await UserService.changeAvatar(detailInfo._id, { avatar: avatarUrl })
+      // }
 
       const updatedValues = {
         ...values,
         dob: values.dob ? values.dob.format("DD/MM/YYYY") : detailInfo?.dob,
         // image: avatarUrl,
-        status: values.Status === "Active",
+        // status: values.Status === "Active",
       }
       if (!updatedValues.email) delete updatedValues.email
       if (!updatedValues.phone) delete updatedValues.phone
@@ -202,17 +204,21 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 
               {/* Other form fields with their initial values */}
               <Col md={24} xs={24}>
-                <Form.Item label="Họ và tên" name="username">
+                <Form.Item label="Tên tài khoản" name="username">
+                  <Input placeholder="Nhập tên" disabled />
+                </Form.Item>
+              </Col>
+              <Col md={24} xs={24}>
+                <Form.Item label="Họ và tên" name="name">
                   <Input placeholder="Nhập tên" />
                 </Form.Item>
               </Col>
-
               <Col md={12} xs={24}>
                 <Form.Item label="Email" name="email">
                   <Input placeholder="Nhập email" />
                 </Form.Item>
               </Col>
-
+              {/* 
               <Col md={12} xs={24}>
                 <Form.Item label="Trạng thái" name="Status">
                   <Select placeholder="Chọn trạng thái">
@@ -220,7 +226,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                     <Option value="Inactive">Inactive</Option>
                   </Select>
                 </Form.Item>
-              </Col>
+              </Col> */}
 
               {!detailInfo && (
                 <Col md={12} xs={24}>
@@ -246,7 +252,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
               </Col>
 
               <Col span={24}>
-                <Form.Item label="Địa chỉ" name="Address">
+                <Form.Item label="Địa chỉ" name="address">
                   <Input placeholder="Nhập địa chỉ" />
                 </Form.Item>
               </Col>
