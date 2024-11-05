@@ -5,9 +5,10 @@ import SvgIcon from "src/components/SvgIcon";
 import STORAGE, { getStorage } from "src/lib/storage";
 import useWindowSize from "src/lib/useWindowSize";
 import NotifyForm from "./components/NotifyForm";
-// import io from 'socket.io-client';
+import io from 'socket.io-client';
 
-// const socket = io('http://ngominhduc24.ddns.net'); // replace with env config
+// Initialize socket outside of the component to avoid re-initializing on every render
+const socket = io('http://ngominhduc24.ddns.net'); // replace with env config
 
 const Notification = (props) => {
   const isMobile = useWindowSize.isMobile() || false;
@@ -24,20 +25,20 @@ const Notification = (props) => {
   }, [listNotify]);
 
   // Handle socket connections and notifications
-  // useEffect(() => {
-  //   const shopId = userInfo?.shopId || 0; // Replace with appropriate shopId from user info or state
-  //   socket.emit('joinShop', shopId);
+  useEffect(() => {
+    // This listener should only be added once
+    socket.on('ducnm', (notification) => {
+      alert("+1");
+      // Add the new notification to the beginning of the list
+      setListNotify(prevList => [notification, ...prevList]);
+      setNumberOfNewNotifies(prevCount => (prevCount || 0) + 1);
+    });
 
-  //   socket.on('notification', (notification) => {
-  //     // Add the new notification to the beginning of the list
-  //     setListNotify(prevList => [notification, ...prevList]);
-  //     setNumberOfNewNotifies(prevCount => (prevCount || 0) + 1);
-  //   });
-
-  //   return () => {
-  //     socket.off('notification');
-  //   };
-  // }, [userInfo]);
+    // Clean up the listener on unmount
+    return () => {
+      socket.off('ducnm');
+    };
+  }, []); // Empty dependency array to ensure this runs only once
 
   const handleDropdownVisibleChange = (visible) => {
     setVisible(visible);
