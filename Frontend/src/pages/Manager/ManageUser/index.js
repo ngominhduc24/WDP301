@@ -161,7 +161,7 @@ const ManageUser = () => {
   const toggleStatus = async (userId, checked) => {
     const updatedStatus = checked
     try {
-      await ManagerService.updateUser(userId, { status: updatedStatus })
+      await ManagerService.updateUser({ id: userId, status: updatedStatus })
       const updatedDataSource = managers.map(user =>
         user._id === userId ? { ...user, status: updatedStatus } : user,
       )

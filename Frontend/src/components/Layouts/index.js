@@ -121,7 +121,7 @@ const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
               <Menu.Item
                 key="3"
                 onClick={() => {
-                  navigate(ROUTER.PROFILE)
+                  navigate(ROUTER.ADMIN_PROFILE)
                 }}
               >
                 <div className="btn-function strok-btn-function">
@@ -254,7 +254,13 @@ const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
                       >
                         <span
                           onClick={() => {
-                            navigate(ROUTER.HOME)
+                            if (isManager) {
+                              navigate(ROUTER.MANAGER_DASHBOARD)
+                            } else if (isAdmin) {
+                              navigate(ROUTER.ADMIN_DASHBOARD)
+                            } else if (isRenter) {
+                              navigate(ROUTER.RENTER_ROOM)
+                            }
                           }}
                           className={`fw-600 d-flex-center pointer h-100pe ${
                             !!isMobile ? "fs-14" : "fs-20"

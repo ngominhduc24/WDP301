@@ -41,7 +41,7 @@ export function parseBody(response) {
   if (response?.status === 200) {
     if (resData.StatusCode === 401) {
       deleteStorage(STORAGE.TOKEN)
-      return window.location.replace(ROUTER.HOME)
+      return window.location.replace(ROUTER.DEFAULT)
     }
     if (resData.success === false) {
       // notice({

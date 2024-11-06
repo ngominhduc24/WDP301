@@ -514,9 +514,16 @@ const ManageRoom = () => {
           visible={openInsertRoom}
           onCancel={() => setOpenInsertRoom(false)}
           houseId={selectedHouse}
-          onOk={() => {
+          onOk={async () => {
             setOpenInsertRoom(false)
-            getRoomsByHouse(selectedHouse, selectedFloor)
+            if (!selectedFloor) {
+              const firstFloor = 1
+              setSelectedFloor(firstFloor)
+              await getFloorByHouseId(selectedHouse)
+              if (!selectedFloor) return
+            }
+            await getHouseByHouseId(selectedHouse)
+            await getRoomsByHouse(selectedHouse, selectedFloor)
           }}
         />
       )}
@@ -549,7 +556,10 @@ const ManageRoom = () => {
           open={openModalCreateBill}
           onCancel={() => setOpenModalCreateBill(false)}
           roomId={selectedRoom?._id}
-          onOk={() => getRoomsByHouse(selectedHouse, selectedFloor)}
+          onOk={() => {
+            getHouseByHouseId(selectedHouse)
+            getRoomsByHouse(selectedHouse, selectedFloor)
+          }}
         />
       )}
     </SpinCustom>

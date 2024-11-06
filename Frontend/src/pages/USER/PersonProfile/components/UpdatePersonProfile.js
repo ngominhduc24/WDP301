@@ -17,7 +17,7 @@ const Styled = styled.div`
 `
 
 const ModalInsertUpdateProfile = ({ onOk, userProfile, ...props }) => {
-  const userID = getStorage(STORAGE.USER_ID)
+  const user = getStorage(STORAGE.USER_INFO)
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
@@ -42,6 +42,7 @@ const ModalInsertUpdateProfile = ({ onOk, userProfile, ...props }) => {
       const values = await form.validateFields()
 
       const payload = {
+        id: user._id,
         name: values.FullName,
         phone: values.PhoneNumber,
         // dob: values.Birthday ? values.Birthday.format("DD/MM/YYYY") : null,
@@ -50,7 +51,7 @@ const ModalInsertUpdateProfile = ({ onOk, userProfile, ...props }) => {
         payosCheckSum: values.payosCheckSum,
       }
 
-      const res = await UserService.updateProfile(userID, payload)
+      const res = await UserService.updateProfile(payload)
 
       if (!res?.isError) {
         Notice({ isSuccess: true, msg: "Cập nhật thành công!" })

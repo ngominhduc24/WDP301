@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Select, Upload } from "antd"
+import { Col, DatePicker, Form, Input, Row, Select, Upload } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
@@ -10,6 +10,9 @@ import SvgIcon from "src/components/SvgIcon"
 import UserService from "src/services/UserService"
 import STORAGE, { getStorage } from "src/lib/storage"
 import ManagerService from "src/services/ManagerService"
+import { differenceInYears } from "date-fns"
+import dayjs from "dayjs"
+
 const { Option } = Select
 
 const Styled = styled.div`
@@ -45,6 +48,7 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
         email: detailInfo.email === "N/A" ? "" : detailInfo.email || "",
         name: detailInfo.name || "",
         role: detailInfo.role || roleOptions[0],
+        dob: detailInfo.dob ? dayjs(detailInfo.dob, "DD/MM/YYYY") : null,
       })
     }
   }, [detailInfo, form, roleOptions])
@@ -69,22 +73,20 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
         email: values.email,
         name: values.name,
         role: values.role,
+        dob: values.dob ? values.dob.format("DD/MM/YYYY") : null,
       }
 
-      // Call createUser API and log the response to check for issues
       const response = await ManagerService.createUser(payload)
-      console.log("Create User API Response:", response) // Debug log
+      console.log("Create User API Response:", response)
 
-      // Check if the response indicates success
       if (response?.success) {
         Notice({
           isSuccess: true,
           msg: "Thêm nhân viên thành công!",
         })
-        onOk && onOk() // Call the success callback
-        props.onCancel() // Close the modal
+        onOk && onOk()
+        props.onCancel()
       } else {
-        // Handle specific API error response
         const errorMessage = response?.message || "Thêm nhân viên thất bại!"
         throw new Error(errorMessage)
       }
@@ -208,7 +210,12 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
                 <Form.Item
                   label="Email"
                   name="email"
-                  rules={[{ required: true, message: "Vui lòng nhập email" }]}
+                  rules={[
+                    {
+                      type: "email",
+                      message: "Email không hợp lệ!",
+                    },
+                  ]}
                 >
                   <Input placeholder="Nhập email" />
                 </Form.Item>
@@ -227,6 +234,36 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
                       </Option>
                     ))}
                   </Select>
+                </Form.Item>
+              </Col>
+
+              <Col md={12} xs={24}>
+                <Form.Item
+                  label="Ngày sinh"
+                  name="dob"
+                  rules={[
+                    {
+                      validator: (_, value) => {
+                        if (!value) return Promise.resolve()
+                        const age = differenceInYears(
+                          new Date(),
+                          new Date(value),
+                        )
+                        if (age < 18) {
+                          return Promise.reject(
+                            new Error("Bạn phải trên 18 tuổi"),
+                          )
+                        }
+                        return Promise.resolve()
+                      },
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    placeholder="Chọn ngày sinh"
+                    format="DD/MM/YYYY"
+                    allowClear
+                  />
                 </Form.Item>
               </Col>
             </Row>

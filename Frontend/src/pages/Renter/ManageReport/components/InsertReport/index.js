@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Select, Input, Typography, Form } from "antd"
 import Button from "src/components/MyButton/Button"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -37,6 +37,7 @@ const InsertReport = ({ open, onCancel, onOk, roomId }) => {
 
       Notice({ msg: "Thêm vấn đề thành công!" })
       onOk && onOk()
+      resetForm()
       onCancel()
     } catch (error) {
       console.error("Error adding problem:", error)
@@ -45,6 +46,18 @@ const InsertReport = ({ open, onCancel, onOk, roomId }) => {
     }
   }
 
+  const resetForm = () => {
+    form.resetFields()
+    setType(null)
+    setTitle("")
+    setContent("")
+  }
+
+  useEffect(() => {
+    if (open) {
+      resetForm()
+    }
+  }, [open])
   return (
     <CustomModal
       open={open}

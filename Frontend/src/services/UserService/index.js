@@ -15,8 +15,8 @@ const changePassword = body => {
   return http.post(apiChangePassword, body)
 }
 
-const updateProfile = (id, body) => {
-  http.put(apiUpdateProfile(id), body)
+const updateProfile = body => {
+  return http.put(apiUpdateProfile, body)
 }
 
 const uploadFile = () => {

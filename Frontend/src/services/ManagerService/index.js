@@ -230,11 +230,11 @@ const getDetailProblem = houseId => {
 const getUser = (houseId, page = 1, limit = 10) => {
   return http.get(apiGetUser(houseId, page, limit))
 }
-const updateUser = (id, body) => {
-  http.put(apiUpdateUser(id), body)
+const updateUser = body => {
+  return http.put(apiUpdateUser, body)
 }
 const createUser = body => {
-  http.post(apiCreateUser(body))
+  return http.post(apiCreateUser(body))
 }
 // Get information CCCD
 const getIn4CCCD = () => {

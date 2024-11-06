@@ -29,6 +29,7 @@ const AdminManageNews = React.lazy(() => import("src/pages/ADMIN/ManageNews"))
 const AdminManageReport = React.lazy(() =>
   import("src/pages/ADMIN/ManageReport"),
 )
+const AdminManagerBill = React.lazy(() => import("src/pages/ADMIN/ManageBill"))
 const AdminUser = React.lazy(() => import("src/pages/ADMIN/ManageUser"))
 // MANAGER
 const ManagerRoutes = React.lazy(() =>
@@ -130,6 +131,14 @@ const routes = [
         ),
       },
       {
+        path: ROUTER.ADMIN_BILLS,
+        element: (
+          <LazyLoadingComponent>
+            <AdminManagerBill />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
         path: ROUTER.ADMIN_USER,
         element: (
           <LazyLoadingComponent>
@@ -138,7 +147,7 @@ const routes = [
         ),
       },
       {
-        path: ROUTER.PROFILE,
+        path: ROUTER.ADMIN_PROFILE,
         element: (
           <LazyLoadingComponent>
             <PersonProfile />
@@ -271,6 +280,14 @@ const routes = [
         element: (
           <LazyLoadingComponent>
             <RenterReport />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.RENTER_PROFILE,
+        element: (
+          <LazyLoadingComponent>
+            <PersonProfile />
           </LazyLoadingComponent>
         ),
       },

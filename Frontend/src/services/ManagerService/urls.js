@@ -66,4 +66,5 @@ export const apiGetDetailProblem = problemId => `/problem/${problemId}`
 export const apiGetUser = (houseId, page = 1, limit = 10) =>
   `/account/house/${houseId}?page=${page}&limit=${limit}`
 export const apiCreateUser = `/account/create`
-export const apiUpdateUser = userId => `account/profile`
+export const apiUpdateUser = `account/profile`
+

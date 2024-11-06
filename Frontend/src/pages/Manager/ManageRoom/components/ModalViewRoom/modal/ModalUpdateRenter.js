@@ -15,7 +15,7 @@ import styled from "styled-components"
 import { UploadOutlined, UserOutlined } from "@ant-design/icons"
 import dayjs from "dayjs"
 import axios from "axios"
-
+import { differenceInYears } from "date-fns"
 import ManagerService from "src/services/ManagerService"
 
 const { Option } = Select
@@ -358,12 +358,27 @@ const ModalUpdateRenter = ({ onOk, visible, onCancel, roomId, member }) => {
                     name="dob"
                     rules={[
                       {
-                        required: true,
-                        message: "Ngày sinh không được để trống",
+                        validator: (_, value) => {
+                          if (!value) return Promise.resolve()
+                          const age = differenceInYears(
+                            new Date(),
+                            new Date(value),
+                          )
+                          if (age < 18) {
+                            return Promise.reject(
+                              new Error("Bạn phải trên 18 tuổi"),
+                            )
+                          }
+                          return Promise.resolve()
+                        },
                       },
                     ]}
                   >
-                    <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+                    <DatePicker
+                      placeholder="Chọn ngày sinh"
+                      format="DD/MM/YYYY"
+                      allowClear
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={24}>

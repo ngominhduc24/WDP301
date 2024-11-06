@@ -1,7 +1,7 @@
 const CA_NHAN = "ca_nhan"
 const ROUTER = {
   SVG_VIEWER: "/svg-viewer",
-  HOME: "/dashboard",
+  HOME: "/manager/dashboard",
   DEFAULT: "/",
   DANG_NHAP: "/dang-nhap",
   DOI_MAT_KHAU: "/doi-mat-khau",

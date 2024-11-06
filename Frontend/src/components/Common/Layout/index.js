@@ -3,7 +3,7 @@ import styled from "styled-components"
 const LayoutStyled = styled.div`
   display: flex;
   justify-content: center;
-  max-width: 1300px;
+  max-width: 1600px;
   /* width: auto; */
   margin: auto;
   height: 100%;
@@ -31,3 +31,4 @@ const LayoutCommon = props => {
 }
 
 export default LayoutCommon
+
