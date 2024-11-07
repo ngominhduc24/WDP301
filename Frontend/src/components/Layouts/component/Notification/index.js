@@ -27,9 +27,9 @@ const Notification = props => {
 
   // Handle socket connections and notifications
   useEffect(() => {
+    const accountType = role?.accountType
     // This listener should only be added once
-    socket.on("ducnm", notification => {
-      console.log("role", role?.accountType)
+    socket.on(accountType, notification => {
       // Add the new notification to the beginning of the list
       setListNotify(prevList => [notification, ...prevList])
       setNumberOfNewNotifies(prevCount => (prevCount || 0) + 1)
