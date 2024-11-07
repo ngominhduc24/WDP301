@@ -34,7 +34,10 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     useState(false)
 
   const [selectedProvince, setSelectedProvince] = useState("")
+  const [selectedProvinceName, setSelectedProvinceName] = useState("")
   const [selectedDistrict, setSelectedDistrict] = useState("")
+  const [selectedDistrictName, setSelectedDistrictName] = useState("")
+  const [selectedWardName, setSelectedWardName] = useState("")
   const [filteredDistricts, setFilteredDistricts] = useState([])
   const [filteredWards, setFilteredWards] = useState([])
 
@@ -59,20 +62,26 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     }
   }
 
-  const handleProvinceChange = value => {
+  const handleProvinceChange = (value, option) => {
     setSelectedProvince(value)
+    setSelectedProvinceName(option.children)
     const filtered = districts.filter(
       district => district.province_code === value,
     )
     setFilteredDistricts(filtered)
-    setSelectedDistrict("") // Reset district when province changes
-    setFilteredWards([]) // Reset wards when province changes
+    setSelectedDistrict("")
+    setSelectedWardName("")
   }
 
-  const handleDistrictChange = value => {
+  const handleDistrictChange = (value, option) => {
     setSelectedDistrict(value)
+    setSelectedDistrictName(option.children)
     const filtered = wards.filter(ward => ward.district_code === value)
     setFilteredWards(filtered)
+  }
+
+  const handleWardChange = (value, option) => {
+    setSelectedWardName(option.children)
   }
 
   const handleAmenityChange = id => {
@@ -125,9 +134,9 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
         name: values.houseName,
         status: true,
         location: {
-          province: selectedProvince || values.city,
-          district: selectedDistrict || values.district,
-          ward: values.ward,
+          province: selectedProvinceName || values.city,
+          district: selectedDistrictName || values.district,
+          ward: selectedWardName || values.ward,
           detailLocation: values.address,
         },
         electricPrice: Number(values.electricPrice),
@@ -249,6 +258,7 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                   <Select
                     placeholder="Chọn Phường/Xã"
                     disabled={!selectedDistrict}
+                    onChange={handleWardChange}
                   >
                     {filteredWards.map(ward => (
                       <Option key={ward.code} value={ward.code}>

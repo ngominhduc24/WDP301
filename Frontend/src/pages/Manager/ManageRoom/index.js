@@ -558,7 +558,7 @@ const ManageRoom = () => {
           roomId={selectedRoom?._id}
           onOk={() => {
             getHouseByHouseId(selectedHouse)
-            getRoomsByHouse(selectedHouse, selectedFloor)
+            // getRoomsByHouse(selectedHouse, selectedFloor)
           }}
         />
       )}

@@ -6,7 +6,9 @@ import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
 import styled from "styled-components"
 import ManagerService from "src/services/ManagerService"
-
+import provinces from "src/data/provinces.json"
+import districts from "src/data/districts.json"
+import wards from "src/data/wards.json"
 const { Option } = Select
 
 const StyledContainer = styled.div`
@@ -27,8 +29,13 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     useState(false)
 
   const [selectedProvince, setSelectedProvince] = useState("")
+  const [selectedProvinceName, setSelectedProvinceName] = useState("")
   const [selectedDistrict, setSelectedDistrict] = useState("")
+  const [selectedDistrictName, setSelectedDistrictName] = useState("")
   const [selectedWard, setSelectedWard] = useState("")
+  const [selectedWardName, setSelectedWardName] = useState("")
+  const [filteredDistricts, setFilteredDistricts] = useState([])
+  const [filteredWards, setFilteredWards] = useState([])
 
   useEffect(() => {
     if (open) {
@@ -59,26 +66,43 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     const { address, city, district, ward } = parseLocation(
       houseData.address || "",
     )
-    const parsedElectricPrice = parseFloat(houseData?.electricPrice)
-    const parsedWaterPrice = parseFloat(houseData?.waterPrice)
-
     form.setFieldsValue({
       houseName: houseData?.houseName,
       city: city || "",
       district: district || "",
       ward: ward || "",
       address: address || "",
-      electricPrice: parsedElectricPrice || 0,
-      waterPrice: parsedWaterPrice || 0,
+      electricPrice: parseFloat(houseData?.electricPrice) || 0,
+      waterPrice: parseFloat(houseData?.waterPrice) || 0,
     })
 
-    setSelectedProvince(city || "")
-    setSelectedDistrict(district || "")
+    const selectedProvinceData = provinces.find(p => p.name === city)
+    const selectedDistrictData = districts.find(
+      d =>
+        d.name === district && d.province_code === selectedProvinceData?.code,
+    )
+    setSelectedProvince(selectedProvinceData?.code || "")
+    setSelectedProvinceName(selectedProvinceData?.name || "")
+    setSelectedDistrict(selectedDistrictData?.code || "")
+    setSelectedDistrictName(selectedDistrictData?.name || "")
     setSelectedWard(ward || "")
+    setSelectedWardName(ward || "")
+
+    if (selectedProvinceData) {
+      setFilteredDistricts(
+        districts.filter(d => d.province_code === selectedProvinceData.code),
+      )
+    }
+    if (selectedDistrictData) {
+      setFilteredWards(
+        wards.filter(w => w.district_code === selectedDistrictData.code),
+      )
+    }
+
     setSelectedUtilities(houseData.utilities || [])
     setSelectedOtherUtilities(houseData.otherUtilities || [])
-    setElectricPrice(parsedElectricPrice || 0)
-    setWaterPrice(parsedWaterPrice || 0)
+    setElectricPrice(houseData?.electricPrice || 0)
+    setWaterPrice(houseData?.waterPrice || 0)
   }
 
   const parseLocation = address => {
@@ -89,6 +113,30 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
       district: parts[2] || "",
       city: parts[3] || "",
     }
+  }
+
+  const handleProvinceChange = (value, option) => {
+    setSelectedProvince(value)
+    setSelectedProvinceName(option.children)
+    const filtered = districts.filter(
+      district => district.province_code === value,
+    )
+    setFilteredDistricts(filtered)
+    setSelectedDistrict("")
+    setSelectedDistrictName("")
+    setFilteredWards([])
+  }
+
+  const handleDistrictChange = (value, option) => {
+    setSelectedDistrict(value)
+    setSelectedDistrictName(option.children)
+    const filtered = wards.filter(ward => ward.district_code === value)
+    setFilteredWards(filtered)
+  }
+
+  const handleWardChange = (value, option) => {
+    setSelectedWard(value)
+    setSelectedWardName(option.children)
   }
 
   const handleElectricPriceChange = e => {
@@ -111,9 +159,9 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
         name: values.houseName,
         status: true,
         location: {
-          province: selectedProvince || values.city,
-          district: selectedDistrict || values.district,
-          ward: selectedWard || values.ward,
+          province: selectedProvinceName || values.city,
+          district: selectedDistrictName || values.district,
+          ward: selectedWardName || values.ward,
           detailLocation: values.address,
         },
         electricPrice: parseFloat(electricPrice) || 0,
@@ -224,11 +272,14 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                 >
                   <Select
                     placeholder="Chọn Tỉnh/Thành Phố"
-                    onChange={setSelectedProvince}
+                    onChange={handleProvinceChange}
                     value={selectedProvince}
                   >
-                    <Option value="Hà Nội">Hà Nội</Option>
-                    <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+                    {provinces.map(province => (
+                      <Option key={province.code} value={province.code}>
+                        {province.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -245,11 +296,15 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                 >
                   <Select
                     placeholder="Chọn Quận/Huyện"
-                    onChange={setSelectedDistrict}
+                    onChange={handleDistrictChange}
                     value={selectedDistrict}
+                    disabled={!selectedProvince}
                   >
-                    <Option value="Quận 1">Quận 1</Option>
-                    <Option value="Quận 2">Quận 2</Option>
+                    {filteredDistricts.map(district => (
+                      <Option key={district.code} value={district.code}>
+                        {district.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -266,11 +321,15 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                 >
                   <Select
                     placeholder="Chọn Phường/Xã"
-                    onChange={setSelectedWard}
+                    onChange={handleWardChange}
                     value={selectedWard}
+                    disabled={!selectedDistrict}
                   >
-                    <Option value="Phường 1">Phường 1</Option>
-                    <Option value="Phường 2">Phường 2</Option>
+                    {filteredWards.map(ward => (
+                      <Option key={ward.code} value={ward.code}>
+                        {ward.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>

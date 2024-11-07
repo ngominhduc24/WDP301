@@ -1,4 +1,4 @@
-import { Col, Row, Space, Modal } from "antd"
+import { Col, Row, Space, Modal, Switch } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import Button from "src/components/MyButton/Button"
@@ -124,10 +124,32 @@ const ManageHouse = () => {
           : "Không có",
         utilities: houseUtilities.map(u => u._id || u),
         otherUtilities: otherUtilities.map(u => u._id || u),
-        status: house.status ? "active" : "inactive",
+        status: house.status,
         image: house.image || "https://via.placeholder.com/150",
       }
     })
+  }
+
+  const toggleStatus = async (houseId, isActive) => {
+    try {
+      await ManagerService.updateHouse(houseId, {
+        status: isActive,
+      })
+      const updatedDataSource = houses.map(house =>
+        house._id === houseId ? { ...house, status: isActive } : house,
+      )
+      setHouses(updatedDataSource)
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thành công",
+      })
+    } catch (error) {
+      console.error("Error updating house status:", error)
+      Notice({
+        isSuccess: false,
+        msg: "Cập nhật trạng thái thất bại",
+      })
+    }
   }
 
   const listBtn = record => [
@@ -241,11 +263,26 @@ const ManageHouse = () => {
         <span
           className={[
             "no-color",
-            record.status === "active" ? "blue-text" : "red-text",
+            record.status ? "blue-text" : "red-text",
           ].join(" ")}
         >
-          {record.status === "active" ? "Đang hoạt động" : "Dừng Hoạt Động"}
+          {record.status ? "Đang hoạt động" : "Dừng Hoạt Động"}
         </span>
+      ),
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (_, record) => (
+        <Switch
+          checked={record.status}
+          onChange={(checked, e) => {
+            e.stopPropagation()
+            toggleStatus(record._id, checked)
+          }}
+        />
       ),
     },
     {
