@@ -235,19 +235,20 @@ const PersonProfile = () => {
                     {user?.status ? "Đang hoạt động" : "Dừng hoạt động"}
                   </div>
                 </div>
-
-                <div className="infor-box">
-                  <div className="title-infor">payosClientId:</div>
-                  <div>{user?.payosClientId || "Chưa cập nhật"}</div>
-                </div>
-                <div className="infor-box">
-                  <div className="title-infor">payosAPIKey:</div>
-                  <div>{user?.payosAPIKey || "Chưa cập nhật"}</div>
-                </div>
-                <div className="infor-box">
-                  <div className="title-infor">payosCheckSum:</div>
-                  <div>{user?.payosCheckSum || "Chưa cập nhật"}</div>
-                </div>
+                {(user?.accountType === "admin" || user?.accountType === "host") && (
+                  <>
+                    <div className="infor-box">
+                      <div className="title-infor">payosClientId:</div>
+                      <div>{user?.payosClientId || "Chưa cập nhật"}</div>
+                    </div><div className="infor-box">
+                      <div className="title-infor">payosAPIKey:</div>
+                      <div>{user?.payosAPIKey || "Chưa cập nhật"}</div>
+                    </div><div className="infor-box">
+                      <div className="title-infor">payosCheckSum:</div>
+                      <div>{user?.payosCheckSum || "Chưa cập nhật"}</div>
+                    </div>
+                  </>
+                )}
               </div>
             </Col>
           </Row>

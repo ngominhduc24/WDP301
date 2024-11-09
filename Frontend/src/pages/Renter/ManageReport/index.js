@@ -182,6 +182,8 @@ const ManageReport = () => {
         return "Đang xử lý vấn đề"
       case "done":
         return "Đã giải quyết"
+      case "cancel":
+        return "Từ chối giải quyết"
       default:
         return status
     }

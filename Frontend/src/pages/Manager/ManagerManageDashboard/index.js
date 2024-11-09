@@ -55,9 +55,9 @@ const ManagerDashBoard = () => {
   const formatBillData = data => {
     if (!data) return []
     return [
-      { status: "Paid", count: data.billIsPaid, total: data.totalBillIsPaid },
+      { status: "Đã thanh toán", count: data.billIsPaid, total: data.totalBillIsPaid },
       {
-        status: "Unpaid",
+        status: "Chưa thanh toán",
         count: data.billIsNotPaid,
         total: data.totalBillIsNotPaid,
       },
@@ -67,9 +67,9 @@ const ManagerDashBoard = () => {
   const formatIssueData = data => {
     if (!data) return []
     return [
-      { type: "New", count: data.numberProblemNone },
-      { type: "In Progress", count: data.numberProblemDoing },
-      { type: "Resolved", count: data.numberProblemDone },
+      { type: "Mới", count: data.numberProblemNone },
+      { type: "Đang xử lý", count: data.numberProblemDoing },
+      { type: "Đã xử lý", count: data.numberProblemDone },
     ]
   }
 
@@ -101,7 +101,7 @@ const ManagerDashBoard = () => {
   }
 
   const lineChartOption = {
-    title: { text: "Biểu Đồ Doanh Thu Theo Tháng" },
+    title: { text: "" },
     tooltip: { trigger: "axis" },
     legend: { data: ["Doanh Thu"] },
     xAxis: {

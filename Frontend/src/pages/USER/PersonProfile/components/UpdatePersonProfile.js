@@ -149,47 +149,51 @@ const ModalInsertUpdateProfile = ({ onOk, userProfile, ...props }) => {
                   </Form.Item>
                 </Col> */}
 
-                <Col md={8}>
-                  <Form.Item
-                    label="payosClientId"
-                    name="payosClientId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập payosClientId!",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Nhập payosClientId" />
-                  </Form.Item>
-                </Col>
+                {(user?.accountType === "admin" || user?.accountType === "host") && (
+                  <>
+                    <Col md={8}>
+                      <Form.Item
+                        label="payosClientId"
+                        name="payosClientId"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập payosClientId!",
+                          },
+                        ]}
+                      >
+                        <Input placeholder="Nhập payosClientId" />
+                      </Form.Item>
+                    </Col>
 
-                <Col md={8}>
-                  <Form.Item
-                    label="payosAPIKey"
-                    name="payosAPIKey"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập payosAPIKey!" },
-                    ]}
-                  >
-                    <Input placeholder="Nhập payosAPIKey" />
-                  </Form.Item>
-                </Col>
+                    <Col md={8}>
+                      <Form.Item
+                        label="payosAPIKey"
+                        name="payosAPIKey"
+                        rules={[
+                          { required: true, message: "Vui lòng nhập payosAPIKey!" },
+                        ]}
+                      >
+                        <Input placeholder="Nhập payosAPIKey" />
+                      </Form.Item>
+                    </Col>
 
-                <Col md={8}>
-                  <Form.Item
-                    label="payosCheckSum"
-                    name="payosCheckSum"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập payosCheckSum!",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Nhập payosCheckSum" />
-                  </Form.Item>
-                </Col>
+                    <Col md={8}>
+                      <Form.Item
+                        label="payosCheckSum"
+                        name="payosCheckSum"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập payosCheckSum!",
+                          },
+                        ]}
+                      >
+                        <Input placeholder="Nhập payosCheckSum" />
+                      </Form.Item>
+                    </Col>
+                  </>
+                )}
               </Row>
             </Form>
           </div>

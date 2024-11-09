@@ -205,7 +205,7 @@ const ModalInsertHouse = ({ onOk, detailInfo, onCancel, ...props }) => {
     try {
       const response = await ManagerService.getAllUser()
       const hostAccounts =
-        response?.data?.filter(user => user.accountType === "host") || []
+        response?.data?.filter(user => user.accountType === "host" && user.status === true) || []
       setHosts(hostAccounts)
     } catch (error) {
       console.error("Error fetching host accounts:", error)

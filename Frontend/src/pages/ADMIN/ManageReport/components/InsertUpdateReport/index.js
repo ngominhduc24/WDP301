@@ -63,6 +63,7 @@ const InsertUpdateReport = ({
           <Option value="pending">Đang chờ giải quyết</Option>
           <Option value="doing">Đang xử lý vấn đề</Option>
           <Option value="done">Đã giải quyết</Option>
+          <Option value="cancel">Từ chối giải quyết</Option>
         </Select>
       </SpinCustom>
     </CustomModal>

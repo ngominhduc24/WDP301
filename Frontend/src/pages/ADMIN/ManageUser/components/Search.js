@@ -56,7 +56,7 @@ const Search = ({ setPagination, pagination, houses, onHouseChange }) => {
             allowClear
             style={{ width: "100%" }}
           >
-            <Option value="">Tất cả</Option>
+            <Option value="">Tất cả tài khoản</Option>
             <Option value="admin">Quản trị viên</Option>
             <Option value="host">Quản lý</Option>
             <Option value="renter">Người dùng</Option>
@@ -72,7 +72,7 @@ const Search = ({ setPagination, pagination, houses, onHouseChange }) => {
             allowClear
             style={{ width: "100%" }}
           >
-            <Option value={null}>Tất cả</Option>
+            <Option value={null}>Tất cả trạng thái</Option>
             <Option value={true}>Đang hoạt động</Option>
             <Option value={false}>Không hoạt động</Option>
           </Select>
