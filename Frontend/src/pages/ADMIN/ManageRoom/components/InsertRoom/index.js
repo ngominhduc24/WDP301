@@ -237,7 +237,8 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
                     >
                       <Select placeholder="Chọn Trạng Thái">
                         <Option value="Empty">Còn trống</Option>
-                        <Option value="Rented">Đã thuê</Option>
+                        <Option value="Full">Đã đầy</Option>
+                        <Option value="Available">Có sẵn</Option>
                       </Select>
                     </Form.Item>
                   </Col>
@@ -255,7 +256,7 @@ const ModalInsertRoom = ({ visible, onCancel, onOk, houseId }) => {
                     >
                       <Select placeholder="Chọn Loại Phòng">
                         <Option value="normal">Bình Thường</Option>
-                        <Option value="deluxe">Cao cấp</Option>
+                        <Option value="premium">Cao cấp</Option>
                       </Select>
                     </Form.Item>
                   </Col>

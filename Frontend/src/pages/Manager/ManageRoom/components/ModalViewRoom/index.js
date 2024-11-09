@@ -243,7 +243,7 @@ const ModalViewRoom = ({ open, onCancel, roomId, onOk }) => {
                     <div className="value">{room?.area || "N/A"} m2</div>
                   </div>
                   <div className="detail-row">
-                    <div className="label">Số người phù hợp:</div>
+                    <div className="label">Số người tối đa:</div>
                     <div className="value">{room?.quantityMember || "N/A"}</div>
                   </div>
                   <div className="detail-row">

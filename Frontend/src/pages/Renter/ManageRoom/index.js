@@ -166,7 +166,7 @@ const ManageRoom = () => {
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="h6">Số Người Phù Hợp:</Typography>
+                <Typography variant="h6">Số Người Tối Đa:</Typography>
                 <Typography>{room?.quantityMember || "N/A"}</Typography>
               </Box>
               <Box>

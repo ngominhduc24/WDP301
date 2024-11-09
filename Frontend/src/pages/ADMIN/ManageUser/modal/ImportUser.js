@@ -139,7 +139,7 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
         <Styled>
           <Form form={form} layout="vertical">
             <Row gutter={[16]}>
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Form.Item
                   label="Hình đại diện"
                   name="image"
@@ -179,7 +179,7 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
                     </Upload>
                   )}
                 </Form.Item>
-              </Col>
+              </Col> */}
 
               <Col md={24} xs={24}>
                 <Form.Item

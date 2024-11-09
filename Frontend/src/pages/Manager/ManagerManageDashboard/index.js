@@ -6,14 +6,14 @@ import ManagerService from "src/services/ManagerService"
 const { Option } = Select
 
 const columnsPayment = [
-  { title: "Status", dataIndex: "status", key: "status" },
-  { title: "Number of Invoices", dataIndex: "count", key: "count" },
-  { title: "Total Amount", dataIndex: "total", key: "total" },
+  { title: "Trạng thái", dataIndex: "status", key: "status" },
+  { title: "Số lượng hóa đơn", dataIndex: "count", key: "count" },
+  { title: "Tổng số tiền", dataIndex: "total", key: "total" },
 ]
 
 const columnsIssue = [
-  { title: "Issue Type", dataIndex: "type", key: "type" },
-  { title: "Number of Issues", dataIndex: "count", key: "count" },
+  { title: "Loại vấn đề", dataIndex: "type", key: "type" },
+  { title: "Số lượng vấn đề", dataIndex: "count", key: "count" },
 ]
 
 const ManagerDashBoard = () => {
@@ -22,8 +22,8 @@ const ManagerDashBoard = () => {
   const [billData, setBillData] = useState([])
   const [issueData, setIssueData] = useState([])
   const [loading, setLoading] = useState(false)
-  const [month, setMonth] = useState(10) // Default to October
-  const [year, setYear] = useState(2024) // Default to 2024
+  const [month, setMonth] = useState(10)
+  const [year, setYear] = useState(2024)
 
   useEffect(() => {
     fetchData()

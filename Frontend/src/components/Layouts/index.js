@@ -287,7 +287,7 @@ const MainLayout = ({ children, isAdmin, isManager, isRenter }) => {
                             </button>
                           )}
                           <div className="logo-text text-uppercase pointer">
-                            HỆ THỐNG QUẢN LÝ PHÒNG TRỌ
+                            HỆ THỐNG QUẢN LÝ CHUỖI PHÒNG TRỌ
                           </div>
                         </span>
                       </span>
