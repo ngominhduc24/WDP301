@@ -8,6 +8,8 @@ RUN npm install --force
 
 COPY . .
 
+EXPOSE 3333
+
 EXPOSE 3000
 
 # Define the command to run the app
