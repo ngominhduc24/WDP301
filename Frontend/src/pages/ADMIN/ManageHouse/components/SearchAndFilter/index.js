@@ -7,14 +7,24 @@ import FlSelect from "src/components/FloatingLabel/Select"
 
 const { Option } = Select
 
-const SearchAndFilter = ({ pagination, setPagination, onSearch }) => {
+const SearchAndFilter = ({
+  pagination,
+  setPagination,
+  onSearch,
+  allHouses,
+  filterHouses,
+}) => {
   const [isFilterAdvance, setIsFilterAdvance] = useState(false)
 
   const handleStatusChange = value => {
-    setPagination({
-      ...pagination,
-      Status: value === "all" ? 0 : parseInt(value, 10),
-    })
+    const newStatus = value === "all" ? 0 : parseInt(value, 10)
+    setPagination(prev => ({
+      ...prev,
+      Status: newStatus,
+      CurrentPage: 1,
+    }))
+
+    filterHouses(pagination.TextSearch)
   }
 
   const handleSearch = value => {

@@ -191,9 +191,9 @@ const ManageRoom = () => {
               justifyContent="flex-end"
               marginBottom="16px"
             >
-              <Button btntype="primary" onClick={handleAddRenter}>
+              {/* <Button btntype="primary" onClick={handleAddRenter}>
                 Thêm Khách Thuê
-              </Button>
+              </Button> */}
             </Box>
             <Box
               display="flex"
@@ -250,7 +250,7 @@ const ManageRoom = () => {
                     >
                       Cập Nhật
                     </MuiButton>
-                    <MuiButton
+                    {/* <MuiButton
                       variant="outlined"
                       color="error"
                       startIcon={<DeleteOutlined />}
@@ -258,7 +258,7 @@ const ManageRoom = () => {
                       sx={{ width: "48%" }}
                     >
                       Xóa
-                    </MuiButton>
+                    </MuiButton> */}
                   </Box>
                 </Box>
               ))}

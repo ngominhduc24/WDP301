@@ -24,6 +24,8 @@ const ManageUser = () => {
     PageSize: 20,
     CurrentPage: 1,
     TextSearch: "",
+    Status: null,
+    House: null,
   })
 
   const [loading, setLoading] = useState(false)
@@ -146,16 +148,16 @@ const ManageUser = () => {
     getAllHouses()
   }, [])
 
-  useEffect(() => {
-    if (selectedHouse) {
-      fetchAllUsers()
-    }
-  }, [pagination, selectedHouse])
+  // useEffect(() => {
+  //   if (selectedHouse) {
+  //     fetchAllUsers()
+  //   }
+  // }, [pagination, selectedHouse])
 
   const toggleStatus = async (userId, checked) => {
     const updatedStatus = checked
     try {
-      await ManagerService.updateUser(userId, { status: updatedStatus })
+      await ManagerService.updateUser({ id: userId, status: updatedStatus })
       const updatedDataSource = managers.map(user =>
         user._id === userId ? { ...user, status: updatedStatus } : user,
       )
@@ -173,26 +175,43 @@ const ManageUser = () => {
     }
   }
 
-  const fetchAllUsers = async () => {
+  const fetchAllUsers = async houseId => {
     setLoading(true)
     try {
-      const response = await ManagerService.getUser(
-        selectedHouse,
-        pagination.CurrentPage,
-        pagination.PageSize,
-      )
+      const body = {
+        houseId: houseId, // Gửi duy nhất houseId vào body
+      }
+
+      const response = await ManagerService.getAllUser(body)
       if (response?.data) {
-        setManagers(
-          response.data.map(user => ({
-            ...user,
-            status: user.status,
-            accountType: user.accountType || "",
-            username: user.username || "",
-            phone: user.phone || "",
-            email: user.email || "",
-          })),
-        )
-        setTotal(response.pagination.totalAccounts)
+        let filteredUsers = response.data
+
+        // Chỉ lọc dữ liệu nếu có các tham số như AccountType, Status, TextSearch
+        if (pagination.AccountType) {
+          filteredUsers = filteredUsers.filter(
+            user => user.accountType === pagination.AccountType,
+          )
+        }
+
+        if (pagination.Status !== null) {
+          filteredUsers = filteredUsers.filter(
+            user => user.status === pagination.Status,
+          )
+        }
+
+        if (pagination.TextSearch) {
+          filteredUsers = filteredUsers.filter(user => {
+            const text = pagination.TextSearch.toLowerCase()
+            return (
+              user.username.toLowerCase().includes(text) ||
+              user.email?.toLowerCase().includes(text) ||
+              user.phone?.includes(text)
+            )
+          })
+        }
+
+        setManagers(filteredUsers)
+        setTotal(filteredUsers.length)
       } else {
         setManagers([])
         setTotal(0)
@@ -204,14 +223,20 @@ const ManageUser = () => {
     }
   }
 
+  useEffect(() => {
+    fetchAllUsers()
+  }, [pagination])
+
   const getAllHouses = async () => {
     try {
       setLoading(true)
       const response = await ManagerService.getAllHouses()
       const housesData = response?.data?.houses || []
-      if (housesData.length > 0) {
-        setHouses(housesData)
-        setSelectedHouse(housesData[0]?._id)
+      const activeHouses = housesData.filter(house => house.status === true)
+
+      if (activeHouses.length > 0) {
+        setHouses(activeHouses)
+        setSelectedHouse(activeHouses[0]?._id)
       } else {
         setHouses([])
       }
@@ -221,6 +246,13 @@ const ManageUser = () => {
       setLoading(false)
     }
   }
+  const onHouseChange = houseId => {
+    setPagination(prev => ({
+      ...prev,
+      House: houseId, // Chỉ thay đổi giá trị House trong pagination
+    }))
+    fetchAllUsers(houseId) // Gọi lại fetchAllUsers với houseId duy nhất
+  }
 
   const onRowClick = record => {
     setDetailInfo(record)
@@ -229,12 +261,17 @@ const ManageUser = () => {
 
   return (
     <ListUserStyled>
-      <Search setPagination={setPagination} pagination={pagination} />
+      <Search
+        setPagination={setPagination}
+        pagination={pagination}
+        houses={houses}
+        onHouseChange={onHouseChange} // Pass onHouseChange function to Search component
+      />
       <Divider className="mv-16" />
       <div className="title-type-1 d-flex justify-content-space-between align-items-center pb-16 pt-0 mb-16">
         <div className="fs-24">Danh sách quản lý</div>
         <Row gutter={[16, 16]}>
-          <Col>
+          {/* <Col>
             <div className="d-flex">
               <Select
                 value={selectedHouse}
@@ -248,7 +285,7 @@ const ManageUser = () => {
                 ))}
               </Select>
             </div>
-          </Col>
+          </Col> */}
           <Col>
             <Button
               btntype="primary"

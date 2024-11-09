@@ -174,7 +174,24 @@ const ManageBill = () => {
       render: paymentMethod => paymentMethod || "Chưa thanh toán",
     },
     {
+      title: "Ngày tạo hóa đơn",
+      dataIndex: ["bill", "createdAt"],
+      key: "billCreatedAt",
+      width: 200,
+      render: createdAt =>
+        createdAt ? dayjs(createdAt).format("DD-MM-YYYY HH:mm") : "",
+    },
+    {
+      title: "Ngày cập nhật hóa đơn",
+      dataIndex: ["bill", "updatedAt"],
+      width: 200,
+      key: "billUpdatedAt",
+      render: updatedAt =>
+        updatedAt ? dayjs(updatedAt).format("DD-MM-YYYY HH:mm") : "",
+    },
+    {
       title: "Thao tác",
+      width: 200,
       key: "actions",
       render: (text, record) => (
         <Space>

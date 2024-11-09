@@ -1,4 +1,4 @@
-import { Col, DatePicker, Form, Input, Row, Select, Upload } from "antd"
+import { Col, DatePicker, Form, Input, Row, Upload, Select } from "antd"
 import moment from "moment"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
@@ -20,6 +20,8 @@ import { ButtonUploadStyle } from "../styled"
 import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
 import UserService from "src/services/UserService"
+import { differenceInYears } from "date-fns"
+
 const { Option } = Select
 const Styled = styled.div`
   .ant-upload.ant-upload-select-picture-card {
@@ -33,6 +35,7 @@ const Styled = styled.div`
     display: flex;
   }
 `
+
 const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -42,21 +45,11 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     if (detailInfo) {
       form.setFieldsValue({
         username: detailInfo.username,
+        name: detailInfo.name,
         email: detailInfo.email === "N/A" ? "" : detailInfo.email || "",
         phone: detailInfo.phone === "N/A" ? "" : detailInfo.phone || "",
-        Status: detailInfo.status ? "Active" : "Inactive",
         dob: detailInfo.dob ? dayjs(detailInfo.dob, "DD/MM/YYYY") : null,
-        // image: detailInfo.avatar
-        //   ? [
-        //       {
-        //         uid: "-1",
-        //         name: "Avatar",
-        //         status: "done",
-        //         url: detailInfo.avatar,
-        //       },
-        //     ]
-        //   : [],
-        Address: detailInfo.address || "",
+        address: detailInfo.address || "",
       })
     }
   }, [detailInfo, form])
@@ -65,37 +58,17 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     try {
       setLoading(true)
       const values = await form.validateFields()
-
-      let avatarUrl = avatarUpload || detailInfo?.avatar || ""
-
-      if (values.image && values.image[0]?.originFileObj) {
-        const formData = new FormData()
-        formData.append("image", values.image[0]?.originFileObj)
-        const uploadResponse = await UserService.uploadFile(formData)
-        avatarUrl = uploadResponse?.image
-        await UserService.changeAvatar(detailInfo._id, { avatar: avatarUrl })
-      }
-
-      const updatedValues = {
-        ...values,
-        dob: values.dob ? values.dob.format("DD/MM/YYYY") : detailInfo?.dob,
-        // image: avatarUrl,
-        status: values.Status === "Active",
-      }
+      const { username, dob, ...updatedValues } = values
       if (!updatedValues.email) delete updatedValues.email
       if (!updatedValues.phone) delete updatedValues.phone
-
-      await UserService.updateProfile(detailInfo._id, updatedValues)
-      Notice({
-        msg: "Cập nhật nhân viên thành công!",
-      })
+      updatedValues.id = detailInfo._id
+      await UserService.updateProfile(updatedValues)
+      Notice({ msg: "Cập nhật nhân viên thành công!" })
       onOk && onOk()
       props.onCancel()
     } catch (error) {
       console.error("Update error:", error)
-      Notice({
-        msg: "Cập nhật nhân viên thất bại!",
-      })
+      Notice({ msg: "Cập nhật nhân viên thất bại!" })
     } finally {
       setLoading(false)
     }
@@ -119,11 +92,6 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 
   const renderFooter = () => (
     <div className={!!detailInfo ? "d-flex-sb" : "d-flex-end"}>
-      {!detailInfo && (
-        <Button btntype="primary" className="btn-hover-shadow">
-          Reset mật khẩu mặc định
-        </Button>
-      )}
       <Button
         btntype="primary"
         className="btn-hover-shadow"
@@ -200,25 +168,36 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                 </Form.Item>
               </Col>
 
-              {/* Other form fields with their initial values */}
               <Col md={24} xs={24}>
-                <Form.Item label="Họ và tên" name="username">
+                <Form.Item label="Tên tài khoản" name="username">
+                  <Input placeholder="Nhập tên" disabled />
+                </Form.Item>
+              </Col>
+              <Col md={24} xs={24}>
+                <Form.Item label="Họ và tên" name="name">
                   <Input placeholder="Nhập tên" />
                 </Form.Item>
               </Col>
-
               <Col md={12} xs={24}>
-                <Form.Item label="Email" name="email">
+                <Form.Item
+                  label="Email"
+                  name="email"
+                  rules={[
+                    // {
+                    //   type: "email",
+                    //   message: "Email không hợp lệ!",
+                    // },
+                    {
+                      validator: (_, value) => {
+                        if (value && !getRegexEmail().test(value)) {
+                          return Promise.reject(new Error("Email không hợp lệ"))
+                        }
+                        return Promise.resolve()
+                      },
+                    },
+                  ]}
+                >
                   <Input placeholder="Nhập email" />
-                </Form.Item>
-              </Col>
-
-              <Col md={12} xs={24}>
-                <Form.Item label="Trạng thái" name="Status">
-                  <Select placeholder="Chọn trạng thái">
-                    <Option value="Active">Active</Option>
-                    <Option value="Inactive">Inactive</Option>
-                  </Select>
                 </Form.Item>
               </Col>
 
@@ -231,12 +210,50 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
               )}
 
               <Col md={12} xs={24}>
-                <Form.Item label="Số điện thoại" name="phone">
+                <Form.Item
+                  label="Số điện thoại"
+                  name="phone"
+                  rules={[
+                    {
+                      pattern: /^(\+84|0)[3|5|7|8|9]\d{8}$/,
+                      message: "Số điện thoại không hợp lệ!",
+                    },
+                    {
+                      validator: (_, value) => {
+                        if (value && !getRegexMobile().test(value)) {
+                          return Promise.reject(
+                            new Error("Số điện thoại không hợp lệ"),
+                          )
+                        }
+                        return Promise.resolve()
+                      },
+                    },
+                  ]}
+                >
                   <Input placeholder="Nhập số điện thoại" />
                 </Form.Item>
               </Col>
+
               <Col md={6} xs={24}>
-                <Form.Item label="Ngày sinh" name="dob">
+                <Form.Item
+                  label="Ngày sinh"
+                  name="dob"
+                  rules={[
+                    {
+                      validator: (_, value) => {
+                        if (!value) return Promise.resolve()
+                        const age = differenceInYears(
+                          new Date(),
+                          new Date(value),
+                        )
+                        if (age < 18) {
+                          return Promise.reject(new Error("Phải trên 18 tuổi"))
+                        }
+                        return Promise.resolve()
+                      },
+                    },
+                  ]}
+                >
                   <DatePicker
                     placeholder="Chọn"
                     format="DD/MM/YYYY"
@@ -246,7 +263,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
               </Col>
 
               <Col span={24}>
-                <Form.Item label="Địa chỉ" name="Address">
+                <Form.Item label="Địa chỉ" name="address">
                   <Input placeholder="Nhập địa chỉ" />
                 </Form.Item>
               </Col>

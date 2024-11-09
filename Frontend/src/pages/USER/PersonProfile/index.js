@@ -6,13 +6,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { UserOutlined } from "@ant-design/icons"
 import SvgIcon from "src/components/SvgIcon"
 import { StyleMyAccount } from "./styled"
-import STORAGE, { getStorage } from "src/lib/storage"
 import Notice from "src/components/Notice"
 import LayoutCommon from "src/components/Common/Layout"
 import useWindowSize from "src/lib/useWindowSize"
 import UserService from "src/services/UserService"
 import moment from "moment/moment"
 import ModalInsertUpdateProfile from "./components/UpdatePersonProfile"
+import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+
 const PersonProfile = () => {
   const dispatch = useDispatch()
   const [modalUpdatePersonProfile, setModalUpdatePersonProfile] =
@@ -66,7 +67,6 @@ const PersonProfile = () => {
   const cancelUpload = () => {
     setAvatarUpload("")
   }
-
   const isMobile = useWindowSize.isMobile() || false
 
   return (

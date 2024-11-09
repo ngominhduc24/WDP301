@@ -1,11 +1,15 @@
-import { Col, Form, Input, Row, Select, Checkbox } from "antd"
+import { Col, Form, Input, Row, Select, Checkbox, Upload } from "antd"
 import { useEffect, useState } from "react"
+import { UserOutlined } from "@ant-design/icons"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
 import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
 import styled from "styled-components"
 import ManagerService from "src/services/ManagerService"
+import provinces from "src/data/provinces.json"
+import districts from "src/data/districts.json"
+import wards from "src/data/wards.json"
 
 const { Option } = Select
 
@@ -19,7 +23,7 @@ const StyledContainer = styled.div`
   }
 `
 
-const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
+const ModalInsertHouse = ({ onOk, detailInfo, onCancel, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [utilities, setUtilities] = useState([])
@@ -31,11 +35,19 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     useState(false)
 
   const [selectedProvince, setSelectedProvince] = useState("")
+  const [selectedProvinceName, setSelectedProvinceName] = useState("")
   const [selectedDistrict, setSelectedDistrict] = useState("")
-  const [wards, setWards] = useState([])
-
+  const [selectedDistrictName, setSelectedDistrictName] = useState("")
+  const [selectedWardName, setSelectedWardName] = useState("")
+  const [filteredDistricts, setFilteredDistricts] = useState([])
+  const [filteredWards, setFilteredWards] = useState([])
+  const [imageUrl, setImageUrl] = useState("")
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [hosts, setHosts] = useState([])
+  const [selectedHost, setSelectedHost] = useState(null)
   useEffect(() => {
     fetchAllUtilities()
+    fetchHostAccounts()
   }, [])
 
   const fetchAllUtilities = async () => {
@@ -53,6 +65,28 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleProvinceChange = (value, option) => {
+    setSelectedProvince(value)
+    setSelectedProvinceName(option.children)
+    const filtered = districts.filter(
+      district => district.province_code === value,
+    )
+    setFilteredDistricts(filtered)
+    setSelectedDistrict("")
+    setSelectedWardName("")
+  }
+
+  const handleDistrictChange = (value, option) => {
+    setSelectedDistrict(value)
+    setSelectedDistrictName(option.children)
+    const filtered = wards.filter(ward => ward.district_code === value)
+    setFilteredWards(filtered)
+  }
+
+  const handleWardChange = (value, option) => {
+    setSelectedWardName(option.children)
   }
 
   const handleAmenityChange = id => {
@@ -95,6 +129,22 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
       setIsAddAmenityModalVisible(false)
     }
   }
+  const handleImageUpload = ({ file }) => {
+    const reader = new FileReader()
+    reader.onload = e => {
+      setImageUrl(e.target.result)
+    }
+    reader.readAsDataURL(file)
+    setAvatarFile(file)
+    return false
+  }
+
+  const handleCancel = () => {
+    form.resetFields()
+    setImageUrl("")
+    setAvatarFile(null)
+    onCancel()
+  }
 
   const onContinue = async () => {
     try {
@@ -103,24 +153,35 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
 
       const houseData = {
         name: values.houseName,
+        hostId: selectedHost,
         status: true,
         location: {
-          province: selectedProvince || values.city,
-          district: selectedDistrict || values.district,
-          ward: values.ward,
+          province: selectedProvinceName || values.city,
+          district: selectedDistrictName || values.district,
+          ward: selectedWardName || values.ward,
           detailLocation: values.address,
         },
         electricPrice: Number(values.electricPrice),
         waterPrice: Number(values.waterPrice),
         utilities: amenities,
         otherUtilities: selectedOtherUtilities,
+        avatar: avatarFile,
       }
 
-      const res = await ManagerService.createHouse(houseData)
+      const formData = new FormData()
+      Object.keys(houseData).forEach(key => {
+        if (key === "avatar" && houseData.avatar) {
+          formData.append("avatar", houseData.avatar)
+        } else {
+          formData.append(key, JSON.stringify(houseData[key]))
+        }
+      })
+
+      const res = await ManagerService.createHouse(formData)
       if (res?.isError) return
       onOk && onOk()
       Notice({ msg: `Thêm nhà thành công!` })
-      props?.onCancel()
+      onCancel()
     } catch (error) {
       console.error("Error adding new house:", error)
     } finally {
@@ -140,17 +201,72 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
     </div>
   )
 
+  const fetchHostAccounts = async () => {
+    try {
+      const response = await ManagerService.getAllUser()
+      // Filter the users to include only those with accountType: "host"
+      const hostAccounts =
+        response?.data?.filter(user => user.accountType === "host") || []
+      setHosts(hostAccounts)
+    } catch (error) {
+      console.error("Error fetching host accounts:", error)
+    }
+  }
+  const handleHostChange = value => {
+    setSelectedHost(value)
+  }
   return (
     <CustomModal
       title="Thêm Nhà"
       footer={renderFooter()}
       width={1024}
       {...props}
+      onCancel={handleCancel} // Use the modified handleCancel
     >
       <SpinCustom spinning={loading}>
         <StyledContainer>
           <Form form={form} layout="vertical" className="modal-content">
             <Row gutter={[16]}>
+              <Col span={24} className="mb-10">
+                <div className="image-upload">
+                  <Upload
+                    accept="image/*"
+                    multiple={false}
+                    maxCount={1}
+                    beforeUpload={handleImageUpload}
+                    onChange={({ file }) => {
+                      if (file && file.status !== "removed") {
+                        handleImageUpload({ file })
+                      }
+                    }}
+                    listType="picture-card"
+                    showUploadList={false}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="avatar"
+                        className="image-preview"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <div>
+                        <UserOutlined />
+                        <div style={{ marginTop: 8 }}>Chọn Ảnh</div>
+                      </div>
+                    )}
+                  </Upload>
+
+                  <div className="sub-color fs-12">
+                    Dung lượng file tối đa 5MB, định dạng: .JPG, .JPEG, .PNG,
+                    .SVG
+                  </div>
+                </div>
+              </Col>
               <Col span={24}>
                 <Form.Item
                   label="Tên Nhà"
@@ -179,10 +295,13 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                 >
                   <Select
                     placeholder="Chọn Tỉnh/Thành Phố"
-                    onChange={setSelectedProvince}
+                    onChange={handleProvinceChange}
                   >
-                    <Option value="Hà Nội">Hà Nội</Option>
-                    <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+                    {provinces.map(province => (
+                      <Option key={province.code} value={province.code}>
+                        {province.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -200,10 +319,14 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                 >
                   <Select
                     placeholder="Chọn Quận/Huyện"
-                    onChange={setSelectedDistrict}
+                    disabled={!selectedProvince}
+                    onChange={handleDistrictChange}
                   >
-                    <Option value="Quận 1">Quận 1</Option>
-                    <Option value="Quận 2">Quận 2</Option>
+                    {filteredDistricts.map(district => (
+                      <Option key={district.code} value={district.code}>
+                        {district.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -219,9 +342,16 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn Phường/Xã">
-                    <Option value="Phường 1">Phường 1</Option>
-                    <Option value="Phường 2">Phường 2</Option>
+                  <Select
+                    placeholder="Chọn Phường/Xã"
+                    disabled={!selectedDistrict}
+                    onChange={handleWardChange}
+                  >
+                    {filteredWards.map(ward => (
+                      <Option key={ward.code} value={ward.code}>
+                        {ward.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -240,7 +370,29 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
                   <Input placeholder="Nhập địa chỉ nhà" />
                 </Form.Item>
               </Col>
-
+              <Col span={24}>
+                <Form.Item
+                  label="Quản Lý"
+                  name="hostAccount"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
+                  ]}
+                >
+                  <Select
+                    placeholder="Chọn Quản Lý"
+                    onChange={handleHostChange}
+                  >
+                    {hosts.map(host => (
+                      <Option key={host._id} value={host._id}>
+                        {host.username}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
               <Col md={12} xs={24}>
                 <Form.Item
                   label="Tiền Điện Trên 1kwH"

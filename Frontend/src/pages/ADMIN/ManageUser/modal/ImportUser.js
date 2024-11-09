@@ -34,9 +34,9 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
   useEffect(() => {
     const role = getStorage(STORAGE.USER_INFO)
     if (role?.accountType === "host") {
-      setRoleOptions(["manager"])
+      setRoleOptions(["host"])
     } else if (role?.accountType === "admin") {
-      setRoleOptions(["admin", "manager"])
+      setRoleOptions(["admin", "host"])
     }
 
     if (detailInfo) {
@@ -71,23 +71,24 @@ const ImportUser = ({ onOk, detailInfo, ...props }) => {
         role: values.role,
       }
 
-      // Call createUser API and log the response to check for issues
       const response = await ManagerService.createUser(payload)
-      console.log("Create User API Response:", response) // Debug log
-
-      // Check if the response indicates success
-      if (response?.success) {
-        Notice({
-          isSuccess: true,
-          msg: "Thêm nhân viên thành công!",
-        })
-        onOk && onOk() // Call the success callback
-        props.onCancel() // Close the modal
-      } else {
-        // Handle specific API error response
-        const errorMessage = response?.message || "Thêm nhân viên thất bại!"
-        throw new Error(errorMessage)
-      }
+      Notice({
+        isSuccess: true,
+        msg: response.message,
+      })
+      onOk && onOk()
+      props.onCancel()
+      // if (response?.success) {
+      //   Notice({
+      //     isSuccess: true,
+      //     msg: response.message,
+      //   })
+      //   onOk && onOk()
+      //   props.onCancel()
+      // } else {
+      //   const errorMessage = response?.message || "Thêm nhân viên thất bại!"
+      //   throw new Error(errorMessage)
+      // }
     } catch (error) {
       console.error("Create user error:", error)
       Notice({

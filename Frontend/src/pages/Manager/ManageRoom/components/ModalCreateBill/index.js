@@ -13,7 +13,7 @@ import ManagerService from "src/services/ManagerService"
 
 const { TextArea } = Input
 
-const ModalCreateBill = ({ open, onCancel, onOK, roomId }) => {
+const ModalCreateBill = ({ open, onCancel, onOk, roomId }) => {
   const [room, setRoom] = useState(null)
   const [debt, setDebt] = useState(0)
   const [priceList, setPriceList] = useState([])
@@ -83,7 +83,7 @@ const ModalCreateBill = ({ open, onCancel, onOK, roomId }) => {
       const response = await ManagerService.addBill(roomId, payload)
       if (response?.statusCode === 201) {
         message.success("Thêm hóa đơn thành công!")
-        onOK()
+        onOk()
         onCancel()
       } else {
         message.error("Thêm hóa đơn thất bại!")

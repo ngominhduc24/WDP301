@@ -5,9 +5,9 @@ import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
 import Notice from "src/components/Notice"
 import SpinCustom from "src/components/Spin"
-import STORAGE, { getStorage } from "src/lib/storage"
 import UserService from "src/services/UserService"
 import styled from "styled-components"
+import STORAGE, { getStorage, setStorage } from "src/lib/storage"
 
 const Styled = styled.div`
   .modal-container {
@@ -45,7 +45,6 @@ const ModalInsertUpdateProfile = ({ onOk, userProfile, ...props }) => {
         id: user._id,
         name: values.FullName,
         phone: values.PhoneNumber,
-        // dob: values.Birthday ? values.Birthday.format("DD/MM/YYYY") : null,
         payosClientId: values.payosClientId,
         payosAPIKey: values.payosAPIKey,
         payosCheckSum: values.payosCheckSum,
@@ -55,7 +54,8 @@ const ModalInsertUpdateProfile = ({ onOk, userProfile, ...props }) => {
 
       if (!res?.isError) {
         Notice({ isSuccess: true, msg: "Cập nhật thành công!" })
-        onOk()
+        setStorage(STORAGE.USER_INFO, res.data)
+        window.location.reload()
       } else {
         Notice({ isSuccess: false, msg: res?.message || "Cập nhật thất bại!" })
       }

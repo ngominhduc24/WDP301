@@ -16,7 +16,8 @@ import { UploadOutlined, UserOutlined } from "@ant-design/icons"
 import axios from "axios"
 import ManagerService from "src/services/ManagerService"
 import moment from "moment"
-
+import { differenceInYears } from "date-fns"
+import dayjs from "dayjs"
 const { Option } = Select
 
 // Styled Component
@@ -330,12 +331,27 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId, room }) => {
                     name="dob"
                     rules={[
                       {
-                        required: true,
-                        message: "Ngày sinh không được để trống",
+                        validator: (_, value) => {
+                          if (!value) return Promise.resolve()
+                          const age = differenceInYears(
+                            new Date(),
+                            new Date(value),
+                          )
+                          if (age < 18) {
+                            return Promise.reject(
+                              new Error("Bạn phải trên 18 tuổi"),
+                            )
+                          }
+                          return Promise.resolve()
+                        },
                       },
                     ]}
                   >
-                    <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+                    <DatePicker
+                      placeholder="Chọn ngày sinh"
+                      format="DD/MM/YYYY"
+                      allowClear
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
@@ -352,7 +368,7 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId, room }) => {
           <div className="form-footer">
             <Button
               onClick={() => setCccdModalVisible(true)}
-              btntype="secondary"
+              btntype="primary"
               style={{ marginRight: 16 }}
             >
               Thêm CCCD Qua Ảnh

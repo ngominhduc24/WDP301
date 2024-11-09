@@ -1,5 +1,6 @@
-import { Col, Form, Input, Row, Select, Checkbox } from "antd"
+import { Col, Form, Input, Row, Select, Checkbox, Upload } from "antd"
 import { useEffect, useState } from "react"
+import { UserOutlined } from "@ant-design/icons"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
 import Notice from "src/components/Notice"
@@ -22,7 +23,7 @@ const StyledContainer = styled.div`
   }
 `
 
-const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
+const ModalInsertHouse = ({ onOk, detailInfo, onCancel, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [utilities, setUtilities] = useState([])
@@ -40,6 +41,8 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
   const [selectedWardName, setSelectedWardName] = useState("")
   const [filteredDistricts, setFilteredDistricts] = useState([])
   const [filteredWards, setFilteredWards] = useState([])
+  const [imageUrl, setImageUrl] = useState("")
+  const [avatarFile, setAvatarFile] = useState(null)
 
   useEffect(() => {
     fetchAllUtilities()
@@ -124,6 +127,22 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
       setIsAddAmenityModalVisible(false)
     }
   }
+  const handleImageUpload = ({ file }) => {
+    const reader = new FileReader()
+    reader.onload = e => {
+      setImageUrl(e.target.result)
+    }
+    reader.readAsDataURL(file)
+    setAvatarFile(file)
+    return false
+  }
+
+  const handleCancel = () => {
+    form.resetFields()
+    setImageUrl("")
+    setAvatarFile(null)
+    onCancel()
+  }
 
   const onContinue = async () => {
     try {
@@ -143,13 +162,23 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
         waterPrice: Number(values.waterPrice),
         utilities: amenities,
         otherUtilities: selectedOtherUtilities,
+        avatar: avatarFile,
       }
 
-      const res = await ManagerService.createHouse(houseData)
+      const formData = new FormData()
+      Object.keys(houseData).forEach(key => {
+        if (key === "avatar" && houseData.avatar) {
+          formData.append("avatar", houseData.avatar)
+        } else {
+          formData.append(key, JSON.stringify(houseData[key]))
+        }
+      })
+
+      const res = await ManagerService.createHouse(formData)
       if (res?.isError) return
       onOk && onOk()
       Notice({ msg: `Thêm nhà thành công!` })
-      props?.onCancel()
+      onCancel()
     } catch (error) {
       console.error("Error adding new house:", error)
     } finally {
@@ -175,11 +204,52 @@ const ModalInsertHouse = ({ onOk, detailInfo, ...props }) => {
       footer={renderFooter()}
       width={1024}
       {...props}
+      onCancel={handleCancel} // Use the modified handleCancel
     >
       <SpinCustom spinning={loading}>
         <StyledContainer>
           <Form form={form} layout="vertical" className="modal-content">
             <Row gutter={[16]}>
+              <Col span={24} className="mb-10">
+                <div className="image-upload">
+                  <Upload
+                    accept="image/*"
+                    multiple={false}
+                    maxCount={1}
+                    beforeUpload={handleImageUpload}
+                    onChange={({ file }) => {
+                      if (file && file.status !== "removed") {
+                        handleImageUpload({ file })
+                      }
+                    }}
+                    listType="picture-card"
+                    showUploadList={false}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="avatar"
+                        className="image-preview"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <div>
+                        <UserOutlined />
+                        <div style={{ marginTop: 8 }}>Chọn Ảnh</div>
+                      </div>
+                    )}
+                  </Upload>
+
+                  <div className="sub-color fs-12">
+                    Dung lượng file tối đa 5MB, định dạng: .JPG, .JPEG, .PNG,
+                    .SVG
+                  </div>
+                </div>
+              </Col>
               <Col span={24}>
                 <Form.Item
                   label="Tên Nhà"

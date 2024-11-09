@@ -368,7 +368,7 @@ const ModalInsertRenter = ({ onOk, visible, onCancel, roomId, room }) => {
           <div className="form-footer">
             <Button
               onClick={() => setCccdModalVisible(true)}
-              btntype="secondary"
+              btntype="primary"
               style={{ marginRight: 16 }}
             >
               Thêm CCCD Qua Ảnh

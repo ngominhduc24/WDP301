@@ -1,5 +1,6 @@
-import { Col, Form, Input, Row, Select, Checkbox } from "antd"
+import { Col, Form, Input, Row, Select, Checkbox, Upload } from "antd"
 import { useEffect, useState } from "react"
+import { UserOutlined } from "@ant-design/icons"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
 import Notice from "src/components/Notice"
@@ -20,7 +21,7 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
   const [loading, setLoading] = useState(false)
   const [utilities, setUtilities] = useState([])
   const [otherUtilities, setOtherUtilities] = useState([])
-  const [selectedUtilities, setSelectedUtilities] = useState([])
+  const [amenities, setAmenities] = useState([])
   const [selectedOtherUtilities, setSelectedOtherUtilities] = useState([])
   const [electricPrice, setElectricPrice] = useState("")
   const [waterPrice, setWaterPrice] = useState("")
@@ -36,6 +37,9 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
   const [selectedWardName, setSelectedWardName] = useState("")
   const [filteredDistricts, setFilteredDistricts] = useState([])
   const [filteredWards, setFilteredWards] = useState([])
+
+  const [imageUrl, setImageUrl] = useState("")
+  const [avatarFile, setAvatarFile] = useState(null)
 
   useEffect(() => {
     if (open) {
@@ -99,12 +103,25 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
       )
     }
 
-    setSelectedUtilities(houseData.utilities || [])
+    setAmenities(houseData.utilities || [])
     setSelectedOtherUtilities(houseData.otherUtilities || [])
     setElectricPrice(houseData?.electricPrice || 0)
     setWaterPrice(houseData?.waterPrice || 0)
+
+    if (houseData?.avatar) {
+      setImageUrl(houseData.avatar)
+    }
   }
 
+  const handleImageUpload = ({ file }) => {
+    const reader = new FileReader()
+    reader.onload = e => {
+      setImageUrl(e.target.result)
+    }
+    setAvatarFile(file)
+    reader.readAsDataURL(file)
+    return false
+  }
   const parseLocation = address => {
     const parts = address.split(",").map(part => part.trim())
     return {
@@ -114,7 +131,6 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
       city: parts[3] || "",
     }
   }
-
   const handleProvinceChange = (value, option) => {
     setSelectedProvince(value)
     setSelectedProvinceName(option.children)
@@ -166,13 +182,21 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
         },
         electricPrice: parseFloat(electricPrice) || 0,
         waterPrice: parseFloat(waterPrice) || 0,
-        utilities: selectedUtilities,
+        utilities: amenities,
         otherUtilities: selectedOtherUtilities,
+        avatar: avatarFile,
       }
-      const res = await ManagerService.updateHouse(
-        houseData._id,
-        updatedHouseData,
-      )
+
+      const formData = new FormData()
+      Object.keys(updatedHouseData).forEach(key => {
+        if (key === "avatar" && updatedHouseData.avatar) {
+          formData.append("avatar", updatedHouseData.avatar)
+        } else {
+          formData.append(key, JSON.stringify(updatedHouseData[key]))
+        }
+      })
+
+      const res = await ManagerService.updateHouse(houseData._id, formData)
       if (res?.isError) return
       Notice({ msg: "Cập nhật nhà thành công!" })
       onOk && onOk()
@@ -184,22 +208,21 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }
 
-  const handleAmenityChange = (utilityId, isOtherUtility = false) => {
-    if (isOtherUtility) {
-      setSelectedOtherUtilities(prevUtilities =>
-        prevUtilities.includes(utilityId)
-          ? prevUtilities.filter(id => id !== utilityId)
-          : [...prevUtilities, utilityId],
-      )
-    } else {
-      setSelectedUtilities(prevUtilities =>
-        prevUtilities.includes(utilityId)
-          ? prevUtilities.filter(id => id !== utilityId)
-          : [...prevUtilities, utilityId],
-      )
-    }
+  const handleAmenityChange = id => {
+    setAmenities(prev =>
+      prev.includes(id)
+        ? prev.filter(amenity => amenity !== id)
+        : [...prev, id],
+    )
   }
 
+  const handleOtherAmenityChange = id => {
+    setSelectedOtherUtilities(prev =>
+      prev.includes(id)
+        ? prev.filter(amenity => amenity !== id)
+        : [...prev, id],
+    )
+  }
   const handleAddNewAmenity = () => {
     setIsAddAmenityModalVisible(true)
   }
@@ -245,6 +268,46 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
         <StyledContainer>
           <Form form={form} layout="vertical" className="modal-content">
             <Row gutter={[16]}>
+              <Col span={24}>
+                <div className="image-upload">
+                  <Upload
+                    accept="image/*"
+                    multiple={false}
+                    maxCount={1}
+                    beforeUpload={handleImageUpload}
+                    onChange={({ file }) => {
+                      if (file && file.status !== "removed") {
+                        handleImageUpload({ file })
+                      }
+                    }}
+                    listType="picture-card"
+                    showUploadList={false}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="avatar"
+                        className="image-preview"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <div>
+                        <UserOutlined />
+                        <div style={{ marginTop: 8 }}>Chọn Ảnh</div>
+                      </div>
+                    )}
+                  </Upload>
+                  <div className="sub-color fs-12 ml-16">
+                    Dung lượng file tối đa 5MB, định dạng: .JPG, .JPEG, .PNG,
+                    .SVG
+                  </div>
+                </div>
+              </Col>
+
               <Col span={24}>
                 <Form.Item
                   label="Tên Nhà"
@@ -383,26 +446,34 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
                   />
                 </Form.Item>
               </Col>
+
               <Col span={24}>
-                <Form.Item label="Tiện Ích">
-                  <Row gutter={[16]}>
+                <Form.Item label="Tiện Ích Chính">
+                  <Row gutter={[16, 16]}>
                     {utilities.map(utility => (
                       <Col span={6} key={utility._id}>
                         <Checkbox
-                          checked={selectedUtilities.includes(utility._id)}
+                          name={utility.name}
+                          checked={amenities.includes(utility._id)}
                           onChange={() => handleAmenityChange(utility._id)}
                         >
                           {utility.name}
                         </Checkbox>
                       </Col>
                     ))}
+                  </Row>
+                </Form.Item>
+              </Col>
+
+              <Col span={24}>
+                <Form.Item label="Tiện Ích Khác">
+                  <Row gutter={[16, 16]}>
                     {otherUtilities.map(utility => (
                       <Col span={6} key={utility._id}>
                         <Checkbox
+                          name={utility.name}
                           checked={selectedOtherUtilities.includes(utility._id)}
-                          onChange={() =>
-                            handleAmenityChange(utility._id, true)
-                          }
+                          onChange={() => handleOtherAmenityChange(utility._id)}
                         >
                           {utility.name}
                         </Checkbox>

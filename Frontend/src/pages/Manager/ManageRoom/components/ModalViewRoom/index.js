@@ -268,7 +268,10 @@ const ModalViewRoom = ({ open, onCancel, roomId, onOk }) => {
                 <Col span={12}>
                   <ImageContainer>
                     <img
-                      src={room?.image || "https://via.placeholder.com/300"}
+                      src={
+                        room?.image ||
+                        "https://res.cloudinary.com/dl7eqr4zd/image/upload/v1731086960/qg1t7hipg2fbwjghiipr.jpg"
+                      }
                       alt="house"
                     />
                   </ImageContainer>

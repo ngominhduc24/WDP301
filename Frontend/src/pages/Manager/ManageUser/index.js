@@ -35,6 +35,38 @@ const ManageUser = () => {
   const [houses, setHouses] = useState([])
   const [selectedHouse, setSelectedHouse] = useState(null)
 
+  const handlePasswordReset = record => {
+    CB1({
+      title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.username} không?`,
+      icon: "warning-usb",
+      okText: "Đồng ý",
+      onOk: async close => {
+        try {
+          console.log(record._id)
+          const payload = { accountId: record._id }
+          const response = await ManagerService.resetPassword(payload)
+          if (response.success === true) {
+            Notice({
+              isSuccess: true,
+              msg: "Reset mật khẩu thành công!",
+            })
+          } else {
+            Notice({
+              isSuccess: false,
+              msg: response.message,
+            })
+          }
+        } catch (error) {
+          console.error("Error resetting password:", error)
+          Notice({
+            isSuccess: false,
+            msg: "Reset mật khẩu thất bại!",
+          })
+        }
+        close()
+      },
+    })
+  }
   const renderListButton = record => (
     <Space>
       <ButtonCircle
@@ -49,29 +81,7 @@ const ManageUser = () => {
         title="Reset mật khẩu"
         iconName="reset-pass"
         style={{ background: "#fff" }}
-        onClick={e => {
-          CB1({
-            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.username} không?`,
-            icon: "warning-usb",
-            okText: "Đồng ý",
-            onOk: async close => {
-              try {
-                await UserService.changePassword({
-                  accountId: record._id,
-                  oldPassword: record.cccd,
-                  newPassword: "Rms@123456789",
-                })
-              } catch (error) {
-                console.error("Error resetting password:", error)
-                Notice({
-                  isSuccess: false,
-                  msg: "Reset mật khẩu thất bại!",
-                })
-              }
-              close()
-            },
-          })
-        }}
+        onClick={() => handlePasswordReset(record)}
       />
     </Space>
   )
@@ -215,9 +225,11 @@ const ManageUser = () => {
       setLoading(true)
       const response = await ManagerService.getAllHouses()
       const housesData = response?.data?.houses || []
-      if (housesData.length > 0) {
-        setHouses(housesData)
-        setSelectedHouse(housesData[0]?._id)
+      const activeHouses = housesData.filter(house => house.status === true)
+
+      if (activeHouses.length > 0) {
+        setHouses(activeHouses)
+        setSelectedHouse(activeHouses[0]?._id)
       } else {
         setHouses([])
       }
@@ -255,7 +267,7 @@ const ManageUser = () => {
               </Select>
             </div>
           </Col>
-          <Col>
+          {/* <Col>
             <Button
               btntype="primary"
               className="btn-hover-shadow"
@@ -263,7 +275,7 @@ const ManageUser = () => {
             >
               Thêm người dùng
             </Button>
-          </Col>
+          </Col> */}
         </Row>
       </div>
       <SpinCustom spinning={loading}>

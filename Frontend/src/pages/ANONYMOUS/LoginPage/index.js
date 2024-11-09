@@ -42,14 +42,14 @@ const LoginPage = () => {
     }
   }, [])
 
-  const handleError = error => {
-    console.error("Login error:", error)
-    Notice({
-      isSuccess: false,
-      msg: "Sai tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.",
-      place: "topRight",
-    })
-  }
+  // const handleError = error => {
+  //   console.error("Login error:", error)
+  //   Notice({
+  //     isSuccess: false,
+  //     msg: "Sai tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.",
+  //     place: "topRight",
+  //   })
+  // }
 
   const handleSuccess = () => {
     Notice({
@@ -103,20 +103,9 @@ const LoginPage = () => {
         })
       }
     } catch (error) {
-      handleError(error)
+      // handleError(error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const getInfo = async id => {
-    try {
-      const res = await UserService.getUserById(id)
-      setStorage(STORAGE.USER_INFO, res)
-      if (res?.isError) return
-      return res
-    } catch (error) {
-      console.error("Error fetching warehouse info:", error)
     }
   }
 

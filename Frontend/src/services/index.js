@@ -115,7 +115,7 @@ instance.interceptors.response.use(
       +error?.response?.status !== 200
     ) {
       notice({
-        msg: `Hệ thống xảy ra lỗi. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ (SC${error?.response?.status})`,
+        msg: error.response.data.error,
         isSuccess: false,
       })
     } else if (error.code === "ERR_NETWORK") {

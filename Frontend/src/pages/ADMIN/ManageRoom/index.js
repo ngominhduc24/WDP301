@@ -1,4 +1,4 @@
-import { Col, Row, Space, Tooltip, Modal, Select } from "antd"
+import { Col, Row, Space, Tooltip, Modal, Select, Switch } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import Button from "src/components/MyButton/Button"
@@ -74,9 +74,11 @@ const ManageRoom = () => {
       setLoading(true)
       const response = await ManagerService.getAllHouses()
       const housesData = response?.data?.houses || []
-      if (housesData.length > 0) {
-        setHouses(housesData)
-        setSelectedHouse(housesData[0]?._id)
+      const activeHouses = housesData.filter(house => house.status === true)
+
+      if (activeHouses.length > 0) {
+        setHouses(activeHouses)
+        setSelectedHouse(activeHouses[0]?._id)
       } else {
         setHouses([])
       }
@@ -186,6 +188,34 @@ const ManageRoom = () => {
       </Button>
     ))
   }
+  const toggleStatus = async (roomId, newStatus) => {
+    try {
+      setLoading(true)
+      const response = await ManagerService.updateStatusRoom(roomId, {
+        deleted: !newStatus,
+      })
+      if (response?.statusCode === 204) {
+        getHouseByHouseId(selectedHouse)
+        getRoomsByHouse(selectedHouse, selectedFloor)
+        Notice({
+          type: "success",
+          msg: `Phòng ${newStatus ? "khôi phục" : "đã đóng"} thành công!`,
+        })
+        setRooms(prevRooms =>
+          prevRooms.map(room =>
+            room._id === roomId ? { ...room, deleted: !newStatus } : room,
+          ),
+        )
+      }
+    } catch (error) {
+      Notice({
+        type: "error",
+        msg: "Cập nhật trạng thái phòng thất bại!",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const renderRoomAccordion = () => {
     return rooms.map((room, index) => (
@@ -200,7 +230,11 @@ const ManageRoom = () => {
         <AccordionSummary
           expandIcon={<ExpandMoreIcon style={{ color: "#FFF" }} />}
           sx={{
-            background: room?.members?.length === 0 ? "#183446" : "#bce3b3",
+            background: room.deleted
+              ? "#ff4d4f"
+              : room.members.length === 0
+              ? "#183446"
+              : "#bce3b3",
           }}
         >
           <Box
@@ -212,28 +246,34 @@ const ManageRoom = () => {
           >
             <Typography style={{ fontSize: "20px", color: "#FFF" }}>
               Phòng {room.name} -{" "}
-              {room?.members?.length === 0 ? "Đang trống" : "Đã thuê"}
+              {room.deleted
+                ? "Đã Đóng"
+                : room.members.length === 0
+                ? "Đang Trống"
+                : "Đã Thuê"}
             </Typography>
-            <Box style={{ display: "flex", gap: "3px" }}>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() =>
-                  CB1({
-                    title: `Bạn có chắc chắn xóa phòng ${room.name}?`,
-                    icon: "warning-usb",
-                    okText: "Có",
-                    cancelText: "Không",
-                    onOk: async close => {
-                      await deleteRoom(room._id)
-                      close()
-                    },
-                  })
-                }
-              >
-                Xóa
-              </Button>
-            </Box>
+            {/* <Box style={{ display: "flex", gap: "3px" }}>
+              {!room.deleted && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() =>
+                    CB1({
+                      title: `Bạn có chắc chắn xóa phòng ${room.name}?`,
+                      icon: "warning-usb",
+                      okText: "Có",
+                      cancelText: "Không",
+                      onOk: async close => {
+                        await deleteRoom(room._id)
+                        close()
+                      },
+                    })
+                  }
+                >
+                  Xóa
+                </Button>
+              )}
+            </Box> */}
           </Box>
         </AccordionSummary>
         <AccordionDetails>
@@ -257,34 +297,43 @@ const ManageRoom = () => {
                   <TableCell align="right">{room.area}</TableCell>
                   <TableCell align="right">{room.quantityMember}</TableCell>
                   <TableCell align="right">{room.members.length}</TableCell>
+                  <TableCell align="right">
+                    <Switch
+                      checked={!room.deleted}
+                      onChange={(checked, e) => {
+                        e.stopPropagation()
+                        toggleStatus(room._id, checked)
+                      }}
+                    />
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
-          <Box style={{ display: "flex", gap: "3px", marginTop: "3px" }}>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setSelectedRoom(room)
-                setOpenViewRoom(true)
-              }}
-            >
-              Thông tin phòng
-            </Button>
-            {room?.members?.length === 0 ? (
-              ""
-            ) : (
+          {!room.deleted && (
+            <Box style={{ display: "flex", gap: "3px", marginTop: "3px" }}>
               <Button
                 variant="contained"
                 onClick={() => {
                   setSelectedRoom(room)
-                  setOpenModalCreateBill(true)
+                  setOpenViewRoom(true)
                 }}
               >
-                Tạo hóa đơn
+                Thông tin phòng
               </Button>
-            )}
-          </Box>
+              {room.members.length > 0 && (
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setSelectedRoom(room)
+                    setOpenModalCreateBill(true)
+                  }}
+                >
+                  Tạo hóa đơn
+                </Button>
+              )}
+            </Box>
+          )}
         </AccordionDetails>
       </Accordion>
     ))
@@ -403,7 +452,7 @@ const ManageRoom = () => {
         </div>
       </div>
 
-      <SearchAndFilter pagination={pagination} setPagination={setPagination} />
+      {/* <SearchAndFilter pagination={pagination} setPagination={setPagination} /> */}
 
       {/* Thông tin chung */}
       <Box
@@ -426,7 +475,6 @@ const ManageRoom = () => {
           </p>
         </Box>
         <Box sx={{ display: "flex", padding: "20px" }}>
-          z
           <Box sx={{ width: "50%", alignItems: "center" }}>
             <TableContainer component={Paper}>
               <Table>
@@ -515,9 +563,16 @@ const ManageRoom = () => {
           visible={openInsertRoom}
           onCancel={() => setOpenInsertRoom(false)}
           houseId={selectedHouse}
-          onOk={() => {
+          onOk={async () => {
             setOpenInsertRoom(false)
-            getRoomsByHouse(selectedHouse, selectedFloor)
+            if (!selectedFloor) {
+              const firstFloor = 1
+              setSelectedFloor(firstFloor)
+              await getFloorByHouseId(selectedHouse)
+              if (!selectedFloor) return
+            }
+            await getHouseByHouseId(selectedHouse)
+            await getRoomsByHouse(selectedHouse, selectedFloor)
           }}
         />
       )}
@@ -550,6 +605,10 @@ const ManageRoom = () => {
           open={openModalCreateBill}
           onCancel={() => setOpenModalCreateBill(false)}
           roomId={selectedRoom?._id}
+          onOk={() => {
+            getHouseByHouseId(selectedHouse)
+            getRoomsByHouse(selectedHouse, selectedFloor)
+          }}
         />
       )}
     </SpinCustom>

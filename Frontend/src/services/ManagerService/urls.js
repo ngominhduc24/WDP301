@@ -68,3 +68,10 @@ export const apiGetUser = (houseId, page = 1, limit = 10) =>
 export const apiCreateUser = `/account/create`
 export const apiUpdateUser = `account/profile`
 
+// Reset Password
+export const apiResetPassword = `/account/profile/reset-password`
+// getAllUser
+export const apiGetAllUser = `account/get-all`
+// updateStatusRoom
+export const apiUpdateStatusRoom = roomId => `/house/room/${roomId}`
+

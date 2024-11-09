@@ -37,7 +37,7 @@ const ManageHouse = () => {
 
   useEffect(() => {
     getHouses()
-  }, [])
+  }, [pagination])
 
   const getHouses = async () => {
     try {
@@ -62,17 +62,12 @@ const ManageHouse = () => {
       setOtherUtilities(otherUtilitiesData)
       setUtilityMap(combinedMap)
 
-      const houseResponse = await ManagerService.getAllHouses(
-        pagination.CurrentPage || 1,
-        pagination.PageSize || 10,
-        pagination.TextSearch,
-      )
+      const houseResponse = await ManagerService.getAllHouses()
 
       if (houseResponse?.data?.houses) {
         const transformedHouses = transformHouseData(houseResponse.data.houses)
         setAllHouses(transformedHouses)
-        setHouses(transformedHouses)
-        setTotal(transformedHouses.length)
+        filterHouses(transformedHouses)
       }
     } catch (error) {
       console.error("Error fetching houses:", error)
@@ -81,23 +76,50 @@ const ManageHouse = () => {
     }
   }
 
-  const filterHouses = searchTerm => {
-    const filteredHouses = allHouses.filter(
-      house =>
-        house.houseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        house.address.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+  const filterHouses = housesList => {
+    if (!Array.isArray(housesList)) {
+      housesList = allHouses
+    }
+
+    const filteredHouses = housesList.filter(house => {
+      if (
+        pagination.Status !== 0 &&
+        pagination.Status !== (house.status ? 1 : 2)
+      ) {
+        return false
+      }
+
+      if (pagination.TextSearch) {
+        const searchTerm = pagination.TextSearch.toLowerCase()
+        return (
+          house.houseName && house.houseName.toLowerCase().includes(searchTerm)
+        )
+      }
+
+      return true
+    })
+
     setHouses(filteredHouses)
     setTotal(filteredHouses.length)
   }
 
   const handleSearch = value => {
-    setPagination({
-      ...pagination,
+    setPagination(prevPagination => ({
+      ...prevPagination,
       TextSearch: value,
       CurrentPage: 1,
+    }))
+
+    filterHouses(allHouses)
+  }
+
+  const handlePaginationChange = (CurrentPage, PageSize) => {
+    setPagination({
+      ...pagination,
+      CurrentPage,
+      PageSize,
     })
-    filterHouses(value)
+    getHouses()
   }
 
   const transformHouseData = houses => {
@@ -125,7 +147,7 @@ const ManageHouse = () => {
         utilities: houseUtilities.map(u => u._id || u),
         otherUtilities: otherUtilities.map(u => u._id || u),
         status: house.status,
-        image: house.image || "https://via.placeholder.com/150",
+        image: house.avatar?.imageData || "https://via.placeholder.com/150",
       }
     })
   }
@@ -270,21 +292,21 @@ const ManageHouse = () => {
         </span>
       ),
     },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-      render: (_, record) => (
-        <Switch
-          checked={record.status}
-          onChange={(checked, e) => {
-            e.stopPropagation()
-            toggleStatus(record._id, checked)
-          }}
-        />
-      ),
-    },
+    // {
+    //   title: "Trạng thái",
+    //   dataIndex: "status",
+    //   key: "status",
+    //   align: "center",
+    //   render: (_, record) => (
+    //     <Switch
+    //       checked={record.status}
+    //       onChange={(checked, e) => {
+    //         e.stopPropagation()
+    //         toggleStatus(record._id, checked)
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       title: "Chức năng",
       align: "center",
@@ -312,17 +334,20 @@ const ManageHouse = () => {
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
         <div>Quản lý danh sách nhà</div>
-        <div>
+        {/* <div>
           <Button btntype="third" onClick={() => setOpenInsertHouses(true)}>
             Thêm mới
           </Button>
-        </div>
+        </div> */}
       </div>
       <SearchAndFilter
         pagination={pagination}
         setPagination={setPagination}
         onSearch={handleSearch}
+        allHouses={allHouses}
+        filterHouses={filterHouses}
       />
+
       <Row>
         <Col span={24} className="mt-30 mb-20">
           <TableCustom
@@ -334,18 +359,11 @@ const ManageHouse = () => {
             scroll={{ x: "1200px" }}
             pagination={{
               hideOnSinglePage: total <= 10,
-              current: pagination?.CurrentPage,
-              pageSize: pagination?.PageSize,
-              responsive: true,
+              current: pagination.CurrentPage,
+              pageSize: pagination.PageSize,
               total: total,
-              locale: { items_per_page: "" },
               showSizeChanger: total > 10,
-              onChange: (CurrentPage, PageSize) =>
-                setPagination({
-                  ...pagination,
-                  CurrentPage,
-                  PageSize,
-                }),
+              onChange: handlePaginationChange,
             }}
           />
         </Col>

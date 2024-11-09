@@ -8,7 +8,7 @@ import InsertUpdateReport from "./components/InsertUpdateReport"
 import ModalViewDetailReport from "./components/ModalViewReport"
 import SearchAndFilter from "./components/SearchAndFilter"
 import Button from "src/components/MyButton/Button"
-
+import ButtonCircle from "src/components/MyButton/ButtonCircle"
 const ManageReport = () => {
   const { Option } = Select
   const [houses, setHouses] = useState([])
@@ -44,13 +44,17 @@ const ManageReport = () => {
     try {
       setLoading(true)
       const response = await ManagerService.getAllHouses()
-      setHouses(response.data.houses || [])
-      if (response.data.houses.length > 0) {
-        setSelectedHouse(response.data.houses[0]._id)
+      const housesData = response?.data?.houses || []
+      const activeHouses = housesData.filter(house => house.status === true)
+
+      if (activeHouses.length > 0) {
+        setHouses(activeHouses)
+        setSelectedHouse(activeHouses[0]?._id)
+      } else {
+        setHouses([])
       }
     } catch (error) {
       console.error("Error fetching houses:", error)
-      Notice({ msg: "Không thể lấy danh sách nhà" })
     } finally {
       setLoading(false)
     }
@@ -87,6 +91,24 @@ const ManageReport = () => {
     setFilteredProblems(filtered)
   }
 
+  const listBtn = record => [
+    {
+      isEnable: true,
+      name: "Xem nhà",
+      icon: "eye",
+      onClick: () => {
+        handleOpenView(record)
+      },
+    },
+    {
+      isEnable: true,
+      name: "Chỉnh sửa",
+      icon: "edit-green",
+      onClick: () => {
+        handleUpdate(record)
+      },
+    },
+  ]
   const handleUpdate = problem => {
     setSelectedProblem(problem)
     setIsModalOpen(true)
@@ -118,16 +140,17 @@ const ManageReport = () => {
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button btntype="primary" onClick={() => handleUpdate(record)}>
-            UPDATE
-          </Button>
-          <Button
-            btntype="default"
-            onClick={() => handleOpenView(record)}
-            style={{ backgroundColor: "yellow" }}
-          >
-            Xem chi tiết
-          </Button>
+          {listBtn(record).map(
+            (i, idx) =>
+              !!i?.isEnable && (
+                <ButtonCircle
+                  key={idx}
+                  title={i.name}
+                  iconName={i.icon}
+                  onClick={i.onClick}
+                />
+              ),
+          )}
         </Space>
       ),
     },

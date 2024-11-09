@@ -59,9 +59,13 @@ const News = () => {
       setLoading(true)
       const response = await ManagerService.getAllHouses()
       const housesData = response?.data?.houses || []
-      setHouses(housesData)
-      if (housesData.length > 0) {
-        setSelectedHouse(housesData[0]._id)
+      const activeHouses = housesData.filter(house => house.status === true)
+
+      if (activeHouses.length > 0) {
+        setHouses(activeHouses)
+        setSelectedHouse(activeHouses[0]?._id)
+      } else {
+        setHouses([])
       }
     } catch (error) {
       console.error("Error fetching houses:", error)

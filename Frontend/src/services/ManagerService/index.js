@@ -44,6 +44,9 @@ import {
   apiPaymentByCash,
   apiCreateUser,
   apiUpdateUser,
+  apiResetPassword,
+  apiGetAllUser,
+  apiUpdateStatusRoom,
 } from "./urls"
 import QueryString from "qs"
 import axios from "axios"
@@ -96,7 +99,7 @@ const getUtilities = () => {
 const createHouse = body => http.post(apiCreateHouse, body)
 
 const updateHouse = (id, body) => {
-  return http.post(apiUpdateHouse(id), body)
+  return http.put(apiUpdateHouse(id), body)
 }
 
 const otherUtilities = body => {
@@ -234,11 +237,23 @@ const updateUser = body => {
   return http.put(apiUpdateUser, body)
 }
 const createUser = body => {
-  return http.post(apiCreateUser(body))
+  return http.post(apiCreateUser, body)
 }
 // Get information CCCD
 const getIn4CCCD = () => {
   return http.post("https://api.fpt.ai/vision/idr/vnm")
+}
+//Reset Password
+const resetPassword = body => {
+  return http.post(apiResetPassword, body)
+}
+const getAllUser = body => {
+  return http.get(apiGetAllUser, body)
+}
+
+// UpdateStatusRoom
+const updateStatusRoom = (roomId, body) => {
+  return http.put(apiUpdateStatusRoom(roomId), body)
 }
 const ManagerService = {
   getAllHouses,
@@ -288,6 +303,9 @@ const ManagerService = {
   getIn4CCCD,
   updateUser,
   createUser,
+  resetPassword,
+  getAllUser,
+  updateStatusRoom,
 }
 
 export default ManagerService

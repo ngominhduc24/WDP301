@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react"
-import { Card, Col, Row, Statistic, Table, message } from "antd"
+import { Card, Col, Row, Statistic, Table, message, Select } from "antd"
 import ReactECharts from "echarts-for-react"
-import Cookies from "js-cookie"
 import ManagerService from "src/services/ManagerService"
+
+const { Option } = Select
 
 const columnsPayment = [
   { title: "Status", dataIndex: "status", key: "status" },
@@ -21,11 +22,12 @@ const ManagerDashBoard = () => {
   const [billData, setBillData] = useState([])
   const [issueData, setIssueData] = useState([])
   const [loading, setLoading] = useState(false)
-  const [month, setMonth] = useState("10-2024")
+  const [month, setMonth] = useState(10) // Default to October
+  const [year, setYear] = useState(2024) // Default to 2024
 
   useEffect(() => {
     fetchData()
-  }, [month])
+  }, [month, year])
 
   const fetchData = async () => {
     try {
@@ -34,7 +36,7 @@ const ManagerDashBoard = () => {
         await Promise.all([
           ManagerService.getGeneralStatistic(),
           ManagerService.getRevenue(),
-          ManagerService.getBillStatistic(month),
+          ManagerService.getBillStatistic(`${month}-${year}`), // Format month and year for API call
           ManagerService.getProblems(),
         ])
 
@@ -69,6 +71,14 @@ const ManagerDashBoard = () => {
       { type: "In Progress", count: data.numberProblemDoing },
       { type: "Resolved", count: data.numberProblemDone },
     ]
+  }
+
+  const handleMonthChange = value => {
+    setMonth(value)
+  }
+
+  const handleYearChange = value => {
+    setYear(value)
   }
 
   const barChartOption = {
@@ -114,6 +124,7 @@ const ManagerDashBoard = () => {
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>
         Quản Lý Phòng Trọ - Dashboard
       </h2>
+
       <Row gutter={16}>
         <Col span={6}>
           <Card loading={loading}>
@@ -146,6 +157,30 @@ const ManagerDashBoard = () => {
       <Row gutter={16} style={{ marginTop: 20 }}>
         <Col span={12}>
           <Card title="Theo Dõi Thanh Toán" loading={loading}>
+            <div style={{ display: "flex", marginBottom: 16 }}>
+              <Select
+                defaultValue={month}
+                style={{ width: 100, marginRight: 8 }}
+                onChange={handleMonthChange}
+              >
+                {Array.from({ length: 12 }, (_, k) => (
+                  <Option key={k + 1} value={k + 1}>
+                    Tháng {k + 1}
+                  </Option>
+                ))}
+              </Select>
+              <Select
+                defaultValue={year}
+                style={{ width: 100 }}
+                onChange={handleYearChange}
+              >
+                {Array.from({ length: 5 }, (_, k) => (
+                  <Option key={2022 + k} value={2022 + k}>
+                    {2022 + k}
+                  </Option>
+                ))}
+              </Select>
+            </div>
             <Table
               columns={columnsPayment}
               dataSource={billData}
@@ -162,14 +197,6 @@ const ManagerDashBoard = () => {
               pagination={false}
               rowKey="type"
             />
-          </Card>
-        </Col>
-      </Row>
-
-      <Row gutter={16} style={{ marginTop: 20 }}>
-        <Col span={24}>
-          <Card title="Thống Kê Doanh Thu Theo Tháng">
-            <ReactECharts option={barChartOption} style={{ height: 300 }} />
           </Card>
         </Col>
       </Row>
