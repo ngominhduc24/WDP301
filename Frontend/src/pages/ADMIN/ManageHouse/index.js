@@ -148,6 +148,7 @@ const ManageHouse = () => {
         otherUtilities: otherUtilities.map(u => u._id || u),
         status: house.status,
         image: house.avatar?.imageData || "https://via.placeholder.com/150",
+        hostId: house?.hostId || {},
       }
     })
   }

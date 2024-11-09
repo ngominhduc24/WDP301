@@ -204,7 +204,6 @@ const ModalInsertHouse = ({ onOk, detailInfo, onCancel, ...props }) => {
   const fetchHostAccounts = async () => {
     try {
       const response = await ManagerService.getAllUser()
-      // Filter the users to include only those with accountType: "host"
       const hostAccounts =
         response?.data?.filter(user => user.accountType === "host") || []
       setHosts(hostAccounts)

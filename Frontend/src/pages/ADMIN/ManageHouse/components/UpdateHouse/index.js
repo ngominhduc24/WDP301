@@ -40,10 +40,12 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
 
   const [imageUrl, setImageUrl] = useState("")
   const [avatarFile, setAvatarFile] = useState(null)
-
+  const [hosts, setHosts] = useState([])
+  const [selectedHost, setSelectedHost] = useState(null)
   useEffect(() => {
     if (open) {
       fetchAllUtilities()
+      fetchHostAccounts()
       if (houseData) {
         updateFormWithHouseData()
       }
@@ -66,6 +68,17 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     }
   }
 
+  const fetchHostAccounts = async () => {
+    try {
+      const response = await ManagerService.getAllUser()
+      const hostAccounts =
+        response?.data?.filter(user => user.accountType === "host") || []
+      setHosts(hostAccounts)
+    } catch (error) {
+      console.error("Error fetching host accounts:", error)
+    }
+  }
+
   const updateFormWithHouseData = () => {
     const { address, city, district, ward } = parseLocation(
       houseData.address || "",
@@ -78,6 +91,7 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
       address: address || "",
       electricPrice: parseFloat(houseData?.electricPrice) || 0,
       waterPrice: parseFloat(houseData?.waterPrice) || 0,
+      hostAccount: houseData?.hostId?._id || null,
     })
 
     const selectedProvinceData = provinces.find(p => p.name === city)
@@ -91,7 +105,7 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
     setSelectedDistrictName(selectedDistrictData?.name || "")
     setSelectedWard(ward || "")
     setSelectedWardName(ward || "")
-
+    setSelectedHost(houseData?.hostId?._id || null)
     if (selectedProvinceData) {
       setFilteredDistricts(
         districts.filter(d => d.province_code === selectedProvinceData.code),
@@ -185,6 +199,7 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
         utilities: amenities,
         otherUtilities: selectedOtherUtilities,
         avatar: avatarFile,
+        hostId: selectedHost,
       }
 
       const formData = new FormData()
@@ -246,6 +261,9 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
       setLoading(false)
       setIsAddAmenityModalVisible(false)
     }
+  }
+  const handleHostChange = value => {
+    setSelectedHost(value)
   }
 
   const renderFooter = () => (
@@ -448,6 +466,31 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
               </Col>
 
               <Col span={24}>
+                <Form.Item
+                  label="Quản Lý"
+                  name="hostAccount"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
+                  ]}
+                >
+                  <Select
+                    placeholder="Chọn Quản Lý"
+                    onChange={handleHostChange}
+                    value={selectedHost}
+                  >
+                    {hosts.map(host => (
+                      <Option key={host._id} value={host._id}>
+                        {host.username}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+
+              <Col span={24}>
                 <Form.Item label="Tiện Ích Chính">
                   <Row gutter={[16, 16]}>
                     {utilities.map(utility => (
@@ -516,4 +559,3 @@ const ModalUpdateHouse = ({ onOk, onCancel, open, houseData }) => {
 }
 
 export default ModalUpdateHouse
-
